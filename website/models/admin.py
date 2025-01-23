@@ -10,18 +10,13 @@ class Admin(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    avatar = db.Column(db.String(255), nullable=False)
+    avatar = db.Column(db.LargeBinary, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    posts = db.relationship("Post", cascade="all, delete-orphan")
+    posts = db.relationship("Post", cascade="all")
 
     def __repr__(self):
-        return (
-            f"Admin Info:\n"
-            f"ID: {self.id}\n"
-            f"Avatar: {self.avatar}\n"
-            f"Created At: {self.created_at}"
-        )
+        return f"Admin Info:\n" f"ID: {self.id}\n" f"Created At: {self.created_at}"
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -39,9 +34,6 @@ class Admin(db.Model, UserMixin):
         :param avatar: The file path of the admin's avatar image.
         :return: The created Admin object.
         """
-
-        if Admin.query.first() is not None:
-            raise Exception("An admin already exists in the database!")
 
         if not login:
             raise ValueError("The login is required.")

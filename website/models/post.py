@@ -1,6 +1,18 @@
 from website import db
 from datetime import datetime
 
+post_image = db.Table(
+    "post_image",
+    db.Column("post_id", db.Integer, db.ForeignKey("posts.id"), primary_key=True),
+    db.Column("image_id", db.Integer, db.ForeignKey("images.id"), primary_key=True),
+)
+
+post_tag = db.Table(
+    "post_tag",
+    db.Column("post_id", db.Integer, db.ForeignKey("posts.id"), primary_key=True),
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True),
+)
+
 
 class Post(db.Model):
     __tablename__ = "posts"
@@ -11,14 +23,12 @@ class Post(db.Model):
     content = db.Column(db.String(500), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    images = db.relationship(
-        "Image", secondary="post_image", cascade="all, delete-orphan"
-    )
+    images = db.relationship("Image", secondary=post_image, cascade="all")
     tags = db.relationship(
         "Tag",
-        secondary="post_tag",
+        secondary=post_tag,
         backref=db.backref("posts"),
-        cascade="all, delete-orphan",
+        cascade="all",
     )
 
     def __repr__(self):
@@ -54,16 +64,6 @@ class Image(db.Model):
         )
 
 
-class PostImage(db.Model):
-    __tablename__ = "post_images"
-
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), primary_key=True)
-    image_id = db.Column(db.Integer, db.ForeignKey("images.id"), primary_key=True)
-
-    def __repr__(self):
-        return f"Post ID: {self.post_id}\n" f"Image ID: {self.image_id}"
-
-
 class Tag(db.Model):
     __tablename__ = "tags"
 
@@ -82,13 +82,3 @@ class Tag(db.Model):
             f"Color: {self.color}\n"
             f"Created At: {self.created_at}"
         )
-
-
-class PostTag(db.Model):
-    __tablename__ = "post_tags"
-
-    post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), primary_key=True)
-    tag_id = db.Column(db.Integer, db.ForeignKey("tags.id"), primary_key=True)
-
-    def __repr__(self):
-        return f"Post ID: {self.post_id}\n" f"Tag ID: {self.tag_id}"
