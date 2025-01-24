@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block title %}Kalts Daniil - Personal Blog{% endblock %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <a href="/admin/logout/">Logout</a>
+    {% else %}
+        <h1>Welcome to my personal blog website!</h1>
+    {% endif %}
+{% endblock %}

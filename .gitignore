@@ -1,5 +1,5 @@
 .env
 .idea/
 .venv/
-.instance/
+instance/
 __pycache__/
