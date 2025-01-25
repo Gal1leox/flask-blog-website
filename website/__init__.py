@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from dotenv import load_dotenv
@@ -17,6 +17,10 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = os.getenv("SECRET_KEY")
 
+    @app.errorhandler(404)
+    def not_found_page(error):
+        return render_template("errors/404.html"), 404
+
     db.init_app(app)
     login_manager.init_app(app)
 
@@ -28,10 +32,10 @@ def create_app():
 
         return Admin.query.get(int(id))
 
-    from .routes import core_bp, admin_bp
+    from .routes import home_bp, admin_bp
 
     app.register_blueprint(admin_bp, url_prefix="/admin/")
-    app.register_blueprint(core_bp, url_prefix="/")
+    app.register_blueprint(home_bp, url_prefix="/")
 
     with app.app_context():
         from .models import Admin, Post
