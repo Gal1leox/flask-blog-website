@@ -1,7 +1,9 @@
-from website import db
-from flask_login import UserMixin
 from datetime import datetime
+
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from website import db
 
 
 class Admin(db.Model, UserMixin):
@@ -29,10 +31,10 @@ class Admin(db.Model, UserMixin):
         """
         Creates an admin in the database, ensuring only one admin exists.
 
-        :param login: The login username for the admin account.
-        :param password: The password for the admin account, which will be hashed before storage.
-        :param avatar: The file path of the admin's avatar image.
-        :return: The created Admin object.
+        :param login: The username for the admin account.
+        :param password: The password for the admin account, which will be hashed before being stored.
+        :param avatar: The file path to the admin's avatar image.
+        :return: The newly created Admin object.
         """
 
         if not login:

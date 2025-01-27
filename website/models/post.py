@@ -1,5 +1,6 @@
-from website import db
 from datetime import datetime
+
+from website import db
 
 post_image = db.Table(
     "post_image",

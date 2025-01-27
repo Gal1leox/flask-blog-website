@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <meta
-            name="viewport"
-            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    >
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>{% block title %}{% endblock %}</title>
     <style>
@@ -37,18 +37,24 @@
     </style>
 </head>
 <body>
-<div class="grid h-screen place-content-center bg-white dark:bg-gray-900 px-4">
+<div
+    class="grid h-screen place-content-center bg-white dark:bg-gray-900 px-4"
+>
     <div class="text-center">
         <h1 class="text-9xl font-black text-gray-200 dark:text-gray-700">
-            {% block status %}{% endblock %}</h1>
-        <p class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {% block alert %}{% endblock %}</p>
+            {% block status %}{% endblock %}
+        </h1>
+        <p
+            class="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+        >
+            {% block alert %}{% endblock %}
+        </p>
         <p class="mt-4 text-gray-500 dark:text-gray-400">
             {% block description %}{% endblock %}
         </p>
         <a
-                href="/"
-                class="mt-6 inline-block text-white bg-primary hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+            href="/"
+            class="mt-6 inline-block text-white bg-primary hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary dark:hover:bg-primary-700 dark:focus:ring-primary-800"
         >
             Go Back Home
         </a>
