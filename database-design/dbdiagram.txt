@@ -1,0 +1,148 @@
+Enum user_role {
+  user
+  admin
+}
+
+Enum user_theme {
+  system
+  light
+  dark
+}
+
+Table users {
+  id integer [primary key]
+  username varchar(50) [unique, not null]
+  email varchar(100) [unique, not null]
+  password_hash text [not null]
+  role user_role [not null, default: 'user']
+  avatar blob [note: 'The profile picture']
+  theme user_theme [not null, default: 'system']
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores user data'
+}
+
+Table posts {
+  id integer [primary key]
+  title varchar(40) [unique, not null]
+  content text [not null]
+
+  author_id integer [ref: > users.id]
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores posts data'
+}
+
+Table images {
+  id integer [primary key]
+  data blob [unique, not null]
+  filename varchar(255) [not null]
+  file_type varchar(10) [not null]
+  filesize integer [note: 'The size of an image in bytes']
+  alt_text varchar(255)
+
+  author_id integer [ref: > users.id]
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores images data'
+}
+
+Table post_images {
+  post_id integer [ref: > posts.id]
+  image_id integer [ref: > images.id]
+
+  primary key (post_id, image_id)
+
+  Note: 'Stores a many-to-many relationship between posts and images'
+}
+
+Table tags {
+  id integer [primary key]
+  name varchar(20) [unique, not null]
+  description varchar(40) [unique, not null]
+  color varchar(7) [not null]
+
+  author_id integer [ref: > users.id]
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores tags data'
+}
+
+Table post_tags {
+  post_id integer [ref: > posts.id]
+  tag_id integer [ref: > tags.id]
+
+  primary key (post_id, tag_id)
+
+  Note: 'Stores a many-to-many relationship between posts and tags'
+}
+
+Table comments {
+  id integer [primary key]
+  content varchar(500) [not null]
+
+  author_id integer [ref: > users.id]
+  parent_comment_id integer [ref: > comments.id, default: null]
+  post_id integer [ref: > posts.id]
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores comments data'
+}
+
+Table saved_posts {
+  post_id integer [ref: > posts.id]
+  user_id integer [ref: > users.id]
+  saved_at timestamp [default: `now()`, not null]
+
+  primary key (post_id, user_id)
+
+  Note: 'Stores a many-to-many relationship between saved posts and users'
+}
+
+
+Enum notification_type {
+  comment
+  mention
+  release
+}
+
+Table notifications {
+  id integer [primary key]
+  name varchar(20) [not null]
+  description varchar(40) [not null]
+  type notification_type [not null]
+
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  Note: 'Stores notifications data'
+}
+
+Enum notification_status {
+  unread
+  read
+}
+
+Table user_notifications {
+  user_id integer [ref: > users.id]
+  notification_id integer [ref: > notifications.id]
+  status notification_status [not null, default: 'unread']
+  read_at timestamp [null]
+
+  primary key (user_id, notification_id)
+
+  Note: 'Stores a many-to-many relationships between users and notifications'
+}
+
+// VISIT THIS LINK TO VIEW THE ER-DIAGRAM ON THE WEBSITE:
+// https://dbdiagram.io/d/Blog-Website-Database-Design-6799f8b4263d6cf9a06227ed
