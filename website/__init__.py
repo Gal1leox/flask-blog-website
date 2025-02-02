@@ -18,18 +18,19 @@ def create_app():
     login_manager.login_view = "admin_bp.login"
 
     @login_manager.user_loader
-    def load_admin(admin_id):
-        from .models import Admin
+    def load_admin(user_id):
+        from .models import User
 
-        return Admin.query.get(int(admin_id))
+        with db.session() as session:
+            return session.get(User, int(user_id))
 
-    from .routes import general_bp, admin_bp
+    from .routes import general_bp, auth_bp
 
-    app.register_blueprint(admin_bp, url_prefix="/admin/")
+    app.register_blueprint(auth_bp, url_prefix="/auth/")
     app.register_blueprint(general_bp, url_prefix="/")
 
     with app.app_context():
-        from .models import Admin, Post
+        from . import models
 
         db.create_all()
 
