@@ -9,22 +9,10 @@ from website.utils import convert_image_to_binary
 
 load_dotenv()
 
-admin_login = os.getenv("ADMIN_LOGIN")
 admin_email = os.getenv("ADMIN_EMAIL")
 admin_username = os.getenv("ADMIN_USERNAME")
 admin_password = os.getenv("ADMIN_PASSWORD")
 admin_avatar_path = os.getenv("ADMIN_AVATAR_PATH")
-
-
-def validate_env_variables():
-    """Ensures all required environment variables are set."""
-
-    if not admin_login:
-        raise ValueError("You have missed admin login variable.")
-    elif not admin_password:
-        raise ValueError("You have missed admin password variable.")
-    elif not admin_avatar_path:
-        raise ValueError("You have missed admin avatar variable.")
 
 
 def create_admin_if_not_exists():
@@ -50,7 +38,7 @@ def create_admin_if_not_exists():
             print("Admin was created successfully!\n")
             print(new_admin)
         except Exception as e:
-            print(f"Error creating user: {e}")
+            print(f"Error creating admin:\n\n" f"{e}")
 
 
 if __name__ == "__main__":
