@@ -1,7 +1,7 @@
 import os
 
 from flask import Blueprint, request, render_template, redirect, url_for, flash
-from flask_login import login_user, login_required, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 
@@ -27,6 +27,8 @@ def logout():
 
 @auth_bp.route("/login/", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(request.referrer or url_for("general.home"))
     if request.method == "GET":
         return render_template("auth/user/pages/login.html")
     elif request.method == "POST":
@@ -57,6 +59,8 @@ def login():
 
 @auth_bp.route("/register/", methods=["GET", "POST"])
 def register():
+    if current_user.is_authenticated:
+        return redirect(request.referrer or url_for("general.home"))
     if request.method == "GET":
         return render_template("auth/user/pages/register.html")
     elif request.method == "POST":
@@ -94,6 +98,8 @@ def register():
 
 @auth_bp.route("/admin/login/", methods=["GET", "POST"])
 def admin_login():
+    if current_user.is_authenticated:
+        return redirect(request.referrer or url_for("general.home"))
     if request.method == "GET":
         if request.args.get("token") != secret_key:
             return render_template("errors/pages/403.html")
