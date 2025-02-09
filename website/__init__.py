@@ -1,17 +1,21 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_mail import Mail
 
 from .config import DevelopmentConfig
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 
+mail = Mail()
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(DevelopmentConfig)
 
+    mail.init_app(app)
     db.init_app(app)
 
     login_manager.init_app(app)
