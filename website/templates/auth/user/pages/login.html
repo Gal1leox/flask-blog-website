@@ -22,7 +22,7 @@
         class="mx-auto flex w-full flex-col items-center justify-center space-y-5 px-6 py-8 sm:max-w-md"
       >
         {% with messages = get_flashed_messages() %} {% if messages %}
-        <div class="w-full m-0">
+        <div class="m-0 w-full">
           {% for message in messages %}
           <div
             id="alert-{{ loop.index }}"
@@ -128,7 +128,6 @@
                         d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z"
                       ></path>
                     </svg>
-
                     <svg
                       class="hidden h-3.5 text-gray-400"
                       fill="none"
@@ -144,10 +143,15 @@
                     </svg>
                   </div>
                 </div>
+                <a
+                  href="/auth/forgot-password"
+                  class="text-primary-600 dark:text-primary-500 float-right mt-2 text-sm hover:underline"
+                  >Forgot password?</a
+                >
               </div>
               <button
                 type="submit"
-                class="bg-primary hover:bg-primary-700 focus:ring-primary-600 dark:bg-primary dark:hover:bg-primary-700 dark:focus:ring-primary-800 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+                class="bg-primary hover:bg-primary-700 focus:ring-primary-600 dark:bg-primary dark:hover:bg-primary-700 dark:focus:ring-primary-800 mt-4 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
               >
                 Sign in
               </button>

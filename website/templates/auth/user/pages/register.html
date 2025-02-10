@@ -22,7 +22,7 @@
         class="mx-auto flex w-full flex-col items-center justify-center space-y-5 px-6 py-8 sm:max-w-md"
       >
         {% with messages = get_flashed_messages() %} {% if messages %}
-        <div class="w-full m-0">
+        <div class="m-0 w-full">
           {% for message in messages %}
           <div
             id="alert-{{ loop.index }}"
