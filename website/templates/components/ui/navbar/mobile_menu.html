@@ -1,0 +1,29 @@
+{# templates/components/ui/navbar/mobile_menu.html #}
+
+<div
+  x-show="mobileMenuOpen"
+  x-transition:enter="transition-all ease-in-out duration-500"
+  x-transition:enter-start="max-h-0"
+  x-transition:enter-end="max-h-screen"
+  x-transition:leave="transition-all ease-in-out duration-500"
+  x-transition:leave-start="max-h-screen"
+  x-transition:leave-end="max-h-0"
+  id="mobile-menu"
+  class="overflow-hidden bg-white sm:hidden dark:bg-gray-800"
+>
+  <div class="space-y-1 px-2 pb-3 pt-2">
+    <a
+      class="block rounded-md bg-gray-800 px-3 py-2 text-base font-medium text-white dark:bg-gray-900"
+      aria-current="page"
+      href="/website/static"
+      >Home</a
+    >
+    {% if current_user.is_authenticated and not is_admin %}
+    <a
+      class="block rounded-md px-3 py-2 text-base font-medium text-gray-800 transition-all duration-200 ease-in-out hover:bg-gray-800 hover:text-white dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white"
+      href="/contact-me"
+      >Contact Me</a
+    >
+    {% endif %}
+  </div>
+</div>

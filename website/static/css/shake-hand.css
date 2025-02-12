@@ -1,0 +1,21 @@
+@keyframes shake {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-6deg);
+    }
+    50% {
+        transform: rotate(6deg);
+    }
+    75% {
+        transform: rotate(-6deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.shake-on-hover:hover {
+    animation: shake 0.8s ease-in-out;
+}

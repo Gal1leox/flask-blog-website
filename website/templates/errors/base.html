@@ -1,3 +1,5 @@
+{# templates/errors/base.html #}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -7,7 +9,6 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/colors.css') }}" />
     <script src="{{ url_for('static', filename='js/tailwind-browser.js') }}"></script>
     <title>{% block title %}{% endblock %}</title>
   </head>
@@ -28,8 +29,9 @@
           {% block description %}{% endblock %}
         </p>
         <a
+
+          class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 mt-6 inline-block rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
           href="/"
-          class="bg-primary hover:bg-primary-700 focus:ring-primary-600 dark:bg-primary dark:hover:bg-primary-700 dark:focus:ring-primary-800 mt-6 inline-block rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
         >
           Go Back Home
         </a>

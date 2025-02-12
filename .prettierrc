@@ -1,0 +1,19 @@
+{
+  "plugins": [
+    "prettier-plugin-tailwindcss",
+    "prettier-plugin-organize-attributes"
+  ],
+  "attributeGroups": [
+    "^x-.*",
+    "^@.*",
+    "^:.*",
+    "^id$",
+    "^name$",
+    "^type$",
+    "^value$",
+    "^class$",
+    "^style$",
+    "^data-.*",
+    "^aria-.*"
+  ]
+}
