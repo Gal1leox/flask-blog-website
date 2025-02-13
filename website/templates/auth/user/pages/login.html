@@ -1,7 +1,6 @@
 {# templates/auth/user/pages/login.html #}
 
 {% extends "auth/base.html" %}
-{% from "components/ui/alert.html" import alert %}
 {% from "components/ui/input.html" import email_input, password_input %}
 
 {% block title %}Kalts Daniil - User Login{% endblock %}
@@ -18,7 +17,7 @@
     </h1>
     <form class="space-y-4 mb-5" method="POST">
       {{ email_input("Your email", "user@gmail.com") }}
-      {{ password_input("Password", "password") }}
+      {{ password_input("Password", "password", "password") }}
       <a
         class="text-blue-600 dark:text-blue-500 float-right mb-2 -mt-2 text-sm hover:underline"
         href="/auth/forgot-password"
