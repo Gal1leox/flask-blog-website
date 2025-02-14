@@ -22,7 +22,11 @@
       >
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
-          <div class="w-full mb-4 flex flex-col space-y-4">
+          <div
+            x-data="{ count: {{ messages|length }} }"
+            x-show="count > 0"
+            class="w-full mb-4 flex flex-col space-y-4"
+          >
             {% for category, message in messages %}
               {{ alert(category, message) }}
             {% endfor %}

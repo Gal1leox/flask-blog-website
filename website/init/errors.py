@@ -8,4 +8,9 @@ def register_error_handlers(app):
 
     @app.errorhandler(429)
     def rate_limit_page(error):
-        return render_template("errors/pages/429.html"), 429
+        return (
+            render_template(
+                "errors/pages/429.html", time_span=" ".join(str(error).split()[-2:])
+            ),
+            429,
+        )

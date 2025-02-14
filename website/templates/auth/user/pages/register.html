@@ -1,7 +1,7 @@
 {# templates/auth/user/pages/register.html #}
 
 {% extends "auth/base.html" %}
-{% from "components/ui/input.html" import email_input, password_input %}
+{% from "components/ui/field.html" import render_email_field, render_password_field %}
 
 {% block title %}Kalts Daniil - User Registration{% endblock %}
 
@@ -16,15 +16,11 @@
       Register user account
     </h1>
     <form class="space-y-4 mb-5" method="POST">
-      {{ email_input("Your email", "user@gmail.com") }}
-      {{ password_input("Password", "password", "password") }}
-      {{ password_input("Confirm password", "confirm_password", "password") }}
-      <button
-        type="submit"
-        class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
-      >
-        Sign up
-      </button>
+      {{ form.hidden_tag() }}
+      {{ render_email_field(form.email) }}
+      {{ render_password_field(form.password) }}
+      {{ render_password_field(form.confirm_password) }}
+      {{ form.submit(class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2") }}
     </form>
     <div class="inline-flex w-full items-center justify-center">
       <hr

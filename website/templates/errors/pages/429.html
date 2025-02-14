@@ -7,6 +7,6 @@
 {% block status %}429{% endblock %}
 {% block alert %}Hey, you! 🔪{% endblock %}
 {% block description %}
-  You have sent too many requests per minute.<br />
-  Wait one minute before trying again or go back home.
+  You have sent too many requests per {{ time_span }}.<br />
+  Wait {{ time_span }} before trying again or go back home.
 {% endblock %}

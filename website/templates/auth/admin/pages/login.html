@@ -2,7 +2,7 @@
 
 {% extends "auth/base.html" %}
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/input.html" import email_input, password_input %}
+{% from "components/ui/field.html" import render_email_field, render_password_field %}
 
 {% block title %}Kalts Daniil - Admin Login{% endblock %}
 
@@ -17,14 +17,10 @@
       Sign in to admin account
     </h1>
     <form class="space-y-4" method="POST">
-      {{ email_input("Admin email", "admin@gmail.com") }}
-      {{ password_input("Password", "password", "No one knows it..") }}
-      <button
-        type="submit"
-        class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
-      >
-        Sign in
-      </button>
+      {{ form.hidden_tag() }}
+      {{ render_email_field(form.email) }}
+      {{ render_password_field(form.password) }}
+      {{ form.submit(class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2") }}
     </form>
   </div>
 </div>
