@@ -15,12 +15,23 @@
     >
       Register user account
     </h1>
-    <form class="space-y-4 mb-5" method="POST">
+    <form
+      x-data="{ submitting: false, submit_text: '{{ form.submit.label.text }}' }"
+      x-on:submit="submitting = true"
+      class="space-y-4 mb-5"
+      method="POST"
+    >
       {{ form.hidden_tag() }}
       {{ render_email_field(form.email) }}
       {{ render_password_field(form.password) }}
       {{ render_password_field(form.confirm_password) }}
-      {{ form.submit(class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2") }}
+      <input
+        type="submit"
+        :value="submitting ? 'Signing up...' : submit_text"
+        :disabled="submitting"
+        class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-2 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
+        :class="submitting ? 'bg-blue-300 opacity-50 cursor-not-allowed' : ''"
+      >
     </form>
     <div class="inline-flex w-full items-center justify-center">
       <hr

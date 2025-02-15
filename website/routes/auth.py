@@ -55,7 +55,7 @@ def _generate_unique_username():
 
 
 @auth_bp.route("/register/", methods=["GET", "POST"])
-@limiter.limit("1 per day", methods=["POST"])
+@limiter.limit("5/day", methods=["POST"])
 def register():
     if current_user.is_authenticated:
         return _redirect_to_referrer_or_home()
@@ -96,7 +96,7 @@ def register():
 
 
 @auth_bp.route("/login/", methods=["GET", "POST"])
-@limiter.limit("5 per minute", methods=["POST"])
+@limiter.limit("5/minute", methods=["POST"])
 def login():
     if current_user.is_authenticated:
         return _redirect_to_referrer_or_home()
@@ -130,7 +130,7 @@ def logout():
 
 
 @auth_bp.route("/forgot-password/", methods=["GET", "POST"])
-@limiter.limit("2 per minute", methods=["POST"])
+@limiter.limit("5/minute", methods=["POST"])
 def forgot_password():
     form = ForgotPasswordForm()
 
@@ -172,7 +172,7 @@ def forgot_password():
 
 
 @auth_bp.route("/verify-code/", methods=["GET", "POST"])
-@limiter.limit("5 per minute", methods=["POST"])
+@limiter.limit("5/minute", methods=["POST"])
 def verify_code():
     token = request.args.get("token")
 
@@ -246,6 +246,7 @@ def reset_password():
 
 
 @auth_bp.route("/admin/login/", methods=["GET", "POST"])
+@limiter.limit("3/hour", methods=["POST"])
 def admin_login():
     if current_user.is_authenticated:
         return _redirect_to_referrer_or_home()

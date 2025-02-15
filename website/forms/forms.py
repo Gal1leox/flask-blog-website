@@ -79,7 +79,7 @@ class ForgotPasswordForm(FlaskForm):
         render_kw={"placeholder": "user@gmail.com"},
         filters=[lambda value: value.strip() if value else value],
     )
-    submit = SubmitField("Reset password")
+    submit = SubmitField("Submit")
 
 
 class ResetPasswordForm(FlaskForm):
@@ -99,4 +99,4 @@ class ResetPasswordForm(FlaskForm):
         render_kw={"placeholder": "password"},
         filters=[lambda value: value.strip() if value else value],
     )
-    submit = SubmitField("Confirm")
+    submit = SubmitField("Reset")
