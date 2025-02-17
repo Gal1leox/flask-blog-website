@@ -7,9 +7,8 @@ from sqlalchemy import (
     Enum as SQLEnum,
     String,
     DateTime,
-    BLOB,
-    ForeignKey,
     Boolean,
+    ForeignKey,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_login import UserMixin
@@ -24,14 +23,18 @@ class User(db.Model, UserMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String, unique=False, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String, unique=False, nullable=True)
+    google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
+    google_access_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    google_refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole), nullable=False, default=UserRole.USER
     )
-    avatar: Mapped[bytes] = mapped_column(BLOB, nullable=True)
+    avatar_url: Mapped[str] = mapped_column(String(255), nullable=True)
     theme: Mapped[str] = mapped_column(
         SQLEnum(UserTheme), nullable=False, default=UserTheme.SYSTEM
     )
+    is_banned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow

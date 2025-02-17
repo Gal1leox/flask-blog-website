@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from ..forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from ..models import User, VerificationCode
+from ..init import google
 from website import db, mail, limiter
 
 load_dotenv()
@@ -54,6 +55,80 @@ def _generate_unique_username():
             return candidate
 
 
+# --- Google Auth Routes ---
+
+
+@auth_bp.route("/google/")
+def login_google():
+    if current_user.is_authenticated:
+        return _redirect_to_referrer_or_home()
+
+    try:
+        redirect_uri = url_for("auth.authorize_google", _external=True)
+        return google.authorize_redirect(redirect_uri)
+    except Exception as e:
+        print(f"Error during Google OAuth login: {e}")
+        return render_template("errors/pages/500.html"), 500
+
+
+@auth_bp.route("/google/authorize/")
+def authorize_google():
+    if current_user.is_authenticated:
+        return _redirect_to_referrer_or_home()
+
+    try:
+        token = google.authorize_access_token()
+
+        user_info_endpoint = "https://openidconnect.googleapis.com/v1/userinfo"
+        response = google.get(user_info_endpoint, token=token)
+
+        user_info = response.json()
+
+        email = user_info.get("email")
+        name = user_info.get("name")
+        picture = user_info.get("picture")
+        google_id = user_info.get("google_id")
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            existing_user.google_id = google_id
+            if not existing_user.avatar_url:
+                existing_user.avatar_url = picture
+            existing_user.google_access_token = token.get("access_token")
+            existing_user.google_refresh_token = token.get("refresh_token")
+            db.session.commit()
+            user = existing_user
+            message = f"Welcome back, {user.username}!"
+        else:
+            new_user = User(
+                username=name,
+                email=email,
+                avatar_url=picture,
+                google_id=google_id,
+                google_access_token=token.get("access_token"),
+                google_refresh_token=token.get("refresh_token"),
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            user = new_user
+            message = "Your account was created successfully!"
+
+        login_user(user)
+        flash(message, "success")
+
+        return redirect(url_for("general.home"))
+    except Exception as e:
+        flash(
+            "An error occurred while signing you in. Please check your credentials and try again later.",
+            "danger",
+        )
+        print(f"Error during Google OAuth callback: {e}")
+        return render_template("errors/pages/500.html"), 500
+
+
+# --- Gmail Auth Routes ---
+
+
 @auth_bp.route("/register/", methods=["GET", "POST"])
 @limiter.limit("5/day", methods=["POST"])
 def register():
@@ -79,10 +154,7 @@ def register():
             db.session.commit()
 
             login_user(new_user)
-            flash("Access granted!", "success")
-
-            print("User was created successfully!\n")
-            print(user)
+            flash("Your account was created successfully!", "success")
 
             return redirect(url_for("general.home"))
         except Exception as e:
@@ -103,16 +175,24 @@ def login():
 
     form = LoginForm()
 
+    form.email.label.text = "Your email"
+    form.email.render_kw["placeholder"] = "user@gmail.com"
+
+    form.password.render_kw["placeholder"] = "password"
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
-        if (
+        if user and user.email != admin_email and not user.password_hash:
+            flash(f"You have to log in via Google.", "info")
+            return redirect(request.url)
+        elif (
             user
             and user.email != admin_email
             and check_password_hash(user.password_hash, form.password.data)
         ):
             login_user(user)
-            flash("Access granted!", "success")
+            flash(f"Welcome back, {user.username}!", "success")
             return redirect(url_for("general.home"))
         else:
             flash("Invalid credentials. Please try again.", "danger")
@@ -139,6 +219,12 @@ def forgot_password():
         admin = User.query.filter_by(email=admin_email).first()
 
         if user and user.email != admin.email:
+            if not user.password_hash:
+                flash(
+                    "Password reset is available for email-registered users.",
+                    "info",
+                )
+                return redirect(url_for("auth.login"))
             code = f"{random.randint(1000, 9999)}"
             verification_code = VerificationCode(user.id, code)
             db.session.add(verification_code)

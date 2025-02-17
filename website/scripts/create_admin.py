@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash
 
 from website import create_app, db
 from website.models import User, UserRole
-from website.utils import convert_image_to_binary
 
 load_dotenv()
 
@@ -18,19 +17,17 @@ admin_avatar_path = os.getenv("ADMIN_AVATAR_PATH")
 def create_admin_if_not_exists():
     """Creates an admin in the database, ensuring only one admin exists."""
 
-    admin = User.query.filter(User.role == "Admin").first()
+    admin = User.query.filter(User.role == UserRole.ADMIN).first()
     if admin is not None:
         print("Admin already exists!\n")
         print(admin)
     else:
         try:
-            avatar_data = convert_image_to_binary(admin_avatar_path)
             new_admin = User(
                 username=admin_username,
                 email=admin_email,
                 password_hash=generate_password_hash(admin_password),
                 role=UserRole.ADMIN,
-                avatar=avatar_data,
             )
             db.session.add(new_admin)
             db.session.commit()

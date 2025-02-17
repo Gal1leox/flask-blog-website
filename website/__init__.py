@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask
 
 from website.config import DevelopmentConfig
 from website.init import (
@@ -9,6 +9,7 @@ from website.init import (
     register_blueprints,
     register_error_handlers,
     schedule_jobs,
+    oauth,
 )
 
 
@@ -21,6 +22,7 @@ def create_app():
     login_manager.login_view = "admin_bp.login"
     mail.init_app(app)
     limiter.init_app(app)
+    oauth.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):
