@@ -36,7 +36,7 @@
       <span class="sr-only">Open user menu</span>
       <img
         class="h-12 w-12 rounded-full object-cover"
-        src="{% if avatar_data %}data:image/png;base64,{{ avatar_data }}{% else %}{{ url_for('static', filename='images/no-avatar.jpg') }}{% endif %}"
+        src="{% if avatar_url %}{{ avatar_url }}{% else %}{{ url_for('static', filename='images/no-avatar.jpg') }}{% endif %}"
         alt="profile picture"
       />
     </button>

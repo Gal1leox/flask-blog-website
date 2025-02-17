@@ -1,0 +1,11 @@
+{# templates/errors/pages/500.html #}
+
+{% extends "errors/base.html" %}
+
+{% block title %}Kalts Daniil - Internal Server Error{% endblock %}
+
+{% block status %}500{% endblock %}
+{% block alert %}Ah, shoot..{% endblock %}
+{% block description %}
+  Something must be wrong with the server. <br />Please try again later.
+{% endblock %}

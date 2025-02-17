@@ -30,12 +30,12 @@
         >Forgot password?</a
       >
       <input
-        type="submit"
         :value="submitting ? 'Signing in...' : submit_text"
         :disabled="submitting"
-        class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-4 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
         :class="submitting ? 'bg-blue-300 opacity-50 cursor-not-allowed' : ''"
-      >
+        type="submit"
+        class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 mt-4 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
+      />
     </form>
     <div class="inline-flex w-full items-center justify-center">
       <hr
@@ -47,16 +47,25 @@
         <span class="text-black-pre text-base dark:text-gray-100"> or </span>
       </div>
     </div>
-    <div class="flex flex-col gap-6">
+    <div x-data="{ clicked: false }" class="flex flex-col gap-6">
       <a
+        @click="clicked=true"
         class="focus:ring-blue-600 flex w-full items-center justify-center gap-2 rounded-md bg-transparent px-5 py-2.5 text-sm text-gray-900 ring-2 ring-blue-400 dark:text-white"
-        href="/auth/google/login/"
+        :class="clicked ? 'opacity-50 cursor-not-allowed' : ''"
+        href="/auth/google/"
       >
         <img
+          x-show="!clicked"
           src="{{ url_for('static', filename='images/icons/google.svg') }}"
           alt="Google"
         />
-        Sign in with Google
+        <img
+          x-show="clicked"
+          class="animate-spin"
+          src="{{ url_for('static', filename='images/icons/spinner.svg') }}"
+          alt="Spinner"
+        />
+        <span x-text="clicked ? 'Please wait..' : 'Sign in with Google'"></span>
       </a>
     </div>
   </div>

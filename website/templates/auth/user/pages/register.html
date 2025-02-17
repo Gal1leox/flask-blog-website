@@ -43,16 +43,25 @@
         <span class="text-black-pre text-base dark:text-gray-100"> or </span>
       </div>
     </div>
-    <div class="flex flex-col gap-6">
+    <div x-data="{ clicked: false }" class="flex flex-col gap-6">
       <a
+        @click="clicked=true"
         class="focus:ring-blue-600 flex w-full items-center justify-center gap-2 rounded-md bg-transparent px-5 py-2.5 text-sm text-gray-900 ring-2 ring-blue-400 dark:text-white"
-        href="/auth/google/login/"
+        :class="clicked ? 'opacity-50 cursor-not-allowed' : ''"
+        href="/auth/google/"
       >
         <img
+          x-show="!clicked"
           src="{{ url_for('static', filename='images/icons/google.svg') }}"
           alt="Google"
         />
-        Sign up with Google
+        <img
+          x-show="clicked"
+          class="animate-spin"
+          src="{{ url_for('static', filename='images/icons/spinner.svg') }}"
+          alt="Spinner"
+        />
+        <span x-text="clicked ? 'Please wait..' : 'Sign up with Google'"></span>
       </a>
     </div>
   </div>

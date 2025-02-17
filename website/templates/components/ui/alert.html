@@ -6,7 +6,8 @@
   x-show="show"
   :class="{
     'bg-green-100 text-green-800 dark:bg-gray-800 dark:text-green-400': type == 'success',
-    'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400': type == 'danger'
+    'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400': type == 'danger',
+    'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400': type == 'info'
   }"
   class="flex items-center rounded-lg p-4 dark:border dark:border-gray-700"
   role="alert"
@@ -28,7 +29,8 @@
     @click="show = false; count--"
     :class="{
         'bg-green-100 text-green-500 hover:bg-green-200 focus:ring-green-400 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700': type == 'success',
-        'bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-400 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700': type == 'danger'
+        'bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-400 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700': type == 'danger',
+        'bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-blue-400 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700': type == 'info'
       }"
     class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 p-1.5 text-green-500 hover:bg-green-200 focus:ring-2 focus:ring-green-400 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
     aria-label="Close"
