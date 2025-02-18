@@ -1,0 +1,16 @@
+services:
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./instance:/app/instance"
+    env_file:
+      - .env
+  sql_lite:
+    image: coleifer/sqlite-web
+    ports:
+      - "8080:8080"
+    volumes:
+      - "./instance:/data"
+    command: ["sqlite_web", "--host=0.0.0.0", "/data/${DB_NAME}"]
