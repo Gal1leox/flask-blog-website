@@ -87,30 +87,24 @@ def authorize_google():
         email = user_info.get("email")
         name = user_info.get("name")
         picture = user_info.get("picture")
-        google_id = user_info.get("google_id")
+        google_id = user_info.get("sub")
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            existing_user.google_id = google_id
-            if not existing_user.avatar_url:
-                existing_user.avatar_url = picture
-            existing_user.google_access_token = token.get("access_token")
-            existing_user.google_refresh_token = token.get("refresh_token")
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.google_id = google_id
+            if not user.avatar_url:
+                user.avatar_url = picture
             db.session.commit()
-            user = existing_user
             message = f"Welcome back, {user.username}!"
         else:
-            new_user = User(
+            user = User(
                 username=name,
                 email=email,
                 avatar_url=picture,
                 google_id=google_id,
-                google_access_token=token.get("access_token"),
-                google_refresh_token=token.get("refresh_token"),
             )
-            db.session.add(new_user)
+            db.session.add(user)
             db.session.commit()
-            user = new_user
             message = "Your account was created successfully!"
 
         login_user(user)
@@ -143,7 +137,6 @@ def register():
         if user:
             flash("A user with this email already exists.", "danger")
             return redirect(request.url)
-
         try:
             new_user = User(
                 username=_generate_unique_username(),
@@ -184,7 +177,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user and user.email != admin_email and not user.password_hash:
-            flash(f"You have to log in via Google.", "info")
+            flash(f"You need to sign in with Google.", "info")
             return redirect(request.url)
         elif (
             user

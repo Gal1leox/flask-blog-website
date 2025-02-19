@@ -1,4 +1,4 @@
-import uuid
+import secrets
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
@@ -25,8 +25,6 @@ class User(db.Model, UserMixin):
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, unique=False, nullable=True)
     google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
-    google_access_token: Mapped[str] = mapped_column(String(255), nullable=True)
-    google_refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole), nullable=False, default=UserRole.USER
     )
@@ -83,7 +81,7 @@ class VerificationCode(db.Model):
     def __init__(self, user_id: int, code: str):
         self.user_id = user_id
         self.code_hash = generate_password_hash(code)
-        self.token = uuid.uuid4().hex[:16]
+        self.token = secrets.token_urlsafe(16)
         self.is_valid = False
         self.expires_at = datetime.utcnow() + timedelta(minutes=2)
 

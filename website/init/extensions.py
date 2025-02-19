@@ -22,11 +22,9 @@ google = oauth.register(
     name="google",
     client_id=os.getenv("CLIENT_ID"),
     client_secret=os.getenv("CLIENT_SECRET"),
+    client_kwargs={"scope": "openid profile email"},
     authorize_url="https://accounts.google.com/o/oauth2/v2/auth",
     access_token_url="https://oauth2.googleapis.com/token",
     refresh_token_url="https://oauth2.googleapis.com/token",
-    authorize_params=None,
-    client_kwargs={"scope": "openid profile email"},
-    server_metadata_uri="https://accounts.google.com/.well-known/openid-configuration",
     jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
 )
