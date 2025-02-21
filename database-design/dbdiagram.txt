@@ -13,15 +13,27 @@ Table users {
   id integer [primary key]
   username varchar(50) [unique, not null]
   email varchar(100) [unique, not null]
-  password_hash text [not null]
+  password_hash text
+  google_id varchar(255) [unique]
   role user_role [not null, default: 'user']
-  avatar blob [note: 'The profile picture']
+  avatar varchar(255) [note: 'The profile picture']
   theme user_theme [not null, default: 'system']
+  is_banned bool [not null, default: false]
 
   created_at timestamp [default: `now()`, not null]
   updated_at timestamp [default: `now()`, not null]
 
   Note: 'Stores user data'
+}
+
+Table verification_codes {
+    id integer [primary key]
+    code_hash text [not null]
+    token varchar(16) [unique, not null]
+    is_valid bool [not null, default: false]
+    expires_at timestamp [default: `now()`, not null]
+
+    user_id integer [ref: > users.id]
 }
 
 Table posts {
@@ -39,11 +51,7 @@ Table posts {
 
 Table images {
   id integer [primary key]
-  data blob [unique, not null]
-  filename varchar(255) [not null]
-  file_type varchar(10) [not null]
-  filesize integer [note: 'The size of an image in bytes']
-  alt_text varchar(255)
+  url varchar(255) [unique, not null]
 
   author_id integer [ref: > users.id]
 
