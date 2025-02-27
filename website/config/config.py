@@ -24,9 +24,11 @@ class DevelopmentConfig(Config):
 
     DEBUG = True
     DEVELOPMENT = True
+    PREFERRED_URL_SCHEME = "http"
 
 
 class ProductionConfig(Config):
     """Production-specific configuration."""
 
     DEBUG = False
+    PREFERRED_URL_SCHEME = "https"

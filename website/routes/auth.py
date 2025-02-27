@@ -1,7 +1,14 @@
 import os
 import random
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import (
+    Blueprint,
+    request,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+)
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,6 +24,7 @@ load_dotenv()
 admin_email = os.getenv("ADMIN_EMAIL")
 admin_password = os.getenv("ADMIN_PASSWORD")
 secret_key = os.getenv("SECRET_KEY")
+preferred_url_scheme = os.getenv("PREFERRED_URL_SCHEME", "https")
 
 auth_bp = Blueprint("auth", __name__, template_folder="../templates")
 
@@ -64,7 +72,11 @@ def login_google():
         return _redirect_to_referrer_or_home()
 
     try:
-        redirect_uri = url_for("auth.authorize_google", _external=True)
+        redirect_uri = url_for(
+            "auth.authorize_google",
+            _external=True,
+            _scheme=preferred_url_scheme,
+        )
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
         print(f"Error during Google OAuth login: {e}")

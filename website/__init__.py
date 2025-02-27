@@ -1,6 +1,9 @@
-from flask import Flask
+import os
 
-from website.config import DevelopmentConfig
+from flask import Flask
+from dotenv import load_dotenv
+
+from website.config import DevelopmentConfig, ProductionConfig
 from website.init import (
     db,
     login_manager,
@@ -12,10 +15,17 @@ from website.init import (
     oauth,
 )
 
+load_dotenv()
+
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(DevelopmentConfig)
+
+    env = os.getenv("FLASK_ENV", "production")
+    if env == "production":
+        app.config.from_object(ProductionConfig)
+    else:
+        app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
     login_manager.init_app(app)
