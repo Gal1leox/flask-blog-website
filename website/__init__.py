@@ -29,7 +29,7 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = "admin_bp.login"
+    login_manager.login_view = "auth.login"
     mail.init_app(app)
     limiter.init_app(app)
     oauth.init_app(app)
