@@ -1,6 +1,7 @@
 {# templates/components/ui/navbar/mobile_menu.html #}
 
 <div
+  x-data="{ active_page: '{{ active_page }}' }"
   x-show="mobileMenuOpen"
   x-transition:enter="transition-all ease-in-out duration-500"
   x-transition:enter-start="max-h-0"
@@ -13,17 +14,37 @@
 >
   <div class="space-y-1 px-2 pb-3 pt-2">
     <a
-      class="block rounded-md bg-gray-800 px-3 py-2 text-base font-medium text-white dark:bg-gray-900"
+      :class="{
+        'bg-gray-800 text-white dark:bg-gray-900': active_page == 'Home',
+        'hover:bg-gray-800 hover:text-white dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white text-gray-800': active_page != 'Home'
+      }"
+      class="block rounded-md px-3 py-2 text-base font-medium"
       aria-current="page"
-      href="/website/static"
+      href="/"
       >Home</a
     >
-    {% if current_user.is_authenticated and not is_admin %}
-    <a
-      class="block rounded-md px-3 py-2 text-base font-medium text-gray-800 transition-all duration-200 ease-in-out hover:bg-gray-800 hover:text-white dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white"
-      href="/contact-me"
-      >Contact Me</a
-    >
+    {% if current_user.is_authenticated %}
+      {% if is_admin %}
+        <a
+          :class="{
+            'bg-gray-800 text-white dark:bg-gray-900': active_page == 'Database',
+            'hover:bg-gray-800 hover:text-white dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white text-gray-800': active_page != 'Database'
+          }"
+          class="block rounded-md px-3 py-2 text-base font-medium transition-all duration-200 ease-in-out"
+          href="/admin/database?token={{ token }}"
+        >Database</a
+        >
+      {% elif not is_admin %}
+        <a
+          :class="{
+            'bg-gray-800 text-white dark:bg-gray-900': active_page == 'Contact Me',
+            'hover:bg-gray-800 hover:text-white dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white text-gray-800': active_page != 'Contact Me'
+          }"
+          class="block rounded-md px-3 py-2 text-base font-medium transition-all duration-200 ease-in-out"
+          href="/contact-me"
+        >Contact Me</a
+        >
+      {% endif %}
     {% endif %}
   </div>
 </div>

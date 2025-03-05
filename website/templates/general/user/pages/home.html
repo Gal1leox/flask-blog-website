@@ -8,19 +8,16 @@
 {% block content%}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    <div
-      x-data="{ count: {{ messages|length }} }"
-      x-show="count > 0"
-      class="px-4 pt-6 sm:px-8"
-    >
-      {% for category, message in messages %}
-        {{ alert(category, message) }}
-      {% endfor %}
+    <div x-data="{ count: {{ messages|length }} }" x-show="count > 0">
+      {% for category, message in messages %} {{ alert(category, message) }} {%
+      endfor %}
     </div>
     {% endif %}
   {% endwith %}
-  <div class="flex flex-grow items-center justify-center px-8 py-16">
-    <h4 class="text-center text-lg font-medium text-gray-800 dark:text-gray-300">
+  <div class="flex flex-grow items-center justify-center py-16">
+    <h4
+      class="text-center text-lg sm:text-base font-medium text-gray-800 dark:text-gray-300"
+    >
       I haven't written anything yet..<br />
       But don't worry, the keyboard is warming up! 🤓
     </h4>

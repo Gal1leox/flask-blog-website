@@ -1,0 +1,151 @@
+{# templates/general/pages/database.html #}
+
+{% extends "general/base.html" %}
+{% from "components/ui/alert.html" import alert %}
+
+{% block title %}Kalts Daniil - Database{% endblock %}
+
+{% block content%}
+<div
+  x-data="{
+    message: '',
+    showAlert: false,
+    show(message) {
+      this.message = message;
+      this.showAlert = true;
+    },
+    handleCopy(text) {
+      this.expanded = !this.expanded;
+      this.show('Value: ' + text);
+      navigator.clipboard.writeText(text).then(() => {});
+    }
+  }"
+  class="flex gap-8 flex-col flex-grow items-center"
+>
+  <template x-if="showAlert" class="w-full">
+    <div
+      class="w-full flex gap-3 items-center overflow-x-auto rounded-lg p-4 bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400"
+      role="alert"
+    >
+      <svg
+        class="h-4 w-4 shrink-0"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 1 1 1 1v4h1a1 1 0 0 1 0 2Z"
+        />
+      </svg>
+      <span class="sr-only">Info</span>
+      <div x-text="message" class="text-sm font-medium"></div>
+      <button
+        @click="showAlert = false"
+        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 p-1.5 text-blue-500 hover:bg-blue-100 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
+        aria-label="Close"
+      >
+        <span class="sr-only">Close</span>
+        <svg
+          class="h-3 w-3"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 14 14"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+          />
+        </svg>
+      </button>
+    </div>
+  </template>
+  <div
+    class="text-sm w-full overflow-x-auto font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
+  >
+    <ul
+      x-data="{ selected_table: '{{ selected_table }}' }"
+      class="flex overflow-x-auto mb-px text-sm font-medium text-center"
+    >
+      {% for tab in tabs %}
+      <li>
+        <a
+          :class="{
+            'border-gray-800 text-gray-800 dark:border-gray-300 dark:text-gray-300': selected_table === '{{ tab.name }}',
+            'border-transparent': selected_table !== '{{ tab.name }}'
+          }"
+          class="inline-block px-4 pb-4 border-b-2 rounded-t-lg hover:text-gray-800 hover:border-gray-800 dark:hover:border-gray-300 dark:hover:text-gray-300"
+          href="{{ tab.link }}"
+        >
+          {{ tab.name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div
+    x-data='{"attributes": {{ attributes|tojson }} }'
+    :class="{
+      'items-center': !attributes.length,
+      'max-h-[300px]': attributes.length
+    }"
+    class="w-full flex-grow flex justify-center"
+  >
+    {% if not selected_table %}
+    <h4
+      class="text-center text-base font-medium text-gray-800 dark:text-gray-300"
+    >
+      Choose a table to view its data.. 🔍
+    </h4>
+    {% else %}
+    <div
+      class="relative overflow-x-auto shadow-gray-500 dark:shadow-gray-700 shadow"
+    >
+      <table
+        class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+      >
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            {% for attribute in attributes %}
+            <th class="px-6 py-3" scope="col">{{ attribute }}</th>
+            {% endfor %}
+            <th class="px-6 py-3" scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+          <tr
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
+            {% for attribute in attributes %}
+            <td
+              x-data="{ expanded: false }"
+              @click="handleCopy($el.innerText)"
+              :class="expanded ? '' : 'truncate max-w-xs'"
+              class="px-6 py-4 cursor-pointer transition-all duration-200"
+              title="{{ attribute }}"
+              scope="col"
+            >
+              {{ record[attribute] }}
+            </td>
+            {% endfor %}
+            <td class="px-6 py-4">
+              <a class="text-red-600 dark:text-red-500 hover:underline" href="#"
+                >Delete</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
