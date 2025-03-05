@@ -15,7 +15,6 @@
       this.showAlert = true;
     },
     handleCopy(text) {
-      this.expanded = !this.expanded;
       this.show('Value: ' + text);
       navigator.clipboard.writeText(text).then(() => {});
     }
@@ -66,10 +65,12 @@
   </template>
   <div
     class="text-sm w-full overflow-x-auto font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
+    style="-ms-overflow-style: none; scrollbar-width: none;"
   >
     <ul
       x-data="{ selected_table: '{{ selected_table }}' }"
       class="flex overflow-x-auto mb-px text-sm font-medium text-center"
+      style="-ms-overflow-style: none; scrollbar-width: none;"
     >
       {% for tab in tabs %}
       <li>
@@ -89,11 +90,7 @@
   </div>
   <div
     x-data='{"attributes": {{ attributes|tojson }} }'
-    :class="{
-      'items-center': !attributes.length,
-      'max-h-[300px]': attributes.length
-    }"
-    class="w-full flex-grow flex justify-center"
+    class="w-full flex-grow flex justify-center {{ 'items-center' if attributes|length == 0 else 'max-h-[calc(100vh-100px)]' }}"
   >
     {% if not selected_table %}
     <h4
@@ -125,10 +122,8 @@
           >
             {% for attribute in attributes %}
             <td
-              x-data="{ expanded: false }"
               @click="handleCopy($el.innerText)"
-              :class="expanded ? '' : 'truncate max-w-xs'"
-              class="px-6 py-4 cursor-pointer transition-all duration-200"
+              class="px-6 py-4 cursor-pointer"
               title="{{ attribute }}"
               scope="col"
             >

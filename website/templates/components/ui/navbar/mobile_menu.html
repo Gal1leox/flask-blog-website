@@ -3,6 +3,8 @@
 <div
   x-data="{ active_page: '{{ active_page }}' }"
   x-show="mobileMenuOpen"
+  x-cloak
+  x-init="$el.style.display=''"
   x-transition:enter="transition-all ease-in-out duration-500"
   x-transition:enter-start="max-h-0"
   x-transition:enter-end="max-h-screen"
@@ -10,6 +12,7 @@
   x-transition:leave-start="max-h-screen"
   x-transition:leave-end="max-h-0"
   id="mobile-menu"
+  style="display:none"
   class="overflow-hidden bg-white sm:hidden dark:bg-gray-800"
 >
   <div class="space-y-1 px-2 pb-3 pt-2">
