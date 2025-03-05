@@ -22,7 +22,6 @@ from website import db, mail, limiter
 load_dotenv()
 
 admin_email = os.getenv("ADMIN_EMAIL")
-admin_password = os.getenv("ADMIN_PASSWORD")
 secret_key = os.getenv("SECRET_KEY")
 preferred_url_scheme = os.getenv("PREFERRED_URL_SCHEME", "https")
 

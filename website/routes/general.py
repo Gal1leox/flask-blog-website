@@ -1,21 +1,28 @@
+import os
+
 from flask import Blueprint, render_template
 from flask_login import current_user
+from dotenv import load_dotenv
 
 from ..models import User, UserRole
+
+load_dotenv()
 
 general_bp = Blueprint("general", __name__, template_folder="../templates")
 
 
 @general_bp.route("/")
 def home():
-    avatar_url = ""
-    is_admin = False
+    user = User.query.get(current_user.id) if current_user.is_authenticated else None
 
-    if current_user.is_authenticated:
-        user = User.query.filter(User.id == current_user.id).first()
-        avatar_url = user.avatar_url
-        is_admin = user.role == UserRole.ADMIN
+    avatar_url = user.avatar_url if user else ""
+    is_admin = user and user.role == UserRole.ADMIN
+    token = os.getenv("SECRET_KEY") if is_admin else ""
 
     return render_template(
-        "general/pages/home.html", avatar_url=avatar_url, is_admin=is_admin
+        "general/user/pages/home.html",
+        avatar_url=avatar_url,
+        is_admin=is_admin,
+        token=token,
+        active_page="Home",
     )

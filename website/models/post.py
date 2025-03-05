@@ -7,8 +7,6 @@ from sqlalchemy import (
     String,
     DateTime,
     ForeignKey,
-    Table,
-    Column,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -43,6 +41,11 @@ class Post(db.Model):
         "SavedPost", back_populates="post"
     )
 
+    post_images: Mapped[list["PostImage"]] = relationship(
+        "PostImage", back_populates="post"
+    )
+    post_tags: Mapped[list["PostTag"]] = relationship("PostTag", back_populates="post")
+
     def __repr__(self):
         return (
             f"Post Info:\n"
@@ -75,6 +78,10 @@ class Image(db.Model):
         "Post", secondary="post_images", back_populates="images"
     )
 
+    post_images: Mapped[list["PostImage"]] = relationship(
+        "PostImage", back_populates="image"
+    )
+
     def __repr__(self):
         return (
             f"Image Info:\n"
@@ -104,6 +111,8 @@ class Tag(db.Model):
     posts: Mapped[list["Post"]] = relationship(
         "Post", secondary="post_tags", back_populates="tags"
     )
+
+    post_tags: Mapped[list["PostTag"]] = relationship("PostTag", back_populates="tag")
 
     def __repr__(self):
         return (
@@ -170,16 +179,31 @@ class SavedPost(db.Model):
         )
 
 
-post_images = Table(
-    "post_images",
-    db.metadata,
-    Column("post_id", Integer, ForeignKey("posts.id"), primary_key=True),
-    Column("image_id", Integer, ForeignKey("images.id"), primary_key=True),
-)
+class PostImage(db.Model):
+    __tablename__ = "post_images"
 
-post_tags = Table(
-    "post_tags",
-    db.metadata,
-    Column("post_id", Integer, ForeignKey("posts.id"), primary_key=True),
-    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
-)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), primary_key=True)
+    image_id: Mapped[int] = mapped_column(ForeignKey("images.id"), primary_key=True)
+
+    post: Mapped["Post"] = relationship("Post", back_populates="post_images")
+    image: Mapped["Image"] = relationship("Image", back_populates="post_images")
+
+    def __repr__(self):
+        return (
+            f"PostImage Info: \n"
+            f"Post ID: {self.post_id}\n"
+            f"Image ID: {self.image_id}"
+        )
+
+
+class PostTag(db.Model):
+    __tablename__ = "post_tags"
+
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"), primary_key=True)
+    tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id"), primary_key=True)
+
+    post: Mapped["Post"] = relationship("Post", back_populates="post_tags")
+    tag: Mapped["Tag"] = relationship("Tag", back_populates="post_tags")
+
+    def __repr__(self):
+        return f"PostTag Info: \n" f"Post ID: {self.post_id}\n" f"Tag ID: {self.tag_id}"
