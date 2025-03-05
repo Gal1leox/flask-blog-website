@@ -16,6 +16,7 @@ from ..models import (
     PostTag,
     SavedPost,
     UserNotification,
+    VerificationCode,
 )
 
 load_dotenv()
@@ -38,8 +39,9 @@ TABLE_ATTRIBUTES = {
     "users": get_model_columns(User),
     "posts": get_model_columns(Post),
     "tags": get_model_columns(Tag),
-    "images": get_model_columns(Image),
     "comments": get_model_columns(Comment),
+    "verification_codes": get_model_columns(VerificationCode),
+    "images": get_model_columns(Image),
     "notifications": get_model_columns(Notification),
     "post_images": get_model_columns(PostImage),
     "post_tags": get_model_columns(PostTag),
@@ -51,8 +53,9 @@ TABLE_QUERIES = {
     "users": lambda: User.query.all(),
     "posts": lambda: Post.query.all(),
     "tags": lambda: Tag.query.all(),
-    "images": lambda: Image.query.all(),
     "comments": lambda: Comment.query.all(),
+    "verification_codes": lambda: VerificationCode.query.all(),
+    "images": lambda: Image.query.all(),
     "notifications": lambda: Notification.query.all(),
     "post_images": lambda: PostImage.query.all(),
     "post_tags": lambda: PostTag.query.all(),
