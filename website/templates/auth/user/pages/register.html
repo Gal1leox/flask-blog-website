@@ -51,17 +51,21 @@
         href="/auth/google/"
       >
         <img
+          x-cloak
           x-show="!clicked"
           src="{{ url_for('static', filename='images/icons/google.svg') }}"
           alt="Google"
         />
         <img
+          x-cloak
+          x-init="$el.style.display=''"
           x-show="clicked"
           class="animate-spin"
+          style="display:none"
           src="{{ url_for('static', filename='images/icons/spinner.svg') }}"
           alt="Spinner"
         />
-        <span x-text="clicked ? 'Please wait..' : 'Sign up with Google'"></span>
+        <span x-text="!clicked ? 'Sign in with Google' : 'Please wait..'"></span>
       </a>
     </div>
   </div>

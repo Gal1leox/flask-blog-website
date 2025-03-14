@@ -49,23 +49,25 @@
     </div>
     <div x-data="{ clicked: false }" class="flex flex-col gap-6">
       <a
-        @click="clicked=true"
+        @click="clicked = true"
         class="focus:ring-blue-600 flex w-full items-center justify-center gap-2 rounded-md bg-transparent px-5 py-2.5 text-sm text-gray-900 ring-2 ring-blue-400 dark:text-white"
         :class="clicked ? 'opacity-50 cursor-not-allowed' : ''"
         href="/auth/google/"
       >
         <img
+          x-cloak
           x-show="!clicked"
           src="{{ url_for('static', filename='images/icons/google.svg') }}"
           alt="Google"
         />
         <img
+          x-cloak
           x-show="clicked"
           class="animate-spin"
           src="{{ url_for('static', filename='images/icons/spinner.svg') }}"
           alt="Spinner"
         />
-        <span x-text="!clicked ? 'Sign in with Google' : 'Please wait..'"></span>
+        <span x-text="clicked ? 'Please wait..' : 'Sign in with Google'"></span>
       </a>
     </div>
   </div>
