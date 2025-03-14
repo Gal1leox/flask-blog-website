@@ -6,71 +6,15 @@
 {% block title %}Kalts Daniil - Database{% endblock %}
 
 {% block content%}
-<div
-  x-data="{
-    message: '',
-    showAlert: false,
-    show(message) {
-      this.message = message;
-      this.showAlert = true;
-    },
-    handleCopy(text) {
-      this.show('Value: ' + text);
-      navigator.clipboard.writeText(text).then(() => {});
-    }
-  }"
-  class="flex gap-8 flex-col flex-grow items-center"
->
-  <template x-if="showAlert" class="w-full">
-    <div
-      class="w-full flex gap-3 items-center overflow-x-auto rounded-lg p-4 bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400"
-      role="alert"
-    >
-      <svg
-        class="h-4 w-4 shrink-0"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 1 1 1 1v4h1a1 1 0 0 1 0 2Z"
-        />
-      </svg>
-      <span class="sr-only">Info</span>
-      <div x-text="message" class="text-sm font-medium"></div>
-      <button
-        @click="showAlert = false"
-        class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 p-1.5 text-blue-500 hover:bg-blue-100 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700"
-        aria-label="Close"
-      >
-        <span class="sr-only">Close</span>
-        <svg
-          class="h-3 w-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 14"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-          />
-        </svg>
-      </button>
-    </div>
-  </template>
+<div class="flex gap-8 flex-col flex-grow items-center">
   <div
     class="text-sm w-full overflow-x-auto font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
-    style="-ms-overflow-style: none; scrollbar-width: none;"
+    style="-ms-overflow-style: none; scrollbar-width: none"
   >
     <ul
       x-data="{ selected_table: '{{ selected_table }}' }"
       class="flex overflow-x-auto mb-px text-sm font-medium text-center"
-      style="-ms-overflow-style: none; scrollbar-width: none;"
+      style="-ms-overflow-style: none; scrollbar-width: none"
     >
       {% for tab in tabs %}
       <li>
@@ -122,7 +66,9 @@
           >
             {% for attribute in attributes %}
             <td
-              @click="handleCopy($el.innerText)"
+              x-data="{ expanded: false }"
+              @click="expanded = !expanded"
+              :class="expanded ? 'max-w-full whitespace-normal' : 'max-w-xs overflow-hidden whitespace-nowrap text-ellipsis'"
               class="px-6 py-4 cursor-pointer"
               title="{{ attribute }}"
               scope="col"
