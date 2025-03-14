@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, request, redirect, url_for, render_template, abort
+from flask import Blueprint, request, redirect, url_for, render_template, abort, flash
 from flask_login import current_user
 from dotenv import load_dotenv
 
@@ -18,6 +18,7 @@ from ..models import (
     UserNotification,
     VerificationCode,
 )
+from website import db
 
 load_dotenv()
 
@@ -61,6 +62,21 @@ TABLE_QUERIES = {
     "post_tags": lambda: PostTag.query.all(),
     "saved_posts": lambda: SavedPost.query.all(),
     "user_notifications": lambda: UserNotification.query.all(),
+}
+
+
+TABLE_MODELS = {
+    "users": User,
+    "posts": Post,
+    "tags": Tag,
+    "comments": Comment,
+    "verification_codes": VerificationCode,
+    "images": Image,
+    "notifications": Notification,
+    "post_images": PostImage,
+    "post_tags": PostTag,
+    "saved_posts": SavedPost,
+    "user_notifications": UserNotification,
 }
 
 
@@ -109,3 +125,30 @@ def database():
         attributes=attributes,
         selected_table=selected_table,
     )
+
+
+@admin_bp.route("/database/<string:table>/<int:record_id>", methods=["DELETE"])
+def delete_record(table, record_id):
+    token = request.args.get("token")
+    if token != secret_key:
+        return abort(403)
+
+    user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    if not (user and user.role == UserRole.ADMIN):
+        return render_template("errors/pages/403.html")
+
+    model = TABLE_MODELS.get(table)
+    if not model or (record_id == 1 and model == "users"):
+        abort(404)
+
+    record = model.query.get(record_id)
+    if not record:
+        abort(404)
+
+    db.session.delete(record)
+    db.session.commit()
+    flash(
+        f"The record with ID {record_id} from the {table} table was deleted successfully.",
+        "success",
+    )
+    return "", 204

@@ -6,7 +6,32 @@
 {% block title %}Kalts Daniil - Database{% endblock %}
 
 {% block content%}
-<div class="flex gap-8 flex-col flex-grow items-center">
+<div
+  x-data="{
+    selected_table: '{{ selected_table }}',
+    baseUrl: window.location.origin + window.location.pathname,
+    getTokenQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      return token ? '?token=' + token : '';
+    }
+  }"
+  class="flex gap-8 flex-col flex-grow items-center"
+>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div
+    x-data="{ count: {{ messages|length }} }"
+    x-show="count > 0"
+    class="w-full"
+  >
+    {% for category, message in messages %}
+    {{ alert(category, message) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
   <div
     class="text-sm w-full overflow-x-auto font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
     style="-ms-overflow-style: none; scrollbar-width: none"
@@ -77,9 +102,26 @@
             </td>
             {% endfor %}
             <td class="px-6 py-4">
-              <a class="text-red-600 dark:text-red-500 hover:underline" href="#"
-                >Delete</a
+              <a
+                @click.prevent="
+                  if (confirm('Are you sure you want to delete this record?')) {
+                    let query = getTokenQuery();
+                    let deleteUrl = baseUrl + selected_table + '/' + '{{ record['id'] }}' + query;
+                    fetch(deleteUrl, { method: 'DELETE' })
+                      .then(response => {
+                        if (response.ok) {
+                          location.reload();
+                        } else {
+                          alert('Delete failed');
+                        }
+                      });
+                  }
+                "
+                class="text-red-600 dark:text-red-500 hover:underline"
+                href="#"
               >
+                Delete
+              </a>
             </td>
           </tr>
           {% endfor %}
