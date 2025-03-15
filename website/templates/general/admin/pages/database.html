@@ -112,13 +112,7 @@
                     let query = getTokenQuery();
                     let deleteUrl = baseUrl + selected_table + '/' + '{{ record['id'] }}' + query;
                     fetch(deleteUrl, { method: 'DELETE' })
-                      .then(response => {
-                        if (response.ok) {
-                          location.reload();
-                        } else {
-                          alert('Delete failed');
-                        }
-                      });
+                      .then(response => location.reload());
                   }
                 "
                 class="text-red-600 dark:text-red-500 hover:underline"

@@ -45,10 +45,6 @@ def _get_verification_code(token):
     verification_code = VerificationCode.query.filter_by(token=token).first()
 
     if not verification_code or verification_code.is_expired():
-        flash(
-            f"The verification link is invalid or expired.",
-            "danger",
-        )
         return None
 
     return verification_code

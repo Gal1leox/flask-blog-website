@@ -145,6 +145,10 @@ def delete_record(table, record_id):
     if not record:
         abort(404)
 
+    if table == "users" and record.role == UserRole.ADMIN:
+        flash("Cannot delete an admin user.", "danger")
+        return _redirect_to_referrer_or_home()
+
     db.session.delete(record)
     db.session.commit()
     flash(
