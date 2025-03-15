@@ -69,10 +69,10 @@
     </h4>
     {% else %}
     <div
-      class="relative overflow-x-auto shadow-gray-500 dark:shadow-gray-700 shadow"
+      class="relative overflow-x-auto w-full shadow shadow-gray-500 dark:shadow-gray-700"
     >
       <table
-        class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+        class="min-w-full table-auto text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
       >
         <thead
           class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
@@ -92,14 +92,17 @@
           >
             {% for attribute in attributes %}
             <td
-              x-data="{ expanded: false }"
-              @click="expanded = !expanded"
-              :class="expanded ? 'max-w-full whitespace-normal' : 'max-w-xs overflow-hidden whitespace-nowrap text-ellipsis'"
               class="px-6 py-4 cursor-pointer"
               title="{{ attribute }}"
               scope="col"
             >
-              {{ record[attribute] }}
+              <div
+                @click="expanded = !expanded"
+                x-data="{ expanded: false }"
+                :class="expanded ? 'max-w-full whitespace-normal' : 'max-w-xs overflow-hidden whitespace-nowrap text-ellipsis'"
+              >
+                {{ record[attribute] }}
+              </div>
             </td>
             {% endfor %}
             <td class="px-6 py-4">
