@@ -17,6 +17,8 @@ class Config:
     MAIL_USE_SSL = False
     MAIL_USERNAME = os.getenv("ADMIN_EMAIL")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+    PREFERRED_URL_SCHEME = os.getenv("PREFERRED_URL_SCHEME")
 
 
 class DevelopmentConfig(Config):

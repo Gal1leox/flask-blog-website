@@ -1,5 +1,5 @@
-import os
 import random
+import time
 
 from flask import (
     Blueprint,
@@ -9,63 +9,33 @@ from flask import (
     url_for,
     flash,
 )
-from flask_login import current_user, login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
 
+from ..config import Config
+from ..init import google
 from ..forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from ..models import User, VerificationCode
-from ..init import google
+from ..utils import (
+    anonymous_required,
+    get_verification_code,
+)
 from website import db, mail, limiter
 
-load_dotenv()
-
-admin_email = os.getenv("ADMIN_EMAIL")
-secret_key = os.getenv("SECRET_KEY")
-preferred_url_scheme = os.getenv("PREFERRED_URL_SCHEME", "https")
+admin_email = Config.ADMIN_EMAIL
+secret_key = Config.SECRET_KEY
+preferred_url_scheme = Config.PREFERRED_URL_SCHEME
 
 auth_bp = Blueprint("auth", __name__, template_folder="../templates")
-
-
-def _redirect_to_referrer_or_home():
-    """Redirect to the previous page URL if available, else home."""
-
-    return redirect(request.referrer or url_for("general.home"))
-
-
-def _get_verification_code(token):
-    """
-    Retrieve a valid verification code using token.
-    If invalid or expired, flash an error and return None.
-
-    :param token: The query parameter token.
-    """
-
-    verification_code = VerificationCode.query.filter_by(token=token).first()
-
-    if not verification_code or verification_code.is_expired():
-        return None
-
-    return verification_code
-
-
-def _generate_unique_username():
-    """Generates a unique username, ensuring it doesn't duplicate in the database."""
-    while True:
-        candidate = f"user_{random.randint(1000000, 9999999)}"
-        if not User.query.filter_by(username=candidate).first():
-            return candidate
 
 
 # --- Google Auth Routes ---
 
 
 @auth_bp.route("/google/")
+@anonymous_required
 def login_google():
-    if current_user.is_authenticated:
-        return _redirect_to_referrer_or_home()
-
     try:
         redirect_uri = url_for(
             "auth.authorize_google",
@@ -74,15 +44,12 @@ def login_google():
         )
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
-        print(f"Error during Google OAuth login: {e}")
         return render_template("errors/pages/500.html"), 500
 
 
 @auth_bp.route("/google/authorize/")
+@anonymous_required
 def authorize_google():
-    if current_user.is_authenticated:
-        return _redirect_to_referrer_or_home()
-
     try:
         token = google.authorize_access_token()
 
@@ -101,7 +68,6 @@ def authorize_google():
             user.google_id = google_id
             if not user.avatar_url:
                 user.avatar_url = picture
-            db.session.commit()
             message = f"Welcome back, {user.username}!"
         else:
             user = User(
@@ -111,8 +77,8 @@ def authorize_google():
                 google_id=google_id,
             )
             db.session.add(user)
-            db.session.commit()
             message = "Your account was created successfully!"
+        db.session.commit()
 
         login_user(user)
         flash(message, "success")
@@ -120,10 +86,9 @@ def authorize_google():
         return redirect(url_for("general.home"))
     except Exception as e:
         flash(
-            "An error occurred while signing you in. Please check your credentials and try again later.",
+            "An error occurred while signing you in. Please try again later.",
             "danger",
         )
-        print(f"Error during Google OAuth callback: {e}")
         return render_template("errors/pages/500.html"), 500
 
 
@@ -131,11 +96,9 @@ def authorize_google():
 
 
 @auth_bp.route("/register/", methods=["GET", "POST"])
+@anonymous_required
 @limiter.limit("5/day", methods=["POST"])
 def register():
-    if current_user.is_authenticated:
-        return _redirect_to_referrer_or_home()
-
     form = RegisterForm()
 
     if form.validate_on_submit():
@@ -146,7 +109,7 @@ def register():
             return redirect(request.url)
         try:
             new_user = User(
-                username=_generate_unique_username(),
+                username=int(round(time.time() * 1000)),
                 email=form.email.data,
                 password_hash=generate_password_hash(form.password.data),
             )
@@ -162,22 +125,18 @@ def register():
                 "An error occurred while creating your account. Please try again later.",
                 "danger",
             )
-            print(f"Error creating a user:\n\n" f"{e}")
 
     return render_template("auth/user/pages/register.html", form=form)
 
 
 @auth_bp.route("/login/", methods=["GET", "POST"])
+@anonymous_required
 @limiter.limit("5/minute", methods=["POST"])
 def login():
-    if current_user.is_authenticated:
-        return _redirect_to_referrer_or_home()
-
     form = LoginForm()
 
     form.email.label.text = "Your email"
     form.email.render_kw["placeholder"] = "user@gmail.com"
-
     form.password.render_kw["placeholder"] = "password"
 
     if form.validate_on_submit():
@@ -240,7 +199,7 @@ def forgot_password():
                     code=code,
                     verification_link=verification_link,
                 ),
-                sender=os.getenv("ADMIN_EMAIL"),
+                sender=admin_email,
                 recipients=[form.email.data],
             )
 
@@ -266,7 +225,7 @@ def verify_code():
         flash("Invalid token. Please fill in your email.", "danger")
         return redirect(url_for("auth.forgot_password"))
 
-    verification_code = _get_verification_code(token)
+    verification_code = get_verification_code(token)
 
     if not verification_code:
         flash(
@@ -299,7 +258,7 @@ def reset_password():
         flash("Invalid token. Please fill in your email.", "danger")
         return redirect(url_for("auth.forgot_password"))
 
-    verification_code = _get_verification_code(token)
+    verification_code = get_verification_code(token)
 
     if not verification_code:
         flash(
@@ -315,7 +274,7 @@ def reset_password():
     form = ResetPasswordForm()
 
     if form.validate_on_submit():
-        verification_code = _get_verification_code(token)
+        verification_code = get_verification_code(token)
 
         user = User.query.filter_by(id=verification_code.user_id).first()
         user.password_hash = generate_password_hash(form.password.data)
@@ -334,12 +293,6 @@ def reset_password():
 @auth_bp.route("/admin/login/", methods=["GET", "POST"])
 @limiter.limit("3/hour", methods=["POST"])
 def admin_login():
-    if current_user.is_authenticated:
-        return _redirect_to_referrer_or_home()
-
-    if request.args.get("token") != secret_key:
-        return render_template("errors/pages/403.html")
-
     form = LoginForm()
     form.email.label.text = "Admin email"
     form.email.render_kw["placeholder"] = "admin@gmail.com"
@@ -351,7 +304,7 @@ def admin_login():
 
         if admin and (check_password_hash(admin.password_hash, form.password.data)):
             login_user(admin)
-            flash("Access granted!", "success")
+            flash("Welcome back, boss!", "success")
             return redirect(url_for("general.home"))
         else:
             flash("Invalid credentials. Please try again.", "danger")

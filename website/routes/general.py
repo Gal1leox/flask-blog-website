@@ -21,8 +21,8 @@ def home():
 
     return render_template(
         "general/user/pages/home.html",
-        avatar_url=avatar_url,
         is_admin=is_admin,
+        avatar_url=avatar_url,
         token=token,
         active_page="Home",
     )

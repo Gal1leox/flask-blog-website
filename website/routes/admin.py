@@ -9,7 +9,8 @@ from ..models import (
     UserRole,
 )
 from ..utils import (
-    admin_and_token_required,
+    token_required,
+    admin_required,
     TABLES,
     get_table_records,
 )
@@ -24,7 +25,8 @@ admin_bp = Blueprint("admin", __name__, template_folder="../templates")
 
 
 @admin_bp.route("/database/")
-@admin_and_token_required
+@token_required
+@admin_required
 def database():
     user = User.query.get(current_user.id)
 
@@ -56,7 +58,8 @@ def database():
 
 
 @admin_bp.route("/database/<string:table>/<int:record_id>", methods=["DELETE"])
-@admin_and_token_required
+@token_required
+@admin_required
 def delete_record(table, record_id):
     table_info = TABLES.get(table)
     if not table_info:
