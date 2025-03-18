@@ -1,9 +1,19 @@
 import os
 
-from flask import Blueprint, request, redirect, url_for, render_template, abort, flash
+from flask import (
+    Blueprint,
+    request,
+    redirect,
+    url_for,
+    render_template,
+    abort,
+    flash,
+    current_app,
+    send_file,
+)
 from flask_login import current_user
-from dotenv import load_dotenv
 
+from ..config import Config
 from ..models import (
     User,
     UserRole,
@@ -16,10 +26,9 @@ from ..utils import (
 )
 from website import db
 
-load_dotenv()
-
-admin_email = os.getenv("ADMIN_EMAIL")
-secret_key = os.getenv("SECRET_KEY")
+secret_key = Config.SECRET_KEY
+db_name = Config.DB_NAME
+admin_email = Config.ADMIN_EMAIL
 
 admin_bp = Blueprint("admin", __name__, template_folder="../templates")
 
@@ -48,6 +57,7 @@ def database():
         "general/admin/pages/database.html",
         is_admin=True,
         avatar_url=avatar_url,
+        db_name=db_name,
         tabs=tabs,
         table=table,
         attributes=attributes,
@@ -63,12 +73,17 @@ def database():
 def delete_record(table, record_id):
     table_info = TABLES.get(table)
     if not table_info:
-        abort(404)
+        flash(f"Table '{table}' not found.", "danger")
+        return "", 404
 
     Table = table_info["table"]
     record = Table.query.get(record_id)
     if not record:
-        abort(404)
+        flash(
+            f"Record with id '{record_id}' from the table '{table}' not found.",
+            "danger",
+        )
+        return "", 404
 
     if table == "users" and record.role == UserRole.ADMIN:
         flash("Cannot delete an admin user.", "danger")
@@ -81,3 +96,41 @@ def delete_record(table, record_id):
         "success",
     )
     return "", 204
+
+
+@admin_bp.route("/database/<string:table>/all", methods=["DELETE"])
+@token_required
+@admin_required
+def delete_records(table):
+    table_info = TABLES.get(table)
+    if not table_info:
+        flash(f"Table '{table}' not found.", "danger")
+        return "", 404
+
+    Table = table_info["table"]
+    if Table.__tablename__ == "users":
+        db.session.query(Table).filter(Table.role != UserRole.ADMIN).delete(
+            synchronize_session=False
+        )
+    else:
+        db.session.query(Table).delete(synchronize_session=False)
+
+    db.session.commit()
+    flash(
+        f"Successfully deleted all records from the {table} table.",
+        "success",
+    )
+    return "", 204
+
+
+@admin_bp.route("/database/download-db")
+@token_required
+@admin_required
+def download_db():
+    db_path = os.path.abspath(
+        os.path.join(current_app.root_path, "..", "instance", Config.DB_NAME)
+    )
+    if not os.path.exists(db_path):
+        abort(404)
+
+    return send_file(db_path, as_attachment=True, download_name=db_name)

@@ -9,6 +9,7 @@ class Config:
     """Base configuration with default settings."""
 
     SECRET_KEY = os.getenv("SECRET_KEY")
+    DB_NAME = os.getenv("DB_NAME")
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.getenv('DB_NAME')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = "smtp.gmail.com"
