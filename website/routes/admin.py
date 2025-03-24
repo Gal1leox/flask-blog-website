@@ -10,6 +10,7 @@ from flask import (
     flash,
     current_app,
     send_file,
+    jsonify,
 )
 from flask_login import current_user
 
@@ -95,7 +96,13 @@ def delete_record(table, record_id):
         f"Successfully deleted the record with ID {record_id} from the {table} table.",
         "success",
     )
-    return "", 204
+    return (
+        jsonify(
+            success=True,
+            message=f"Successfully deleted the record with ID {record_id} from the {table} table.",
+        ),
+        200,
+    )
 
 
 @admin_bp.route("/database/<string:table>/all", methods=["DELETE"])
@@ -120,7 +127,14 @@ def delete_records(table):
         f"Successfully deleted all records from the {table} table.",
         "success",
     )
-    return "", 204
+
+    return (
+        jsonify(
+            success=True,
+            message=f"Successfully deleted all records from the {table} table.",
+        ),
+        200,
+    )
 
 
 @admin_bp.route("/database/download-db")
@@ -134,3 +148,37 @@ def download_db():
         abort(404)
 
     return send_file(db_path, as_attachment=True, download_name=db_name)
+
+
+@admin_bp.route("/database/restore-db", methods=["POST"])
+@token_required
+@admin_required
+def restore_db():
+    if "db_file" not in request.files:
+        flash("No file uploaded. Please choose a .db file to restore.", "danger")
+        return jsonify(success=False, error="No file uploaded"), 400
+
+    file = request.files["db_file"]
+    if file.filename == "":
+        flash("No file uploaded. Please choose a .db file to restore.", "danger")
+        return jsonify(success=False, error="No file selected"), 400
+    if not file.filename or not file.filename.endswith(".db"):
+        flash("Invalid file selected. Please upload a .db file.", "danger")
+        return (
+            jsonify(
+                success=False, error="Invalid file selected. Please upload a .db file."
+            ),
+            400,
+        )
+
+    db_path = os.path.abspath(
+        os.path.join(current_app.root_path, "..", "instance", Config.DB_NAME)
+    )
+
+    try:
+        file.save(db_path)
+        flash("Database restored successfully.", "success")
+        return jsonify(success=True, message="Database restored successfully"), 200
+    except Exception as e:
+        flash(f"Failed to restore database: {str(e)}", "danger")
+        return jsonify(success=False, error=str(e)), 500
