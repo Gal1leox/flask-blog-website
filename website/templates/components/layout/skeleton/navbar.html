@@ -1,0 +1,14 @@
+{# templates/components/layout/skeleton/navbar.html #}
+
+<nav class="w-full bg-white shadow dark:border dark:border-gray-700 dark:bg-gray-800">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <div class="relative flex h-16 items-center justify-between">
+      {% include "components/ui/navbar/skeleton/burger_button.html" %}
+      {% include "components/ui/navbar/skeleton/desktop_menu.html" %}
+      <div class="absolute inset-y-0 right-0 flex items-center gap-4 sm:static">
+        {% include "components/ui/navbar/skeleton/user_dropdown.html" %}
+        <div class="hidden h-9 w-20 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    </div>
+  </div>
+</nav>
