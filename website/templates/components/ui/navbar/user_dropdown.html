@@ -34,11 +34,26 @@
     >
       <span class="absolute -inset-1.5"></span>
       <span class="sr-only">Open user menu</span>
-      <img
-        class="h-12 w-12 rounded-full object-cover"
-        src="{% if avatar_url %}{{ avatar_url }}{% else %}{{ url_for('static', filename='images/no-avatar.jpg') }}{% endif %}"
-        alt="profile picture"
-      />
+      <div
+        x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+        :style="{
+          backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+          backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+        }"
+        class="relative h-12 w-12 rounded-full overflow-hidden bg-cover bg-center"
+        aria-label="profile picture"
+        role="img"
+      >
+        {% if avatar_url %}
+        <img
+          @load="loaded = true"
+          class="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          src="{{ avatar_url }}"
+          alt=""
+        />
+        {% endif %}
+      </div>
     </button>
   </div>
   <div
@@ -51,9 +66,9 @@
     x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100 scale-100"
     x-transition:leave-end="opacity-0 scale-95"
-    style="display:none"
     @click.away="profileMenuOpen = false"
     class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-gray-800 ring-1 ring-black/5 focus:outline-none dark:bg-white"
+    style="display: none"
     aria-orientation="vertical"
     aria-labelledby="user-menu-button"
     role="menu"
