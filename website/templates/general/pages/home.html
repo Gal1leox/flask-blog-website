@@ -9,8 +9,9 @@
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div x-data="{ count: {{ messages|length }} }" x-show="count > 0">
-      {% for category, message in messages %} {{ alert(category, message) }} {%
-      endfor %}
+      {% for category, message in messages %}
+        {{ alert(category, message) }}
+      {% endfor %}
     </div>
     {% endif %}
   {% endwith %}

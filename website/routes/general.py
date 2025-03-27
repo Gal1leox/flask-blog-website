@@ -20,7 +20,7 @@ def home():
     token = os.getenv("SECRET_KEY") if is_admin else ""
 
     return render_template(
-        "general/user/pages/home.html",
+        "general/pages/home.html",
         is_admin=is_admin,
         avatar_url=avatar_url,
         token=token,
