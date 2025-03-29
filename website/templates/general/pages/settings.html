@@ -1,0 +1,66 @@
+{% extends "general/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import render_username_field %}
+
+{% block title %}Kalts Daniil - Settings{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div x-data="{ count: {{ messages|length }} }" x-show="count > 0">
+  {% for category, message in messages %}
+  {{ alert(category, message) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+<div class="w-full bg-gray-800 rounded-lg shadow-md p-6">
+  <div class="grid grid-cols-1 sm:grid-cols-[250px_1fr] gap-x-10 gap-y-8">
+    <aside>
+      <h2 class="text-gray-800 dark:text-gray-300 text-xl font-bold mb-1">
+        Personal Information
+      </h2>
+      <p class="text-sm text-gray-400">
+        Manage your personal details here.
+      </p>
+    </aside>
+    <div>
+      <form class="flex items-start flex-col gap-4">
+        <div class="flex items-center mb-2">
+          <div class="relative">
+            <img
+              class="w-20 h-20 object-cover rounded-lg mr-5"
+              alt="User Avatar"
+              src="{{ avatar_url }}"
+            />
+            <a
+              title="Remove Avatar"
+              class="absolute top-0 right-0 -mt-2 mr-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+              href="/settings/remove-avatar"
+            >
+              &times;
+            </a>
+          </div>
+          <div>
+            <button
+              type="button"
+              class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 rounded-lg px-4 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
+            >
+              Change avatar
+            </button>
+            <p class="text-sm text-gray-400 mt-2">JPG or PNG. 1MB max.</p>
+          </div>
+        </div>
+        {{ render_username_field(form.username) }}
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 rounded-lg px-4 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
+        >
+          Save
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
+from flask_wtf.file import FileAllowed
 
 
 class RegisterForm(FlaskForm):
@@ -100,3 +101,17 @@ class ResetPasswordForm(FlaskForm):
         filters=[lambda value: value.strip() if value else value],
     )
     submit = SubmitField("Reset")
+
+
+class UpdateProfileForm(FlaskForm):
+    username = StringField(
+        "Username",
+        validators=[DataRequired(), Length(min=2, max=50)],
+        render_kw={"placeholder": "username"},
+        filters=[lambda value: value.strip() if value else value],
+    )
+    profile_image = FileField(
+        "Profile Image",
+        validators=[FileAllowed(["jpg", "jpeg", "png"], "Images only!")],
+    )
+    submit = SubmitField("Save")
