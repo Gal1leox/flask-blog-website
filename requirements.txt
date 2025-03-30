@@ -8,6 +8,7 @@ certifi==2025.1.31
 cffi==1.17.1
 charset-normalizer==3.4.1
 click==8.1.8
+cloudinary==1.43.0
 cryptography==3.3.2
 Deprecated==1.2.18
 dnspython==2.7.0
@@ -22,6 +23,7 @@ Flask-Mail==0.10.0
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
 greenlet==3.1.1
+gunicorn==23.0.0
 idna==3.10
 iniconfig==2.0.0
 itsdangerous==2.2.0
@@ -43,6 +45,7 @@ pydantic==2.10.6
 pydantic_core==2.27.2
 Pygments==2.19.1
 pytest==8.3.4
+pytest-sugar==1.0.0
 python-dotenv==1.0.1
 python-jose==3.3.0
 requests==2.32.3
@@ -50,6 +53,7 @@ rich==13.9.4
 rsa==4.9
 six==1.17.0
 SQLAlchemy==2.0.37
+termcolor==2.5.0
 typing_extensions==4.12.2
 tzlocal==5.2
 urllib3==2.3.0

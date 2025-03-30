@@ -27,40 +27,53 @@
       </p>
     </aside>
     <div class="flex items-start flex-col gap-4">
-      <form class="flex items-start flex-col gap-4" method="POST" action="/settings">
+      <form
+        class="flex items-start flex-col gap-4"
+        method="POST"
+        action="/settings"
+        enctype="multipart/form-data"
+        x-data
+      >
+        <input
+          type="file"
+          id="avatarInput"
+          name="avatar"
+          accept="image/png, image/jpeg"
+          class="hidden"
+          @change="$el.closest('form').submit()"
+        />
         <div class="flex items-center">
           <div
-            x-data="{ loaded: false }"
+            x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+            :style="{
+              backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+              backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+            }"
             class="relative w-20 h-20 mr-4 overflow-hidden rounded-tl-lg rounded-bl-lg rounded-br-lg rounded-tr-none bg-cover bg-center"
-            style="background-image: url('{{ url_for('static', filename='images/no-avatar.jpg') }}'); background-color: #DBDBDB;"
             aria-label="profile picture"
             role="img"
           >
             {% if avatar_url %}
-            <div class="w-full h-full relative">
-              <img
-                @load="loaded = true"
-                class="w-full h-full object-cover"
-                loading="lazy"
-                src="{{ avatar_url }}"
-                alt="User Avatar"
-                x-show="loaded"
-              />
-              <div x-show="!loaded" class="absolute inset-0 bg-gray-300"></div>
-              <button
-                type="button"
-                onclick="document.getElementById('deleteAvatarForm').submit()"
-                title="Delete Avatar"
-                class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white w-4 h-4 flex items-center justify-center cursor-pointer"
-              >
-                &times;
-              </button>
-            </div>
+            <img
+              @load="loaded = true"
+              class="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+              src="{{ avatar_url }}"
+            />
             {% endif %}
+            <button
+              type="button"
+              onclick="document.getElementById('deleteAvatarForm').submit()"
+              title="Delete Avatar"
+              class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white w-4 h-4 flex items-center justify-center cursor-pointer"
+            >
+              &times;
+            </button>
           </div>
           <div>
             <button
               type="button"
+              @click="document.getElementById('avatarInput').click()"
               class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 rounded-lg px-4 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
             >
               Change avatar

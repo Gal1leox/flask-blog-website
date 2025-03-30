@@ -8,6 +8,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from apscheduler.schedulers.background import BackgroundScheduler
 from authlib.integrations.flask_client import OAuth
+import cloudinary
 
 load_dotenv()
 
@@ -17,6 +18,11 @@ mail = Mail()
 limiter = Limiter(get_remote_address)
 scheduler = BackgroundScheduler()
 oauth = OAuth()
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_SECRET"),
+)
 
 google = oauth.register(
     name="google",
