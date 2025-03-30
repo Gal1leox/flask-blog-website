@@ -46,9 +46,12 @@ def settings():
                 except Exception as e:
                     flash("Error uploading image: " + str(e), "danger")
 
-        if form.validate_on_submit() and user:
-            user.username = form.username.data
-            flash("Profile updated successfully", "success")
+        if user and form.username.data and form.username.data != user.username:
+            if form.username.validate(form):
+                user.username = form.username.data
+                flash("Profile updated successfully", "success")
+            else:
+                flash("Invalid username", "error")
 
         db.session.commit()
         return redirect(url_for("general.settings"))
