@@ -10,86 +10,88 @@
 {% if messages %}
 <div class="mb-6" x-data="{ count: {{ messages|length }} }" x-show="count > 0">
   {% for category, message in messages %}
-  {{ alert(category, message) }}
+    {{ alert(category, message) }}
   {% endfor %}
 </div>
 {% endif %}
 {% endwith %}
 
-<div class="{% if messages|length > 0 %}mt-6{% endif %} w-full bg-gray-800 rounded-lg shadow-md p-6">
+<div class="{% if messages|length > 0 %}mt-6{% endif %} w-full bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
   <div class="grid grid-cols-1 sm:grid-cols-[250px_1fr] gap-x-10 gap-y-8">
     <aside>
-      <h2 class="text-gray-800 dark:text-gray-300 text-xl font-bold mb-1">
+      <h2 class="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-1">
         Personal Information
       </h2>
-      <p class="text-sm text-gray-400">
+      <p class="text-sm text-gray-500 dark:text-gray-400">
         Manage your personal details here.
       </p>
     </aside>
-    <div class="flex items-start flex-col gap-4">
-      <form
-        class="flex items-start flex-col gap-4"
-        method="POST"
-        action="/settings"
-        enctype="multipart/form-data"
-        x-data
-      >
-        <input
-          type="file"
-          id="avatarInput"
-          name="avatar"
-          accept="image/png, image/jpeg"
-          class="hidden"
-          @change="$el.closest('form').submit()"
-        />
-        <div class="flex items-center">
-          <div
-            x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
-            :style="{
-              backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
-              backgroundColor: loaded ? 'transparent' : '#DBDBDB'
-            }"
-            class="relative w-20 h-20 mr-4 overflow-hidden rounded-tl-lg rounded-bl-lg rounded-br-lg rounded-tr-none bg-cover bg-center"
-            aria-label="profile picture"
-            role="img"
-          >
-            {% if avatar_url %}
-            <img
-              @load="loaded = true"
-              class="absolute inset-0 h-full w-full object-cover"
-              loading="lazy"
-              src="{{ avatar_url }}"
-            />
-            <button
-              type="button"
-              onclick="document.getElementById('deleteAvatarForm').submit()"
-              title="Delete Avatar"
-              class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white w-4 h-4 flex items-center justify-center cursor-pointer"
-            >
-              &times;
-            </button>
-            {% endif %}
-          </div>
-          <div>
-            <button
-              type="button"
-              @click="document.getElementById('avatarInput').click()"
-              class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 rounded-lg px-4 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
-            >
-              Change avatar
-            </button>
-            <p class="text-sm text-gray-400 mt-2">JPG or PNG. 1MB max.</p>
-          </div>
-        </div>
-        {{ render_username_field(form.username) }}
-        <button
-          type="submit"
-          class="bg-blue-500 hover:bg-blue-700 focus:ring-blue-600 rounded-lg px-4 py-2 text-center text-sm font-medium text-white focus:outline-none focus:ring-2"
+
+    <form
+      class="flex flex-col gap-6"
+      method="POST"
+      action="/settings"
+      enctype="multipart/form-data"
+      x-data
+    >
+      <input
+        type="file"
+        id="avatarInput"
+        name="avatar"
+        accept="image/png, image/jpeg"
+        class="hidden"
+        @change="$el.closest('form').submit()"
+      />
+
+      <div class="flex items-center">
+        <div
+          x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+          :style="{
+            backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+            backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+          }"
+          class="relative w-20 h-20 mr-4 overflow-hidden rounded-tl-lg rounded-bl-lg rounded-br-lg rounded-tr-none bg-cover bg-center"
+          aria-label="profile picture"
+          role="img"
         >
-          Save
-        </button>
-      </form>
-    </div>
+          {% if avatar_url %}
+          <img
+            @load="loaded = true"
+            class="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            src="{{ avatar_url }}"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('deleteAvatarForm').submit()"
+            title="Delete Avatar"
+            class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white w-4 h-4 flex items-center justify-center cursor-pointer"
+          >
+            &times;
+          </button>
+          {% endif %}
+        </div>
+        <div>
+          <button
+            type="button"
+            @click="document.getElementById('avatarInput').click()"
+            class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Change avatar
+          </button>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">JPG or PNG. 1MB max.</p>
+        </div>
+      </div>
+
+      {{ render_username_field(form.username) }}
+
+      <button
+        type="submit"
+        class="self-start bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+        Save
+      </button>
+    </form>
   </div>
 </div>
 
@@ -98,6 +100,5 @@
   method="POST"
   action="/settings/delete-avatar"
   class="hidden"
->
-</form>
+></form>
 {% endblock %}
