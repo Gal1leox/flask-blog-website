@@ -4,7 +4,6 @@
 {% from "components/ui/alert.html" import alert %}
 
 {% block title %}Kalts Daniil - Database{% endblock %}
-
 {% block content %}
 <div
   x-data="{
@@ -60,7 +59,7 @@
     class="w-full"
   >
     {% for category, message in messages %}
-    {{ alert(category, message) }}
+      {{ alert(category, message) }}
     {% endfor %}
   </div>
   {% endif %}
@@ -110,70 +109,74 @@
         <thead
           class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400"
         >
-        <tr>
-          {% for attribute in attributes %}
-          <th class="px-6 py-3" scope="col">{{ attribute }}</th>
-          {% endfor %}
-          <th class="px-6 py-3" scope="col">Action</th>
-        </tr>
+          <tr>
+            {% for attribute in attributes %}
+            <th class="px-6 py-3" scope="col">{{ attribute }}</th>
+            {% endfor %}
+            <th class="px-6 py-3" scope="col">Action</th>
+          </tr>
         </thead>
         <tbody>
-        {% for record in records %}
-        <tr
-          x-cloak
-          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
-          {% for attribute in attributes %}
-          <td
-            class="px-6 py-4 cursor-pointer"
-            title="{{ attribute }}"
-            scope="col"
+          {% for record in records %}
+          <tr
+            x-cloak
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <div
-              x-data="{ expanded: false }"
-              @click="expanded = !expanded"
-              :class="expanded ? 'max-w-full whitespace-normal' : 'max-w-xs overflow-hidden whitespace-nowrap text-ellipsis'"
+            {% for attribute in attributes %}
+            <td
+              class="px-6 py-4 cursor-pointer"
+              title="{{ attribute }}"
+              scope="col"
             >
-              {{ record[attribute] }}
-            </div>
-          </td>
+              <div
+                x-data="{ expanded: false }"
+                @click="expanded = !expanded"
+                :class="expanded ? 'max-w-full whitespace-normal' : 'max-w-xs overflow-hidden whitespace-nowrap text-ellipsis'"
+              >
+                {{ record[attribute] }}
+              </div>
+            </td>
+            {% endfor %}
+            <td class="px-6 py-4">
+              <a
+                @click.prevent="deleteRecord({{ record['id'] }})"
+                class="text-red-600 dark:text-red-500 hover:underline"
+                href="#"
+              >
+                Delete
+              </a>
+            </td>
+          </tr>
           {% endfor %}
-          <td class="px-6 py-4">
-            <a
-              @click.prevent="deleteRecord({{ record['id'] }})"
-              class="text-red-600 dark:text-red-500 hover:underline"
-              href="#"
-            >
-              Delete
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
         </tbody>
       </table>
     </div>
     {% endif %}
   </div>
-  <div class="flex items-center justify-between w-full gap-4">
-    <a
-      @click.prevent="$refs.dbUpload.click()"
-      class="bg-blue-400 cursor-pointer text-blue-800 dark:bg-gray-800 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-gray-700 focus:ring-red-200 flex items-center gap-1 rounded-lg px-4 py-2 text-center text-sm font-bold font-medium text-white focus:outline-none focus:ring-2"
-      title="Restore the database from the backup"
+  <div class="flex flex-wrap w-full gap-3 sm:items-center sm:justify-between">
+    {% if records|length %}
+    <button
+      @click="deleteAllRecords()"
+      type="button"
+      class="whitespace-nowrap w-full sm:w-auto text-center bg-red-400 cursor-pointer text-red-800 dark:bg-gray-800 dark:text-red-400 hover:bg-red-500 dark:hover:bg-gray-700 focus:ring-red-200 flex items-center justify-center gap-1 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-2"
+      title="Clean the table to delete all records"
     >
-      Restore Database
-    </a>
-    <div class="flex items-center gap-4">
-      {% if records|length %}
-      <a
-        @click.prevent="deleteAllRecords()"
-        class="bg-red-400 cursor-pointer text-red-800 dark:bg-gray-800 dark:text-red-400 hover:bg-red-500 dark:hover:bg-gray-700 focus:ring-red-200 flex items-center gap-1 rounded-lg px-4 py-2 text-center text-sm font-bold font-medium text-white focus:outline-none focus:ring-2"
-        title="Clean the table to delete all records"
+      Clean Table
+    </button>
+    {% endif %}
+    <div
+      class="flex w-full sm:w-auto gap-3 flex-wrap sm:flex-nowrap sm:ml-auto"
+    >
+      <button
+        @click="$refs.dbUpload.click()"
+        type="button"
+        class="whitespace-nowrap w-1/2 sm:w-auto flex-1 text-center bg-blue-400 cursor-pointer text-blue-800 dark:bg-gray-800 dark:text-blue-400 hover:bg-blue-500 dark:hover:bg-gray-700 focus:ring-blue-200 flex items-center justify-center gap-1 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-2"
+        title="Restore the database from the backup"
       >
-        Clean Table
-      </a>
-      {% endif %}
+        Restore Database
+      </button>
       <a
-        class="bg-green-400 cursor-pointer text-green-800 dark:bg-gray-800 dark:text-green-400 hover:bg-green-500 dark:hover:bg-gray-700 focus:ring-green-200 flex items-center gap-1 rounded-lg px-4 py-2 text-center text-sm font-bold font-medium text-white focus:outline-none focus:ring-2"
+        class="whitespace-nowrap w-1/2 sm:w-auto flex-1 text-center bg-green-400 cursor-pointer text-green-800 dark:bg-gray-800 dark:text-green-400 hover:bg-green-500 dark:hover:bg-gray-700 focus:ring-green-200 flex items-center justify-center gap-1 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-2"
         href="{{ url_for('admin.download_db', token=token) }}"
         title="Download a backup of the database"
       >
