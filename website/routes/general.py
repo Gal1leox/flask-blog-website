@@ -65,11 +65,13 @@ def settings():
 
     avatar_url = user.avatar_url if user else ""
     is_admin = user and user.role == UserRole.ADMIN
+    token = os.getenv("SECRET_KEY") if is_admin else ""
 
     return render_template(
         "general/pages/settings.html",
         is_admin=is_admin,
         avatar_url=avatar_url,
+        token=token,
         active_page="",
         form=form,
     )
