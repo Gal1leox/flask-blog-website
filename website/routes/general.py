@@ -60,6 +60,7 @@ def settings():
 
     if user:
         form.username.data = user.username
+        form.email.data = user.email
 
     avatar_url = user.avatar_url if user else ""
     is_admin = user and user.role == UserRole.ADMIN

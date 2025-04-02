@@ -141,8 +141,12 @@ class UpdateProfileForm(FlaskForm):
         render_kw={"placeholder": "username"},
         filters=[lambda value: value.strip() if value else value],
     )
+    email = StringField(
+        "Email address",
+        render_kw={"placeholder": "user@gmail.com", "disabled": True},
+    )
     profile_image = FileField(
-        "Profile Image",
+        "Profile image",
         validators=[
             FileAllowed(
                 ["jpg", "jpeg", "png"], "Profile image must be a JPG or PNG file."

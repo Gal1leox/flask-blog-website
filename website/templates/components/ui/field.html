@@ -1,15 +1,19 @@
 {# templates/components/ui/field.html #}
 
-{% macro render_email_field(field) %}
+{% macro render_email_field(field, disabled=False) %}
 <div>
   {{ field.label(class="mb-2 block text-sm font-medium text-gray-900 dark:text-white") }}
-  {{ field(class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400") }}
+  {% if disabled %}
+    {{ field(disabled="disabled", class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed") }}
+  {% else %}
+    {{ field(class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400") }}
+  {% endif %}
   {% if field.errors %}
-      <div class="text-red-500 text-sm mt-1">
-      {% for error in field.errors %}
-        <span>{{ error }}</span>
-      {% endfor %}
-      </div>
+  <div class="text-red-500 text-sm mt-1">
+    {% for error in field.errors %}
+    <span>{{ error }}</span>
+    {% endfor %}
+  </div>
   {% endif %}
 </div>
 {% endmacro %}

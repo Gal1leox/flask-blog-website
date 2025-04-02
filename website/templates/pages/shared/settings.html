@@ -3,7 +3,7 @@
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/field.html" import render_username_field %}
+{% from "components/ui/field.html" import render_username_field, render_email_field %}
 
 {% block title %}Kalts Daniil - Settings{% endblock %}
 
@@ -86,7 +86,10 @@
         </div>
       </div>
 
-      {{ render_username_field(form.username) }}
+      <div class="flex flex-col gap-4 max-w-sm">
+        {{ render_username_field(form.username) }}
+        {{ render_email_field(form.email, disabled=True) }}
+      </div>
 
       <button
         type="submit"
