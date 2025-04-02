@@ -23,7 +23,7 @@ def home():
     token = os.getenv("SECRET_KEY") if is_admin else ""
 
     return render_template(
-        "general/pages/home.html",
+        "pages/shared/home.html",
         is_admin=is_admin,
         avatar_url=avatar_url,
         token=token,
@@ -68,7 +68,7 @@ def settings():
     token = os.getenv("SECRET_KEY") if is_admin else ""
 
     return render_template(
-        "general/pages/settings.html",
+        "pages/shared/settings.html",
         is_admin=is_admin,
         avatar_url=avatar_url,
         token=token,

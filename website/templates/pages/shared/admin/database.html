@@ -1,9 +1,11 @@
-{# templates/general/pages/database.html #}
+{# templates/pages/shared/admin/database.html #}
 
-{% extends "general/base.html" %}
+{% extends "pages/shared/base.html" %}
+
 {% from "components/ui/alert.html" import alert %}
 
 {% block title %}Kalts Daniil - Database{% endblock %}
+
 {% block content %}
 <div
   x-data="() => ({

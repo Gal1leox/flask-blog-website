@@ -44,7 +44,7 @@ def login_google():
         )
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
-        return render_template("errors/pages/500.html"), 500
+        return render_template("pages/500.html"), 500
 
 
 @auth_bp.route("/google/authorize/")
@@ -89,7 +89,7 @@ def authorize_google():
             "An error occurred while signing you in. Please try again later.",
             "danger",
         )
-        return render_template("errors/pages/500.html"), 500
+        return render_template("pages/errors/500.html"), 500
 
 
 # --- Gmail Auth Routes ---
@@ -126,7 +126,7 @@ def register():
                 "danger",
             )
 
-    return render_template("auth/user/pages/register.html", form=form)
+    return render_template("pages/auth/user/register.html", form=form)
 
 
 @auth_bp.route("/login/", methods=["GET", "POST"])
@@ -157,7 +157,7 @@ def login():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("auth/user/pages/login.html", form=form)
+    return render_template("pages/auth/user/login.html", form=form)
 
 
 @auth_bp.route("/logout/")
@@ -195,7 +195,7 @@ def forgot_password():
             message = Message(
                 "Verify Your Email with This Code",
                 html=render_template(
-                    "auth/user/pages/email_message.html",
+                    "pages/auth/user/email_message.html",
                     code=code,
                     verification_link=verification_link,
                 ),
@@ -213,7 +213,7 @@ def forgot_password():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("auth/user/pages/forgot_password.html", form=form)
+    return render_template("pages/auth/user/forgot_password.html", form=form)
 
 
 @auth_bp.route("/verify-code/", methods=["GET", "POST"])
@@ -243,11 +243,11 @@ def verify_code():
             return redirect(url_for("auth.reset_password", token=token))
 
         return render_template(
-            "auth/user/pages/verify_code.html",
+            "pages/auth/user/verify_code.html",
             is_valid=False,
         )
 
-    return render_template("auth/user/pages/verify_code.html")
+    return render_template("pages/auth/user/verify_code.html")
 
 
 @auth_bp.route("/reset-password/", methods=["GET", "POST"])
@@ -284,7 +284,7 @@ def reset_password():
         flash("Password reset successfully.", "success")
         return redirect(url_for("auth.login"))
 
-    return render_template("auth/user/pages/reset_password.html", form=form)
+    return render_template("pages/auth/user/reset_password.html", form=form)
 
 
 # --- Admin Routes ---
@@ -310,4 +310,4 @@ def admin_login():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("auth/admin/pages/login.html", form=form)
+    return render_template("pages/auth/admin/login.html", form=form)

@@ -55,7 +55,7 @@ def database():
     attributes = TABLES[table]["columns"] if table else []
 
     return render_template(
-        "general/admin/pages/database.html",
+        "pages/shared/admin/database.html",
         is_admin=True,
         avatar_url=avatar_url,
         db_name=db_name,
