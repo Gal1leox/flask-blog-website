@@ -109,7 +109,7 @@ def register():
             return redirect(request.url)
         try:
             new_user = User(
-                username=int(round(time.time() * 1000)),
+                username=f"user.{int(round(time.time() * 1000))}",
                 email=form.email.data,
                 password_hash=generate_password_hash(form.password.data),
             )

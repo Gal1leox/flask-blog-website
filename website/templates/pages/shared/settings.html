@@ -36,6 +36,7 @@
       enctype="multipart/form-data"
       x-data
     >
+      {{ form.hidden_tag() }}
       <input
         type="file"
         id="avatarInput"
@@ -81,7 +82,7 @@
           >
             Change avatar
           </button>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">JPG or PNG. 1MB max.</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">JPG or PNG.</p>
         </div>
       </div>
 
