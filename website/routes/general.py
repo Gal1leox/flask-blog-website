@@ -1,6 +1,6 @@
 import os
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from dotenv import load_dotenv
 import cloudinary.uploader
 
@@ -121,8 +121,6 @@ def change_password():
             db.session.commit()
             flash("Password updated successfully.", "success")
             return redirect(url_for("general.settings"))
-    else:
-        flash("Please correct the errors in the form.", "danger")
 
     profile_form = UpdateProfileForm()
     profile_form.username.data = user.username
@@ -142,3 +140,20 @@ def change_password():
         change_password_form=change_password_form,
         show_change_password=show_change_password,
     )
+
+
+@general_bp.route("/settings/delete-account", methods=["POST"])
+@login_required
+def delete_account():
+    user = User.query.get(current_user.id)
+    if user and user.role == UserRole.ADMIN:
+        flash("Cannot delete an admin user.", "danger")
+        return redirect(url_for("general.home"))
+
+    db.session.delete(user)
+    db.session.commit()
+
+    logout_user()
+
+    flash("Your account has been deleted.", "success")
+    return redirect(url_for("general.home"))
