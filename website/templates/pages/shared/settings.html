@@ -10,7 +10,7 @@
 {% if messages %}
 <div class="mb-6" x-data="{ count: {{ messages|length }} }" x-show="count > 0">
   {% for category, message in messages %}
-  {{ alert(category, message) }}
+    {{ alert(category, message) }}
   {% endfor %}
 </div>
 {% endif %}
@@ -91,7 +91,7 @@
 
       <button
         type="submit"
-        class="self-start bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="self-start bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         Save
       </button>
@@ -127,11 +127,22 @@
 
       <button
         type="submit"
-        class="self-start bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="self-start bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         Change Password
       </button>
     </form>
+  </div>
+  {% endif %}
+
+  {% if not is_admin %}
+  <hr class="my-8 border-gray-300 dark:border-gray-700">
+  <div class="grid grid-cols-1 sm:grid-cols-[250px_1fr] gap-x-10 gap-y-4">
+    <aside>
+      <h2 class="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-1">Delete Account</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">No longer using my blog? Delete your account and all associated data will be permanently removed.</p>
+    </aside>
+    {% include "components/ui/modal/delete_account_modal.html" %}
   </div>
   {% endif %}
 </div>
