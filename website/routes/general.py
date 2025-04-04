@@ -1,11 +1,12 @@
 import os
-
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
 from dotenv import load_dotenv
 import cloudinary.uploader
 
-from ..forms.forms import UpdateProfileForm
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from ..forms.forms import UpdateProfileForm, ChangePasswordForm
 from ..models import User, UserRole
 from website import db
 
@@ -35,6 +36,7 @@ def home():
 @login_required
 def settings():
     form = UpdateProfileForm()
+    change_password_form = ChangePasswordForm()
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
 
     if request.method == "POST":
@@ -65,6 +67,7 @@ def settings():
     avatar_url = user.avatar_url if user else ""
     is_admin = user and user.role == UserRole.ADMIN
     token = os.getenv("SECRET_KEY") if is_admin else ""
+    show_change_password = True if user and user.password_hash else False
 
     return render_template(
         "pages/shared/settings.html",
@@ -73,6 +76,8 @@ def settings():
         token=token,
         active_page="",
         form=form,
+        change_password_form=change_password_form,
+        show_change_password=show_change_password,
     )
 
 
@@ -80,7 +85,6 @@ def settings():
 @login_required
 def delete_avatar():
     form = UpdateProfileForm()
-
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
     if user:
         form.username.data = user.username
@@ -93,3 +97,48 @@ def delete_avatar():
         flash("User not found", "error")
 
     return redirect(url_for("general.settings"))
+
+
+@general_bp.route("/settings/change-password", methods=["POST"])
+@login_required
+def change_password():
+    change_password_form = ChangePasswordForm()
+    user = User.query.get(current_user.id) if current_user.is_authenticated else None
+
+    if not (user and user.password_hash):
+        flash("Password change is not available for your account.", "danger")
+        return redirect(url_for("general.settings"))
+
+    if change_password_form.validate_on_submit():
+        if not check_password_hash(
+            user.password_hash, change_password_form.current_password.data
+        ):
+            flash("Current password is incorrect.", "danger")
+        else:
+            user.password_hash = generate_password_hash(
+                change_password_form.new_password.data
+            )
+            db.session.commit()
+            flash("Password updated successfully.", "success")
+            return redirect(url_for("general.settings"))
+    else:
+        flash("Please correct the errors in the form.", "danger")
+
+    profile_form = UpdateProfileForm()
+    profile_form.username.data = user.username
+    profile_form.email.data = user.email
+    avatar_url = user.avatar_url if user else ""
+    is_admin = user and user.role == UserRole.ADMIN
+    token = os.getenv("SECRET_KEY") if is_admin else ""
+    show_change_password = True if user and user.password_hash else False
+
+    return render_template(
+        "pages/shared/settings.html",
+        is_admin=is_admin,
+        avatar_url=avatar_url,
+        token=token,
+        active_page="",
+        form=profile_form,
+        change_password_form=change_password_form,
+        show_change_password=show_change_password,
+    )

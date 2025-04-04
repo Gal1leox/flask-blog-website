@@ -130,3 +130,26 @@ class UpdateProfileForm(FlaskForm):
         ],
     )
     submit = SubmitField("Save")
+
+
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField(
+        "Current Password",
+        validators=[DataRequired(), Length(min=8)],
+        render_kw={"placeholder": "Current password"},
+    )
+    new_password = PasswordField(
+        "New Password",
+        validators=[DataRequired(), Length(min=8)],
+        render_kw={"placeholder": "New password"},
+    )
+    confirm_new_password = PasswordField(
+        "Confirm New Password",
+        validators=[
+            DataRequired(),
+            Length(min=8),
+            EqualTo("new_password", message="Passwords must match."),
+        ],
+        render_kw={"placeholder": "Confirm new password"},
+    )
+    submit = SubmitField("Change Password")
