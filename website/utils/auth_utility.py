@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import request, abort, render_template, redirect, url_for
 from flask_login import current_user
+from wtforms import ValidationError
 from dotenv import load_dotenv
 
 from ..models import User, UserRole, VerificationCode
@@ -52,3 +53,27 @@ def get_verification_code(token):
         return None
 
     return verification_code
+
+
+def validate_username(_, field):
+    username = field.data or ""
+
+    if not username[0].isalpha():
+        raise ValidationError("Username must start with a letter.")
+
+    if username[-1] in "._":
+        raise ValidationError("Username must end with a letter or digit.")
+
+    for char in username:
+        if char.isalpha() and not char.islower():
+            raise ValidationError("Username must use only lowercase letters.")
+        if not (char.isdigit() or char.islower() or char in "._"):
+            raise ValidationError(
+                "Username may only contain lowercase letters, digits, '.' or '_'."
+            )
+
+
+def unique_username(form, field):
+    user = User.query.filter_by(username=field.data).first()
+    if user and user.id != current_user.id:
+        raise ValidationError("This username is already taken.")

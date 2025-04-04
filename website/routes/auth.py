@@ -59,7 +59,7 @@ def authorize_google():
         user_info = response.json()
 
         email = user_info.get("email")
-        name = user_info.get("name")
+        name = f"user.{int(round(time.time() * 1000))}"
         picture = user_info.get("picture")
         google_id = user_info.get("sub")
 

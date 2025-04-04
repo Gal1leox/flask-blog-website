@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, FileField, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
-from flask_login import current_user
-from ..models.user import User
+
+from ..utils import validate_username, unique_username
 
 
 class RegisterForm(FlaskForm):
@@ -103,30 +103,6 @@ class ResetPasswordForm(FlaskForm):
         filters=[lambda value: value.strip() if value else value],
     )
     submit = SubmitField("Reset")
-
-
-def validate_username(_, field):
-    username = field.data or ""
-
-    if not username[0].isalpha():
-        raise ValidationError("Username must start with a letter.")
-
-    if username[-1] in "._":
-        raise ValidationError("Username must end with a letter or digit.")
-
-    for char in username:
-        if char.isalpha() and not char.islower():
-            raise ValidationError("Username must use only lowercase letters.")
-        if not (char.isdigit() or char.islower() or char in "._"):
-            raise ValidationError(
-                "Username may only contain lowercase letters, digits, '.' or '_'."
-            )
-
-
-def unique_username(form, field):
-    user = User.query.filter_by(username=field.data).first()
-    if user and user.id != current_user.id:
-        raise ValidationError("This username is already taken.")
 
 
 class UpdateProfileForm(FlaskForm):
