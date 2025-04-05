@@ -1,106 +1,102 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, FileField
+from wtforms import StringField, PasswordField, SubmitField, FileField, ValidationError
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
 
-from ..utils import validate_username, unique_username
+from ..models import User
+
+
+def strip_filter(value):
+    return value.strip() if value else value
+
+
+gmail_validators = [
+    DataRequired(),
+    Email(),
+    Length(min=6, max=100),
+    Regexp(
+        r"^[A-Za-z0-9_.+-]+@gmail\.com$",
+        flags=0,
+        message="Email must be a Gmail address.",
+    ),
+]
+
+
+def gmail_email_field(label, placeholder="user@gmail.com", extra_validators=None):
+    validators = gmail_validators.copy()
+    if extra_validators:
+        validators.extend(extra_validators)
+    return StringField(
+        label,
+        validators=validators,
+        render_kw={"placeholder": placeholder},
+        filters=[strip_filter],
+    )
+
+
+def password_field(label, placeholder="password", extra_validators=None):
+    validators = [DataRequired(), Length(min=8)]
+    if extra_validators:
+        validators.extend(extra_validators)
+    return PasswordField(
+        label,
+        validators=validators,
+        render_kw={"placeholder": placeholder},
+        filters=[strip_filter],
+    )
+
+
+def validate_username(_, field):
+    username = field.data or ""
+
+    if not username[0].isalpha():
+        raise ValidationError("Username must start with a letter.")
+
+    if username[-1] in "._":
+        raise ValidationError("Username must end with a letter or digit.")
+
+    for char in username:
+        if char.isalpha() and not char.islower():
+            raise ValidationError("Username must use only lowercase letters.")
+        if not (char.isdigit() or char.islower() or char in "._"):
+            raise ValidationError(
+                "Username may only contain lowercase letters, digits, '.' or '_'."
+            )
+
+
+def unique_username(_, field):
+    user = User.query.filter_by(username=field.data).first()
+    if user and user.id != current_user.id:
+        raise ValidationError("This username is already taken.")
 
 
 class RegisterForm(FlaskForm):
-    email = StringField(
-        "Your email",
-        validators=[
-            DataRequired(),
-            Email(),
-            Length(min=6, max=100),
-            Regexp(
-                r"^[A-Za-z0-9_.+-]+@gmail\.com$",
-                flags=0,
-                message="Email must be a Gmail address.",
-            ),
-        ],
-        render_kw={"placeholder": "user@gmail.com"},
-        filters=[lambda value: value.strip() if value else value],
-    )
-    password = PasswordField(
-        "Password",
-        validators=[DataRequired(), Length(min=8)],
-        render_kw={"placeholder": "password"},
-        filters=[lambda value: value.strip() if value else value],
-    )
-    confirm_password = PasswordField(
+    email = gmail_email_field("Your email")
+    password = password_field("Password")
+    confirm_password = password_field(
         "Confirm password",
-        validators=[
-            DataRequired(),
-            Length(min=8),
-            EqualTo("password", message="Passwords must match."),
-        ],
-        render_kw={"placeholder": "password"},
-        filters=[lambda value: value.strip() if value else value],
+        extra_validators=[EqualTo("password", message="Passwords must match.")],
     )
     submit = SubmitField("Sign up")
 
 
 class LoginForm(FlaskForm):
-    email = StringField(
-        "Your email",
-        validators=[
-            DataRequired(),
-            Email(),
-            Length(min=6, max=100),
-            Regexp(
-                r"^[A-Za-z0-9_.+-]+@gmail\.com$",
-                flags=0,
-                message="Email must be a Gmail address.",
-            ),
-        ],
-        render_kw={"placeholder": "user@gmail.com"},
-        filters=[lambda value: value.strip() if value else value],
-    )
-    password = PasswordField(
-        "Password",
-        validators=[DataRequired(), Length(min=8)],
-        render_kw={"placeholder": "password"},
-        filters=[lambda value: value.strip() if value else value],
-    )
+    email = gmail_email_field("Your email")
+    password = password_field("Password")
     submit = SubmitField("Sign in")
 
 
 class ForgotPasswordForm(FlaskForm):
-    email = StringField(
-        "Your registered email",
-        validators=[
-            DataRequired(),
-            Email(),
-            Length(min=6, max=100),
-            Regexp(
-                r"^[A-Za-z0-9_.+-]+@gmail\.com$",
-                flags=0,
-                message="Email must be a Gmail address.",
-            ),
-        ],
-        render_kw={"placeholder": "user@gmail.com"},
-        filters=[lambda value: value.strip() if value else value],
-    )
+    email = gmail_email_field("Your registered email")
     submit = SubmitField("Submit")
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField(
-        "Password",
-        validators=[DataRequired(), Length(min=8)],
-        render_kw={"placeholder": "password"},
-        filters=[lambda value: value.strip() if value else value],
-    )
-    confirm_password = PasswordField(
+    password = password_field("Password")
+    confirm_password = password_field(
         "Confirm password",
-        validators=[
-            DataRequired(),
-            Length(min=8),
-            EqualTo("password", message="Passwords must match."),
-        ],
-        render_kw={"placeholder": "password"},
-        filters=[lambda value: value.strip() if value else value],
+        extra_validators=[EqualTo("password", message="Passwords must match.")],
     )
     submit = SubmitField("Reset")
 
@@ -115,7 +111,7 @@ class UpdateProfileForm(FlaskForm):
             unique_username,
         ],
         render_kw={"placeholder": "username"},
-        filters=[lambda value: value.strip() if value else value],
+        filters=[strip_filter],
     )
     email = StringField(
         "Email address",
@@ -133,23 +129,13 @@ class UpdateProfileForm(FlaskForm):
 
 
 class ChangePasswordForm(FlaskForm):
-    current_password = PasswordField(
-        "Current Password",
-        validators=[DataRequired(), Length(min=8)],
-        render_kw={"placeholder": "Current password"},
+    current_password = password_field(
+        "Current Password", placeholder="Current password"
     )
-    new_password = PasswordField(
-        "New Password",
-        validators=[DataRequired(), Length(min=8)],
-        render_kw={"placeholder": "New password"},
-    )
-    confirm_new_password = PasswordField(
+    new_password = password_field("New Password", placeholder="New password")
+    confirm_new_password = password_field(
         "Confirm New Password",
-        validators=[
-            DataRequired(),
-            Length(min=8),
-            EqualTo("new_password", message="Passwords must match."),
-        ],
-        render_kw={"placeholder": "Confirm new password"},
+        placeholder="Confirm new password",
+        extra_validators=[EqualTo("new_password", message="Passwords must match.")],
     )
     submit = SubmitField("Change Password")
