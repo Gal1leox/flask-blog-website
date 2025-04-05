@@ -83,7 +83,7 @@ def authorize_google():
         login_user(user)
         flash(message, "success")
 
-        return redirect(url_for("general.home"))
+        return redirect(url_for("home.home"))
     except Exception as e:
         flash(
             "An error occurred while signing you in. Please try again later.",
@@ -119,7 +119,7 @@ def register():
             login_user(new_user)
             flash("Your account was created successfully!", "success")
 
-            return redirect(url_for("general.home"))
+            return redirect(url_for("home.home"))
         except Exception as e:
             flash(
                 "An error occurred while creating your account. Please try again later.",
@@ -152,7 +152,7 @@ def login():
         ):
             login_user(user)
             flash(f"Welcome back, {user.username}!", "success")
-            return redirect(url_for("general.home"))
+            return redirect(url_for("home.home"))
         else:
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
@@ -165,7 +165,7 @@ def login():
 def logout():
     logout_user()
     flash("You have been logged out.", "success")
-    return redirect(url_for("general.home"))
+    return redirect(url_for("home.home"))
 
 
 @auth_bp.route("/forgot-password/", methods=["GET", "POST"])
@@ -305,7 +305,7 @@ def admin_login():
         if admin and (check_password_hash(admin.password_hash, form.password.data)):
             login_user(admin)
             flash("Welcome back, boss!", "success")
-            return redirect(url_for("general.home"))
+            return redirect(url_for("home.home"))
         else:
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)

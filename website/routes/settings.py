@@ -1,9 +1,9 @@
 import os
+
+import cloudinary.uploader
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required, logout_user
 from dotenv import load_dotenv
-import cloudinary.uploader
-
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..forms.forms import UpdateProfileForm, ChangePasswordForm
@@ -12,31 +12,15 @@ from website import db
 
 load_dotenv()
 
-general_bp = Blueprint("general", __name__, template_folder="../templates")
+settings_bp = Blueprint("settings", __name__, template_folder="../templates")
 
 
-@general_bp.route("/")
-def home():
-    user = User.query.get(current_user.id) if current_user.is_authenticated else None
-
-    avatar_url = user.avatar_url if user else ""
-    is_admin = user and user.role == UserRole.ADMIN
-    token = os.getenv("SECRET_KEY") if is_admin else ""
-
-    return render_template(
-        "pages/shared/home.html",
-        is_admin=is_admin,
-        avatar_url=avatar_url,
-        token=token,
-        active_page="Home",
-    )
-
-
-@general_bp.route("/settings", methods=["GET", "POST"])
+@settings_bp.route("/", methods=["GET", "POST"])
 @login_required
 def settings():
     form = UpdateProfileForm()
     change_password_form = ChangePasswordForm()
+
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
 
     if request.method == "POST":
@@ -58,7 +42,7 @@ def settings():
                 flash("Profile updated successfully", "success")
 
             db.session.commit()
-            return redirect(url_for("general.settings"))
+            return redirect(url_for("settings.settings"))
 
     if user:
         form.username.data = user.username
@@ -81,7 +65,7 @@ def settings():
     )
 
 
-@general_bp.route("/settings/delete-avatar", methods=["POST"])
+@settings_bp.route("/delete-avatar", methods=["POST"])
 @login_required
 def delete_avatar():
     form = UpdateProfileForm()
@@ -96,10 +80,10 @@ def delete_avatar():
     else:
         flash("User not found", "error")
 
-    return redirect(url_for("general.settings"))
+    return redirect(url_for("settings.settings"))
 
 
-@general_bp.route("/settings/change-password", methods=["POST"])
+@settings_bp.route("/change-password", methods=["POST"])
 @login_required
 def change_password():
     change_password_form = ChangePasswordForm()
@@ -107,7 +91,7 @@ def change_password():
 
     if not (user and user.password_hash):
         flash("Password change is not available for your account.", "danger")
-        return redirect(url_for("general.settings"))
+        return redirect(url_for("settings.settings"))
 
     if change_password_form.validate_on_submit():
         if not check_password_hash(
@@ -120,7 +104,7 @@ def change_password():
             )
             db.session.commit()
             flash("Password updated successfully.", "success")
-            return redirect(url_for("general.settings"))
+            return redirect(url_for("settings.settings"))
 
     profile_form = UpdateProfileForm()
     profile_form.username.data = user.username
@@ -142,13 +126,13 @@ def change_password():
     )
 
 
-@general_bp.route("/settings/delete-account", methods=["POST"])
+@settings_bp.route("/delete-account", methods=["POST"])
 @login_required
 def delete_account():
     user = User.query.get(current_user.id)
     if user and user.role == UserRole.ADMIN:
         flash("Cannot delete an admin user.", "danger")
-        return redirect(url_for("general.home"))
+        return redirect(url_for("home.home"))
 
     db.session.delete(user)
     db.session.commit()
@@ -156,4 +140,4 @@ def delete_account():
     logout_user()
 
     flash("Your account has been deleted.", "success")
-    return redirect(url_for("general.home"))
+    return redirect(url_for("home.home"))
