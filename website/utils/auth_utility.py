@@ -3,7 +3,6 @@ from functools import wraps
 
 from flask import request, abort, render_template, redirect, url_for
 from flask_login import current_user
-from wtforms import ValidationError
 from dotenv import load_dotenv
 
 from ..models import User, UserRole, VerificationCode
