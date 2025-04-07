@@ -52,8 +52,20 @@
       </div>
       <div class="sm:col-span-2">{{ render_text_field(form.phone) }}</div>
       <div class="sm:col-span-2">{{ render_textarea_field(form.message) }}</div>
+      <div class="sm:col-span-2 mt-2">
+        <div class="recaptcha-container">
+          {{ form.recaptcha() }}
+        </div>
+        {% if form.recaptcha.errors %}
+        <div class="text-red-500 text-sm mt-1">
+          {% for error in form.recaptcha.errors %}
+          <span>{{ error }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
     </div>
-    <div class="mt-8">
+    <div class="mt-6">
       <input
         :value="submitting ? 'Sending...' : submit_text"
         :disabled="submitting"
@@ -64,4 +76,22 @@
     </div>
   </form>
 </div>
+
+<script>
+  function scaleRecaptcha() {
+    var container = document.querySelector('.recaptcha-container');
+    if (!container) return;
+
+    var recaptchaWidth = 302;
+    var containerWidth = container.offsetWidth;
+    var scale = containerWidth / recaptchaWidth;
+
+    container.style.transform = 'scale(' + scale + ')';
+    container.style.transformOrigin = '0 0';
+    container.style.height = (78 * scale) + 'px';
+  }
+
+  window.addEventListener('load', scaleRecaptcha);
+  window.addEventListener('resize', scaleRecaptcha);
+</script>
 {% endblock %}

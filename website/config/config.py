@@ -20,6 +20,9 @@ class Config:
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
     PREFERRED_URL_SCHEME = os.getenv("PREFERRED_URL_SCHEME")
+    RECAPTCHA_PUBLIC_KEY = os.getenv("RECAPTCHA_SITE_KEY")
+    RECAPTCHA_PRIVATE_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
+    RECAPTCHA_OPTIONS = {"theme": "light"}
 
 
 class DevelopmentConfig(Config):

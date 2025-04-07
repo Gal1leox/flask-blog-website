@@ -10,6 +10,7 @@ from wtforms import (
     SelectField,
     TextAreaField,
 )
+from flask_wtf.recaptcha import RecaptchaField
 from wtforms.validators import DataRequired, Length, EqualTo, Optional, Regexp
 
 from .validators import (
@@ -131,6 +132,7 @@ class ContactForm(FlaskForm):
             Regexp(r"^[A-Za-z]+$", message="First name must contain only letters."),
         ],
         render_kw={"placeholder": "First name"},
+        filters=[strip_filter],
     )
     last_name = StringField(
         "Last Name",
@@ -140,6 +142,7 @@ class ContactForm(FlaskForm):
             Regexp(r"^[A-Za-z]+$", message="Last name must contain only letters."),
         ],
         render_kw={"placeholder": "Last name"},
+        filters=[strip_filter],
     )
     inquiry_type = SelectField(
         "I am interested in",
@@ -149,15 +152,19 @@ class ContactForm(FlaskForm):
             ("hiring inquiry", "Hiring Inquiry"),
         ],
         validators=[DataRequired()],
+        filters=[strip_filter],
     )
     phone = StringField(
         "Phone Number (optional)",
         validators=[Optional(), validate_phone],
         render_kw={"placeholder": "123-456-7890"},
+        filters=[strip_filter],
     )
     message = TextAreaField(
         "Message",
         validators=[DataRequired(), calculate_word_count],
         render_kw={"placeholder": "Your message (max 300 words)", "rows": 4},
+        filters=[strip_filter],
     )
+    recaptcha = RecaptchaField()
     submit = SubmitField("Submit")
