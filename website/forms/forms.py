@@ -1,26 +1,25 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, FileField, ValidationError
-from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
+from wtforms import (
+    StringField,
+    PasswordField,
+    SubmitField,
+    FileField,
+    ValidationError,
+    SelectField,
+    TextAreaField,
+)
+from wtforms.validators import DataRequired, Length, EqualTo, Optional, Regexp
 
+from .validators import (
+    gmail_validators,
+    strip_filter,
+    validate_username,
+    calculate_word_count,
+    validate_phone,
+)
 from ..models import User
-
-
-def strip_filter(value):
-    return value.strip() if value else value
-
-
-gmail_validators = [
-    DataRequired(),
-    Email(),
-    Length(min=6, max=100),
-    Regexp(
-        r"^[A-Za-z0-9_.+-]+@gmail\.com$",
-        flags=0,
-        message="Email must be a Gmail address.",
-    ),
-]
 
 
 def gmail_email_field(label, placeholder="user@gmail.com", extra_validators=None):
@@ -45,24 +44,6 @@ def password_field(label, placeholder="password", extra_validators=None):
         render_kw={"placeholder": placeholder},
         filters=[strip_filter],
     )
-
-
-def validate_username(_, field):
-    username = field.data or ""
-
-    if not username[0].isalpha():
-        raise ValidationError("Username must start with a letter.")
-
-    if username[-1] in "._":
-        raise ValidationError("Username must end with a letter or digit.")
-
-    for char in username:
-        if char.isalpha() and not char.islower():
-            raise ValidationError("Username must use only lowercase letters.")
-        if not (char.isdigit() or char.islower() or char in "._"):
-            raise ValidationError(
-                "Username may only contain lowercase letters, digits, '.' or '_'."
-            )
 
 
 def unique_username(_, field):
@@ -139,3 +120,44 @@ class ChangePasswordForm(FlaskForm):
         extra_validators=[EqualTo("new_password", message="Passwords must match.")],
     )
     submit = SubmitField("Change Password")
+
+
+class ContactForm(FlaskForm):
+    first_name = StringField(
+        "First Name",
+        validators=[
+            DataRequired(),
+            Length(min=2, max=50),
+            Regexp(r"^[A-Za-z]+$", message="First name must contain only letters."),
+        ],
+        render_kw={"placeholder": "First name"},
+    )
+    last_name = StringField(
+        "Last Name",
+        validators=[
+            DataRequired(),
+            Length(min=2, max=50),
+            Regexp(r"^[A-Za-z]+$", message="Last name must contain only letters."),
+        ],
+        render_kw={"placeholder": "Last name"},
+    )
+    inquiry_type = SelectField(
+        "I am interested in",
+        choices=[
+            ("general inquiry", "General Inquiry"),
+            ("collaboration inquiry", "Collaboration Inquiry"),
+            ("hiring inquiry", "Hiring Inquiry"),
+        ],
+        validators=[DataRequired()],
+    )
+    phone = StringField(
+        "Phone Number (optional)",
+        validators=[Optional(), validate_phone],
+        render_kw={"placeholder": "123-456-7890"},
+    )
+    message = TextAreaField(
+        "Message",
+        validators=[DataRequired(), calculate_word_count],
+        render_kw={"placeholder": "Your message (max 300 words)", "rows": 4},
+    )
+    submit = SubmitField("Submit")
