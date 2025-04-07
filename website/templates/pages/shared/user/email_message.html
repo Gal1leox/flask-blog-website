@@ -1,0 +1,77 @@
+{# templates/pages/shared/user/email_message.html #}
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Contact Message</title>
+  <style>
+      .email-container {
+          width: 100%;
+          max-width: 600px;
+          background-color: #ffffff;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          margin: auto;
+          font-family: Arial, sans-serif;
+      }
+      .email-heading {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #3b82f6;
+          margin-bottom: 1rem;
+      }
+      .email-text {
+          font-size: 0.875rem;
+          color: #374151;
+          margin-bottom: 1rem;
+          line-height: 1.5;
+      }
+      .detail {
+          background-color: #f3f4f6;
+          padding: 0.5rem 1rem;
+          border-radius: 0.375rem;
+          margin-bottom: 1rem;
+      }
+      .label {
+          font-weight: bold;
+      }
+  </style>
+</head>
+<body style="margin: 0; padding: 1rem; background-color: #f3f4f6;">
+<div class="email-container">
+  <div style="padding: 1.5rem;">
+    <h2 class="email-heading">New Contact Message</h2>
+    <p class="email-text">
+      You have received a new message from the contact form. Below are the details:
+    </p>
+    <div class="detail">
+      <p class="email-text">
+        <span class="label">Full Name:</span> {{ form.first_name.data }} {{ form.last_name.data }}
+      </p>
+      <p class="email-text">
+        <span class="label">Email:</span> {{ sender_email }}
+      </p>
+      {% if form.phone.data %}
+      <p class="email-text">
+        <span class="label">Phone:</span> {{ form.phone.data }}
+      </p>
+      {% endif %}
+      {% if form.inquiry_type.data %}
+      <p class="email-text">
+        <span class="label">I am interested in:</span> {{ form.inquiry_type.data }}
+      </p>
+      {% endif %}
+    </div>
+    <div>
+      <p class="email-text"><span class="label">Message:</span></p>
+      <p class="email-text" style="background-color: #f9fafb; padding: 0.75rem; border-radius: 0.375rem;">
+        {{ form.message.data }}
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

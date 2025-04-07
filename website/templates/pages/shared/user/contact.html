@@ -1,0 +1,67 @@
+{# templates/pages/shared/contact.html #}
+
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import
+        render_text_field,
+        render_select_field,
+        render_textarea_field
+%}
+
+{% block title %}Kalts Daniil - Contact Me{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div x-data="{ count: {{ messages|length }} }" x-show="count > 0" class="mb-6">
+  {% for category, message in messages %}
+    {{ alert(category, message) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div
+  class="{% if messages|length > 0 %}mt-6{% endif %} w-full bg-white dark:bg-gray-800 rounded-2xl shadow p-6 max-w-2xl mx-auto"
+>
+  <div class="mb-6">
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+      I am open to new connections!
+    </h3>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+      Feel free to reach out for hiring, collaboration, or any general
+      inquiries.
+    </p>
+  </div>
+  <hr class="border-gray-300 dark:border-gray-700 mb-6" />
+
+  <form
+    x-data="{ submitting: false, submit_text: '{{ form.submit.label.text }}' }"
+    x-on:submit="submitting = true"
+    class="mx-auto"
+    method="POST"
+    action="{{ url_for('contact.contact') }}"
+  >
+    {{ form.hidden_tag() }}
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>{{ render_text_field(form.first_name) }}</div>
+      <div>{{ render_text_field(form.last_name) }}</div>
+      <div class="sm:col-span-2">
+        {{ render_select_field(form.inquiry_type) }}
+      </div>
+      <div class="sm:col-span-2">{{ render_text_field(form.phone) }}</div>
+      <div class="sm:col-span-2">{{ render_textarea_field(form.message) }}</div>
+    </div>
+    <div class="mt-8">
+      <input
+        :value="submitting ? 'Sending...' : submit_text"
+        :disabled="submitting"
+        :class="submitting ? 'bg-blue-300 opacity-50 cursor-not-allowed' : ''"
+        type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+  </form>
+</div>
+{% endblock %}
