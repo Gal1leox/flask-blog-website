@@ -22,7 +22,7 @@
 
 <div class="w-full md:max-w-4xl md:mx-auto">
   <div
-    class="flex flex-col md:flex-row md:gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow overflow-hidden"
+    class="flex flex-col md:flex-row bg-white dark:bg-gray-800 rounded-2xl shadow overflow-hidden"
   >
     <div class="hidden md:flex relative w-[45%] items-stretch overflow-hidden">
       <div class="relative w-full flex-1 overflow-hidden">
@@ -35,8 +35,10 @@
     </div>
     <div class="w-full p-6 md:w-[55%]">
       <form
-        x-data="{ submitting: false, submit_text: '{{ form.submit.label.text }}' }"
-        x-on:submit="submitting = true"
+        x-data="contactForm()"
+        x-on:submit.prevent="submitForm"
+        id="contactForm"
+        class="mx-auto"
         method="POST"
         action="{{ url_for('contact.contact') }}"
       >
@@ -52,13 +54,16 @@
             {{ render_textarea_field(form.message) }}
           </div>
         </div>
+        <div id="recaptchaContainer" class="mt-6"></div>
         <div class="mt-6">
           <input
-            :value="submitting ? 'Sending...' : submit_text"
+            :value="submitting ? 'Checking...' : submit_text"
             :disabled="submitting"
-            :class="submitting ? 'bg-blue-300 opacity-50 cursor-not-allowed' : ''"
+            :class="[
+         'bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2',
+         submitting ? 'opacity-50 cursor-not-allowed' : ''
+       ]"
             type="submit"
-            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-sm px-6 py-2 rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </form>
@@ -66,18 +71,45 @@
   </div>
 </div>
 
+<script
+  src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+  async
+  defer
+></script>
 <script>
-  function scaleRecaptcha() {
-    var container = document.querySelector(".recaptcha-container");
-    if (!container) return;
-    var recaptchaWidth = 302;
-    var containerWidth = container.offsetWidth;
-    var scale = containerWidth / recaptchaWidth;
-    container.style.transform = "scale(" + scale + ")";
-    container.style.transformOrigin = "0 0";
-    container.style.height = 78 * scale + "px";
+  function onloadCallback() {
+    // This callback runs when the reCAPTCHA API is ready.
   }
-  window.addEventListener("load", scaleRecaptcha);
-  window.addEventListener("resize", scaleRecaptcha);
+
+  function contactForm() {
+    return {
+      submitting: false,
+      submit_text: "{{ form.submit.label.text }}",
+      recaptchaWidgetId: null,
+      submitForm() {
+        this.submitting = true;
+        if (typeof grecaptcha !== "undefined") {
+          if (!this.recaptchaWidgetId) {
+            this.recaptchaWidgetId = grecaptcha.render("recaptchaContainer", {
+              sitekey: "{{ config.RECAPTCHA_PUBLIC_KEY }}",
+              size: "invisible",
+              callback: (token) => {
+                this.onRecaptchaSuccess(token);
+              },
+              "expired-callback": () => {
+                this.recaptchaWidgetId = null;
+              },
+            });
+          }
+          grecaptcha.execute(this.recaptchaWidgetId);
+        } else {
+          console.error("grecaptcha is not defined");
+        }
+      },
+      onRecaptchaSuccess(token) {
+        document.getElementById("contactForm").submit();
+      },
+    };
+  }
 </script>
 {% endblock %}
