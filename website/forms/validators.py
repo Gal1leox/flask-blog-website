@@ -39,7 +39,7 @@ def validate_username(_, field):
             )
 
 
-def validate_phone(form, field):
+def validate_phone(_, field):
     if field.data:
         pattern = re.compile(r"^\+?[\d\s\-\(\)]+$")
         if not pattern.match(field.data):
@@ -51,3 +51,11 @@ def calculate_word_count(_, field):
         word_count = len(field.data.split())
         if word_count > 300:
             raise ValidationError("Message cannot be more than 300 words.")
+
+
+def validate_num_images(_, field):
+    files = field.data
+    if not files or len(files) == 0:
+        raise ValidationError("Please upload at least one image.")
+    if len(files) > 5:
+        raise ValidationError("You can upload up to 5 images only.")

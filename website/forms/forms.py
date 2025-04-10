@@ -19,6 +19,7 @@ from .validators import (
     validate_username,
     calculate_word_count,
     validate_phone,
+    validate_num_images,
 )
 from ..models import User
 
@@ -168,3 +169,37 @@ class ContactForm(FlaskForm):
     )
     recaptcha = RecaptchaField()
     submit = SubmitField("Submit")
+
+
+class MultiFileField(StringField):
+    """
+    A custom field that processes multiple file inputs.
+    """
+
+    def process_formdata(self, valuelist):
+        self.data = valuelist if valuelist else []
+
+
+class CreatePostForm(FlaskForm):
+    title = StringField(
+        "Title",
+        validators=[DataRequired(), Length(min=1, max=40)],
+        render_kw={"placeholder": "Title of a new post"},
+        filters=[strip_filter],
+    )
+    content = TextAreaField(
+        "Content",
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Content of a new post", "rows": 10},
+        filters=[strip_filter],
+    )
+    images = MultiFileField(
+        "Upload an Image",
+        validators=[
+            DataRequired(message="At least one image is required."),
+            validate_num_images,
+            FileAllowed(["jpg", "jpeg", "png"], "Only JPG and PNG images are allowed."),
+        ],
+        render_kw={"multiple": True, "id": "dropzone-file"},
+    )
+    submit = SubmitField("Publish")

@@ -2,7 +2,6 @@ from datetime import datetime
 
 from sqlalchemy import (
     Integer,
-    LargeBinary,
     Text,
     String,
     DateTime,
@@ -64,10 +63,7 @@ class Image(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    filename: Mapped[str] = mapped_column(String(255), nullable=False)
-    file_type: Mapped[str] = mapped_column(String(10), nullable=False)
-    file_size: Mapped[int] = mapped_column(Integer)
+    image_url: Mapped[str] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
