@@ -1,0 +1,135 @@
+{# templates/pages/shared/admin/new_post.html #}
+
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import render_text_field, render_textarea_field %}
+
+{% block title %}Kalts Daniil - New Post{% endblock %}
+
+{% block content %}
+<div
+  class="w-full max-w-xl mx-auto"
+>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div x-show="count > 0" class="w-full mb-6">
+    {% for category, message in messages %}
+    {{ alert(category, message) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-xl mx-auto shadow p-6">
+    <form method="POST" action="" enctype="multipart/form-data" novalidate x-data="fileUploaderAndSubmit()" x-on:submit="submitting = true">
+      {{ form.hidden_tag() }}
+
+      <div class="flex items-center justify-center mb-6">
+        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+          <div class="flex flex-col items-center justify-center pt-5 pb-6">
+            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+            </svg>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              <span class="font-semibold">Click to upload</span> or drag and drop
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG or JPEG</p>
+          </div>
+          <input id="dropzone-file" type="file" name="images" multiple
+                 accept="image/png, image/jpeg, image/jpg"
+                 class="hidden"
+                 x-on:change="onFileChange($event)" />
+        </label>
+      </div>
+
+      <div x-show="files.length > 0" class="mb-6">
+        <template x-for="(item, index) in files" :key="index">
+          <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
+            <div class="flex items-center flex-grow max-w-3/4 mr-2">
+              <img :src="item.preview" alt="preview" class="w-10 h-10 mr-2 object-cover rounded">
+              <span x-text="item.file.name" class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
+            </div>
+            <button type="button" @click="removeFile(index)" class="text-sm text-red-500 hover:text-red-600" title="Remove file">Remove</button>
+          </div>
+        </template>
+      </div>
+
+      {% if form.images.errors %}
+      <div class="text-red-600 text-xs mb-4">
+        {% for error in form.images.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        {{ render_text_field(form.title) }}
+      </div>
+
+      <div class="mb-6">
+        {{ render_textarea_field(form.content) }}
+      </div>
+
+      <div>
+        <input type="submit"
+               :value="submitting ? 'Publishing...' : submit_text"
+               :disabled="submitting"
+               class="w-full py-2 px-4 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+               :class="submitting ? 'bg-blue-300 opacity-50 cursor-not-allowed' : ''">
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function fileUploader() {
+    return {
+      files: [],
+      onFileChange(event) {
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+        const selectedFiles = event.target.files;
+        for (let i = 0; i < selectedFiles.length; i++) {
+          if (this.files.length >= 5) break;
+          const file = selectedFiles[i];
+          if (allowedTypes.includes(file.type)) {
+            const previewUrl = URL.createObjectURL(file);
+            this.files.push({ file: file, preview: previewUrl });
+          } else {
+            alert("Invalid file type: " + file.name);
+          }
+        }
+      },
+      removeFile(index) {
+        URL.revokeObjectURL(this.files[index].preview);
+        this.files.splice(index, 1);
+      }
+    }
+  }
+
+  function fileUploaderAndSubmit() {
+    return {
+      ...fileUploader(),
+      submitting: false,
+      submit_text: '{{ form.submit.label.text }}'
+    }
+  }
+
+  function fileUploaderAndSubmit() {
+    return {
+      ...fileUploader(),
+      submitting: false,
+      submit_text: '{{ form.submit.label.text }}'
+    }
+  }
+
+  // Use fileUploaderAndSubmit in the x-data attribute
+  function fileUploaderAndSubmit() {
+    return {
+      ...fileUploader(),
+      submitting: false,
+      submit_text: '{{ form.submit.label.text }}'
+    };
+  }
+</script>
+{% endblock %}
