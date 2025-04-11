@@ -86,11 +86,14 @@
   function fileUploader() {
     return {
       files: [],
+      maxFileSize: 2 * 1024 * 1024,
       onFileChange(event) {
         const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
         const selectedFiles = event.target.files;
+
         for (let i = 0; i < selectedFiles.length; i++) {
-          if (this.files.length >= 5) break;
+          if (this.files.length >= 3) break;
+
           const file = selectedFiles[i];
           if (allowedTypes.includes(file.type)) {
             const previewUrl = URL.createObjectURL(file);
@@ -106,7 +109,6 @@
       }
     }
   }
-
   function fileUploaderAndSubmit() {
     return {
       ...fileUploader(),
@@ -123,7 +125,6 @@
     }
   }
 
-  // Use fileUploaderAndSubmit in the x-data attribute
   function fileUploaderAndSubmit() {
     return {
       ...fileUploader(),

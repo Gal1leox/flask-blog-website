@@ -2,14 +2,7 @@ import secrets
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
-from sqlalchemy import (
-    Integer,
-    Enum as SQLEnum,
-    String,
-    DateTime,
-    Boolean,
-    ForeignKey,
-)
+from sqlalchemy import Integer, Enum as SQLEnum, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_login import UserMixin
 
@@ -23,7 +16,7 @@ class User(db.Model, UserMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String, unique=False, nullable=True)
+    password_hash: Mapped[str] = mapped_column(String, nullable=True)
     google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole), nullable=False, default=UserRole.USER
@@ -38,20 +31,36 @@ class User(db.Model, UserMixin):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    posts: Mapped[list["Post"]] = relationship(
-        "Post", back_populates="author", cascade="all, delete-orphan"
-    )
+    # Add missing images relationship to match the back_populates in Image model.
     images: Mapped[list["Image"]] = relationship(
-        "Image", back_populates="author", cascade="all, delete-orphan"
+        "Image",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+    posts: Mapped[list["Post"]] = relationship(
+        "Post",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     tags: Mapped[list["Tag"]] = relationship(
-        "Tag", back_populates="author", cascade="all, delete-orphan"
+        "Tag",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     comments: Mapped[list["Comment"]] = relationship(
-        "Comment", back_populates="author", cascade="all, delete-orphan"
+        "Comment",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
     saved_posts: Mapped[list["SavedPost"]] = relationship(
-        "SavedPost", back_populates="user", cascade="all, delete-orphan"
+        "SavedPost",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     def __repr__(self):
@@ -69,8 +78,10 @@ class VerificationCode(db.Model):
     __tablename__ = "verification_codes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    code_hash: Mapped[str] = mapped_column(String, unique=False, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    code_hash: Mapped[str] = mapped_column(String, nullable=False)
     token: Mapped[str] = mapped_column(String(16), unique=True, nullable=False)
     is_valid: Mapped[bool] = mapped_column(Boolean, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

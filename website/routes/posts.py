@@ -42,8 +42,6 @@ def new_post():
         new_post = Post(
             title=form.title.data, content=form.content.data, author_id=current_user.id
         )
-        db.session.add(new_post)
-        db.session.commit()
 
         for file in image_files:
             if file:
@@ -55,6 +53,8 @@ def new_post():
                     new_image = Image(author_id=current_user.id, image_url=secure_url)
                     new_post.images.append(new_image)
                     db.session.add(new_image)
+
+        db.session.add(new_post)
         db.session.commit()
 
         flash("Post created successfully!", "success")

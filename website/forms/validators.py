@@ -57,5 +57,5 @@ def validate_num_images(_, field):
     files = field.data
     if not files or len(files) == 0:
         raise ValidationError("Please upload at least one image.")
-    if len(files) > 5:
-        raise ValidationError("You can upload up to 5 images only.")
+    if len(files) > 3:
+        raise ValidationError("You can upload up to 3 images only.")
