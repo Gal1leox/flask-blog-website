@@ -121,7 +121,9 @@
           {% for attribute in attributes %}
           <th class="px-6 py-3" scope="col">{{ attribute }}</th>
           {% endfor %}
+          {% if records|length and table not in ['post_images', 'post_tags', 'saved_posts'] %}
           <th class="px-6 py-3" scope="col">Action</th>
+          {% endif %}
         </tr>
         </thead>
         <thead
@@ -151,6 +153,9 @@
             </div>
           </td>
           {% endfor %}
+
+          {# Only show delete action if the table is not a many-to-many relation #}
+          {% if table not in ['post_images', 'post_tags', 'saved_posts'] %}
           <td class="px-6 py-4">
             <a
               @click.prevent="deleteRecord({{ record['id'] }})"
@@ -160,6 +165,7 @@
               Delete
             </a>
           </td>
+          {% endif %}
         </tr>
         {% endfor %}
         </tbody>
@@ -178,7 +184,7 @@
     {% endif %}
   </div>
   <div class="flex flex-wrap w-full gap-3 sm:items-center sm:justify-between">
-    {% if records|length %}
+    {% if records|length and table not in ['post_images', 'post_tags', 'saved_posts'] %}
     <button
       @click="deleteAllRecords()"
       type="button"

@@ -72,6 +72,10 @@ def database():
 @token_required
 @admin_required
 def delete_record(table, record_id):
+    if table in ["post_images", "post_tags", "saved_posts"]:
+        flash("Deletion is not allowed for this table.", "danger")
+        return jsonify(success=False, error="Deletion not allowed"), 403
+
     table_info = TABLES.get(table)
     if not table_info:
         flash(f"Table '{table}' not found.", "danger")
@@ -109,6 +113,10 @@ def delete_record(table, record_id):
 @token_required
 @admin_required
 def delete_records(table):
+    if table in ["post_images", "post_tags", "saved_posts"]:
+        flash("Bulk deletion is not allowed for this table.", "danger")
+        return jsonify(success=False, error="Deletion not allowed"), 403
+
     table_info = TABLES.get(table)
     if not table_info:
         flash(f"Table '{table}' not found.", "danger")
