@@ -4,11 +4,9 @@ from website.models import (
     Tag,
     Image,
     Comment,
-    Notification,
     PostImage,
     PostTag,
     SavedPost,
-    UserNotification,
     VerificationCode,
 )
 
@@ -54,11 +52,6 @@ TABLES = {
         "columns": get_table_columns(Image),
         "query": lambda: Image.query.all(),
     },
-    "notifications": {
-        "table": Notification,
-        "columns": get_table_columns(Notification),
-        "query": lambda: Notification.query.all(),
-    },
     "post_images": {
         "table": PostImage,
         "columns": get_table_columns(PostImage),
@@ -73,11 +66,6 @@ TABLES = {
         "table": SavedPost,
         "columns": get_table_columns(SavedPost),
         "query": lambda: SavedPost.query.all(),
-    },
-    "user_notifications": {
-        "table": UserNotification,
-        "columns": get_table_columns(UserNotification),
-        "query": lambda: UserNotification.query.all(),
     },
 }
 

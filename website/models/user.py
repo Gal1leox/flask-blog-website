@@ -53,9 +53,6 @@ class User(db.Model, UserMixin):
     saved_posts: Mapped[list["SavedPost"]] = relationship(
         "SavedPost", back_populates="user", cascade="all, delete-orphan"
     )
-    notifications: Mapped[list["UserNotification"]] = relationship(
-        "UserNotification", back_populates="user", cascade="all, delete-orphan"
-    )
 
     def __repr__(self):
         return (

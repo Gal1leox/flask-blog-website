@@ -16,7 +16,7 @@
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 flex flex-col min-h-screen">
     {% include "components/layout/navbar.html" %}
-    <main class="w-full mx-auto max-w-7xl flex-1 flex flex-col py-8 px-6 lg:px-8">
+    <main class="w-full mx-auto max-w-7xl flex-1 flex flex-col p-6 lg:px-8">
       {% block content %}{% endblock %}
     </main>
     <script src="{{ url_for('static', filename='js/alpine.min.js') }}"></script>

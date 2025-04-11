@@ -10,14 +10,3 @@ class UserTheme(Enum):
     SYSTEM = "system"
     LIGHT = "light"
     DARK = "dark"
-
-
-class NotificationType(Enum):
-    COMMENT = "comment"
-    MENTION = "mention"
-    RELEASE = "release"
-
-
-class NotificationStatus(Enum):
-    UNREAD = "unread"
-    READ = "read"
