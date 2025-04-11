@@ -184,7 +184,7 @@
     {% endif %}
   </div>
   <div class="flex flex-wrap w-full gap-3 sm:items-center sm:justify-between">
-    {% if records|length and table not in ['post_images', 'post_tags', 'saved_posts'] %}
+    {% if records|length %}
     <button
       @click="deleteAllRecords()"
       type="button"

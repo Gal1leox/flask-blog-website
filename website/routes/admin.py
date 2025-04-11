@@ -113,29 +113,27 @@ def delete_record(table, record_id):
 @token_required
 @admin_required
 def delete_records(table):
-    if table in ["post_images", "post_tags", "saved_posts"]:
-        flash("Bulk deletion is not allowed for this table.", "danger")
-        return jsonify(success=False, error="Deletion not allowed"), 403
-
     table_info = TABLES.get(table)
     if not table_info:
         flash(f"Table '{table}' not found.", "danger")
         return "", 404
 
     Table = table_info["table"]
+
     if Table.__tablename__ == "users":
-        db.session.query(Table).filter(Table.role != UserRole.ADMIN).delete(
-            synchronize_session=False
-        )
+        records = db.session.query(Table).filter(Table.role != UserRole.ADMIN).all()
+        for record in records:
+            db.session.delete(record)
     else:
-        db.session.query(Table).delete(synchronize_session=False)
+        records = db.session.query(Table).all()
+        for record in records:
+            db.session.delete(record)
 
     db.session.commit()
     flash(
         f"Successfully deleted all records from the {table} table.",
         "success",
     )
-
     return (
         jsonify(
             success=True,
