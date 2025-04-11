@@ -1,33 +1,24 @@
-{# templates/pages/shared/admin/new_post.html #}
-
-{% extends "pages/shared/base.html" %}
-
-{% from "components/ui/alert.html" import alert %}
-{% from "components/ui/field.html" import
-  render_text_field,
-  render_textarea_field
-%}
-
-{% block title %}Kalts Daniil - New Post{% endblock %}
+{# templates/pages/shared/admin/new_post.html #} {% extends
+"pages/shared/base.html" %} {% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import render_text_field,
+render_textarea_field %} {% block title %}Kalts Daniil - New Post{% endblock %}
 {% block content %}
 <div class="w-full max-w-xl mx-auto">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-  <div x-show="count > 0" class="w-full mb-6">
+  {# Flash messages #} {% with messages =
+  get_flashed_messages(with_categories=true) %} {% if messages %}
+  <div>
     {% for category, message in messages %}
-    {{ alert(category, message) }}
+    <div class="mb-6">{{ alert(category, message) }}</div>
     {% endfor %}
   </div>
-  {% endif %}
-  {% endwith %}
+  {% endif %} {% endwith %}
 
   <div
+    x-data="filePreviewAndSubmit()"
     class="bg-white dark:bg-gray-800 rounded-2xl max-w-xl mx-auto shadow p-6"
   >
     <form
-      x-data="fileUploaderAndSubmit()"
-      x-ref="postForm"
-      x-on:submit.prevent="submitForm($event)"
+      x-on:submit="submitting = true"
       method="POST"
       action=""
       enctype="multipart/form-data"
@@ -64,9 +55,9 @@
             </p>
           </div>
           <input
-            x-ref="fileInput"
-            x-on:change="onFileChange($event)"
+            x-on:change="updatePreview($event)"
             id="dropzone-file"
+            name="images"
             type="file"
             class="hidden"
             accept="image/png, image/jpeg, image/jpg"
@@ -75,19 +66,19 @@
         </label>
       </div>
 
-      <div x-show="files.length > 0" class="mb-6">
-        <template x-for="(item, index) in files" :key="index">
+      <div x-show="previewFiles.length > 0" class="mb-6">
+        <template x-for="(file, index) in previewFiles" :key="index">
           <div
             class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2"
           >
             <div class="flex items-center flex-grow max-w-3/4 mr-2">
               <img
-                :src="item.preview"
+                :src="file.preview"
                 class="w-10 h-10 mr-2 object-cover rounded"
                 alt="preview"
               />
               <span
-                x-text="item.file.name"
+                x-text="file.name"
                 class="text-sm text-gray-700 dark:text-gray-200 truncate"
               ></span>
             </div>
@@ -104,7 +95,7 @@
       </div>
 
       {% if form.images.errors %}
-      <div class="text-red-600 text-xs mb-4">
+      <div class="text-red-500 text-sm -mt-5 mb-4">
         {% for error in form.images.errors %}
         <p>{{ error }}</p>
         {% endfor %}
@@ -112,9 +103,7 @@
       {% endif %}
 
       <div class="mb-4">{{ render_text_field(form.title) }}</div>
-
       <div class="mb-6">{{ render_textarea_field(form.content) }}</div>
-
       <div>
         <input
           :value="submitting ? 'Publishing...' : submit_text"
@@ -129,70 +118,52 @@
 </div>
 
 <script>
-  function fileUploader() {
+  function filePreviewAndSubmit() {
     return {
-      files: [],
-      maxFileSize: 2 * 1024 * 1024,
-      onFileChange(event) {
-        this.files = [];
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-        const selectedFiles = Array.from(event.target.files);
+      previewFiles: [],
+      acceptedFiles: [],
+      maxFileSize: 5 * 1024 * 1024,
+      updatePreview(event) {
+        this.previewFiles = [];
+        this.acceptedFiles = [];
 
-        for (let i = 0; i < selectedFiles.length; i++) {
-          const file = selectedFiles[i];
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+        const files = event.target.files;
+        const fileArray = Array.from(files).slice(0, 3);
+
+        for (let file of fileArray) {
           if (!allowedTypes.includes(file.type)) {
             alert("Invalid file type: " + file.name);
             continue;
           }
-
-          if (this.files.length >= 3) break;
+          if (file.size > this.maxFileSize) {
+            alert("File too large (max 5MB): " + file.name);
+            continue;
+          }
           const previewUrl = URL.createObjectURL(file);
-          this.files.push({ file: file, preview: previewUrl });
+          this.previewFiles.push({ name: file.name, preview: previewUrl });
+          this.acceptedFiles.push(file);
         }
-
-        event.target.value = "";
+        this.updateFileInput();
       },
       removeFile(index) {
-        URL.revokeObjectURL(this.files[index].preview);
-        this.files.splice(index, 1);
-      },
-    };
-  }
+        URL.revokeObjectURL(this.previewFiles[index].preview);
 
-  function fileUploaderAndSubmit() {
-    return {
-      ...fileUploader(),
+        this.previewFiles.splice(index, 1);
+        this.acceptedFiles.splice(index, 1);
+
+        this.updateFileInput();
+      },
+      updateFileInput() {
+        let dt = new DataTransfer();
+        for (let file of this.acceptedFiles) {
+          dt.items.add(file);
+        }
+        document.getElementById("dropzone-file").files = dt.files;
+      },
+
       submitting: false,
       submit_text: "{{ form.submit.label.text }}",
-      submitForm(event) {
-        this.submitting = true;
-        let formEl = this.$refs.postForm;
-        let formData = new FormData(formEl);
-        formData.delete("images");
-
-        this.files.forEach((item) => {
-          formData.append("images", item.file);
-        });
-
-        fetch(formEl.action, {
-          method: formEl.method,
-          body: formData,
-          credentials: "same-origin",
-        })
-          .then((response) => {
-            if (response.redirected) {
-              window.location.href = response.url;
-            } else {
-              return response.text();
-            }
-          })
-          .catch((error) => {
-            console.error("Error during form submission:", error);
-          })
-          .finally(() => {
-            this.submitting = false;
-          });
-      },
     };
   }
 </script>

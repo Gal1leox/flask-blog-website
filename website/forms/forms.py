@@ -1,6 +1,6 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed
+from flask_wtf.file import FileAllowed, FileRequired
 from wtforms import (
     StringField,
     PasswordField,
@@ -196,7 +196,7 @@ class CreatePostForm(FlaskForm):
     images = MultiFileField(
         "Upload an Image",
         validators=[
-            DataRequired(message="At least one image is required."),
+            FileRequired(message="At least one image is required."),
             validate_num_images,
             FileAllowed(["jpg", "jpeg", "png"], "Only JPG and PNG images are allowed."),
         ],

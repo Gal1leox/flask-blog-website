@@ -20,7 +20,6 @@ posts_bp = Blueprint("posts", __name__, template_folder="../templates")
 @admin_required
 def new_post():
     form = CreatePostForm()
-
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
     avatar_url = user.avatar_url if user else ""
     is_admin = user and user.role == UserRole.ADMIN
@@ -42,7 +41,6 @@ def new_post():
         new_post = Post(
             title=form.title.data, content=form.content.data, author_id=current_user.id
         )
-
         for file in image_files:
             if file:
                 result = cloudinary.uploader.upload(
@@ -56,7 +54,6 @@ def new_post():
 
         db.session.add(new_post)
         db.session.commit()
-
         flash("Post created successfully!", "success")
         return redirect(url_for("posts.new_post", token=token))
 
