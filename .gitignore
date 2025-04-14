@@ -1,6 +1,22 @@
-.env
+# Configuration for IDE
 .idea/
+
+# Virtual Environment
 .venv/
-instance/
+
+# Python Bytecode
 __pycache__/
+
+# Environment Variables
+.env
+
+# Database Location
+instance/
+
+# Node Modules & Dependencies
 node_modules/
+package-lock.json
+package.json
+
+# Configuration for prettier
+.prettierrc
