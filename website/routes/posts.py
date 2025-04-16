@@ -55,7 +55,7 @@ def new_post():
         db.session.add(new_post)
         db.session.commit()
         flash("Post created successfully!", "success")
-        return redirect(url_for("posts.new_post", token=token))
+        return redirect(url_for("home.home", token=token))
 
     return render_template(
         "pages/shared/admin/new_post.html",

@@ -2,19 +2,21 @@
 
 {% extends "pages/shared/base.html" %}
 
-{%from "components/ui/alert.html" import alert %}
+{% from "components/ui/alert.html" import alert %}
 
 {% block title %}Kalts Daniil - Personal Blog{% endblock %}
+
 {% block content %}
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-<div x-data="{ count: {{ messages|length }} }" x-show="count > 0">
+<div x-data="{ count: {{ messages|length }} }" x-show="count > 0" class="mb-6 mx-auto w-full {{ 'max-w-lg' if posts and posts|length > 0 else '' }}">
   {% for category, message in messages %}
   {{ alert(category, message) }}
   {% endfor %}
 </div>
 {% endif %}
 {% endwith %}
+
 {% if posts and posts|length > 0 %}
 <div class="container max-w-lg mx-auto">
   <div class="grid grid-cols-1 gap-8">
@@ -22,36 +24,54 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       {% if post.images and post.images|length > 0 %}
       <div
-        x-data="{ loaded: false, bg: 'https://flowbite.com/docs/images/carousel/carousel-3.svg' }"
-        :style="{ backgroundImage: loaded ? 'none' : 'url(' + bg + ')', backgroundColor: loaded ? 'transparent' : '#DBDBDB' }"
+        x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/post-loading.svg') }}' }"
+        :style="{
+                  backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+                  backgroundColor: loaded ? 'transparent' : '#374151',
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover'
+                }"
         class="relative"
       >
         <img
           @load="loaded = true"
-          class="w-full object-cover"
+          class="w-full h-[275px] sm:h-[325px] object-cover"
           src="{{ post.images[0].image_url }}"
-        />
-        {% if post.images|length > 1 %}
-        <div
-          class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs rounded-full px-2 py-1"
         >
+        {% if post.images|length > 1 %}
+        <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs rounded-full px-2 py-1">
           {{ post.images|length }} photos
         </div>
         {% endif %}
       </div>
       {% endif %}
       <div class="p-4">
-        <h5 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h5 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-2">
           {{ post.title }}
         </h5>
         <hr class="mb-2 border-gray-300 dark:border-gray-700" />
-        <p class="text-sm text-gray-700 dark:text-gray-300">
-          {{ post.content | truncate(150) }}
+        {% set words = post.content.split(' ') %}
+        {% if words|length > 50 %}
+        <div x-data="{ expanded: false }">
+          <p class="text-sm text-gray-900 dark:text-gray-300">
+            {% set excerpt = words[:50]|join(' ') %}
+            {{ excerpt }}
+            <span x-show="!expanded">...
+              <button @click="expanded = true" class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline">more</button>
+            </span>
+            <span x-show="expanded">
+              {{ words[50:]|join(' ') }}
+              <button @click="expanded = false" class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline">show less</button>
+            </span>
+          </p>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-700 dark:text-gray-100">
+          {{ post.content }}
         </p>
+        {% endif %}
         <div class="mt-4 flex items-center justify-end">
-          <span class="text-gray-500 text-xs"
-            >{{ post.created_at.strftime("%b %d, %Y") }}</span
-          >
+          <span class="text-gray-500 text-xs">{{ post.created_at.strftime("%b %d, %Y") }}</span>
         </div>
       </div>
     </div>
@@ -60,11 +80,10 @@
 </div>
 {% else %}
 <div class="flex flex-grow items-center justify-center py-16">
-  <h4
-    class="text-center text-base font-medium text-gray-800 dark:text-gray-300"
-  >
-    I haven't written anything yet..<br />
+  <h4 class="text-center text-base font-medium text-gray-800 dark:text-gray-300">
+    I haven't written anything yet..<br>
     But don't worry, the keyboard is warming up! 🤓
   </h4>
 </div>
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}
