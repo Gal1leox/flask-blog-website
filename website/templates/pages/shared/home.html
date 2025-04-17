@@ -24,25 +24,34 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       {% if post.images and post.images|length > 0 %}
       <div
-        x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/post-loading.svg') }}' }"
-        :style="{
-                  backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
-                  backgroundColor: loaded ? 'transparent' : '#374151',
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover'
-                }"
-        class="relative"
+        x-data
+        x-init="
+          new Swiper($el, {
+            loop: true,
+            slidesPerView: 1,
+            spaceBetween: 0,
+            pagination: { el: $el.querySelector('.swiper-pagination'), clickable: true },
+            navigation: {
+              nextEl: $el.querySelector('.swiper-button-next'),
+              prevEl: $el.querySelector('.swiper-button-prev')
+            }
+          })
+        "
+        class="swiper-container relative"
       >
-        <img
-          @load="loaded = true"
-          class="w-full h-[275px] sm:h-[325px] object-cover"
-          src="{{ post.images[0].image_url }}"
-        >
-        {% if post.images|length > 1 %}
-        <div class="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs rounded-full px-2 py-1">
-          {{ post.images|length }} photos
+        <div class="swiper-wrapper">
+          {% for image in post.images %}
+          <div class="swiper-slide">
+            <img
+              class="w-full h-[275px] sm:h-[325px] object-cover"
+              src="{{ image.image_url }}"
+            >
+          </div>
+          {% endfor %}
         </div>
-        {% endif %}
+        <div class="swiper-pagination w-4"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
       </div>
       {% endif %}
       <div class="p-4">
@@ -56,7 +65,7 @@
           <p class="text-sm text-gray-900 dark:text-gray-300">
             {% set excerpt = words[:50]|join(' ') %}
             {{ excerpt }}
-            <span x-show="!expanded">...
+            <span x-show="!expanded">
               <button @click="expanded = true" class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline">more</button>
             </span>
             <span x-show="expanded">

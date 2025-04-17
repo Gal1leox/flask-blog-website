@@ -36,11 +36,11 @@ def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not current_user.is_authenticated:
-            return render_template("errors/pages/403.html")
+            return render_template("errors/403.html")
 
         user = User.query.get(current_user.id)
         if not (user and user.role == UserRole.ADMIN):
-            return render_template("errors/pages/403.html")
+            return render_template("errors/403.html")
         return f(*args, **kwargs)
 
     return decorated
