@@ -1,0 +1,75 @@
+{# templates/components/ui/post.html #}
+
+{% macro render_post(post) %}
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+  {% if post.images and post.images|length > 0 %}
+  <div
+    x-data
+    x-init="
+      new Swiper($el, {
+        loop: true,
+        slidesPerView: 1,
+        spaceBetween: 0,
+        pagination: { el: $el.querySelector('.swiper-pagination'), clickable: true },
+        navigation: {
+          nextEl: $el.querySelector('.swiper-button-next'),
+          prevEl: $el.querySelector('.swiper-button-prev')
+        }
+      })
+    "
+    class="swiper-container relative"
+  >
+    <div class="swiper-wrapper">
+      {% for image in post.images %}
+      <div class="swiper-slide">
+        <img
+          class="w-full h-[275px] sm:h-[325px] object-cover"
+          src="{{ image.image_url }}"
+        />
+      </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+  </div>
+  {% endif %}
+  <div class="p-4">
+    <h5 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-2">
+      {{ post.title }}
+    </h5>
+    <hr class="mb-2 border-gray-300 dark:border-gray-700" />
+    {% set words = post.content.split(' ') %} {% if words|length > 50 %}
+    <div x-data="{ expanded: false }">
+      <p class="text-sm text-gray-900 dark:text-gray-300">
+        {% set excerpt = words[:50]|join(' ') %} {{ excerpt }}
+        <span x-show="!expanded">
+          <button
+            @click="expanded = true"
+            class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline"
+          >
+            more
+          </button>
+        </span>
+        <span x-show="expanded">
+          {{ words[50:]|join(' ') }}
+          <button
+            @click="expanded = false"
+            class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline"
+          >
+            show less
+          </button>
+        </span>
+      </p>
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-700 dark:text-gray-100">{{ post.content }}</p>
+    {% endif %}
+    <div class="mt-4 flex items-center justify-end">
+      <span class="text-gray-500 text-xs"
+        >{{ post.created_at.strftime("%b %d, %Y") }}</span
+      >
+    </div>
+  </div>
+</div>
+{% endmacro %}
