@@ -13,7 +13,6 @@ class Post(db.Model):
     author_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    title: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
@@ -51,7 +50,6 @@ class Post(db.Model):
         return (
             f"Post Info:\n"
             f"ID: {self.id}\n"
-            f"Title: {self.title}\n"
             f"Content: {self.content}\n"
             f"Images: {[image.image_url for image in self.images]}\n"
             f"Tags: {[tag.name for tag in self.tags]}\n"

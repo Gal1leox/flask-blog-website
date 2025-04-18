@@ -1,7 +1,14 @@
-{# templates/pages/shared/admin/new_post.html #} {% extends
-"pages/shared/base.html" %} {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/field.html" import render_text_field,
-render_textarea_field %} {% block title %}Kalts Daniil - New Post{% endblock %}
+{# templates/pages/shared/admin/new_post.html #}
+
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import
+  render_textarea_field
+%}
+
+{% block title %}Kalts Daniil - New Post{% endblock %}
+
 {% block content %}
 <div class="w-full max-w-xl mx-auto">
   {# Flash messages #} {% with messages =
@@ -102,7 +109,6 @@ render_textarea_field %} {% block title %}Kalts Daniil - New Post{% endblock %}
       </div>
       {% endif %}
 
-      <div class="mb-4">{{ render_text_field(form.title) }}</div>
       <div class="mb-6">{{ render_textarea_field(form.content) }}</div>
       <div>
         <input

@@ -38,9 +38,7 @@ def new_post():
                 form=form,
             )
 
-        new_post = Post(
-            title=form.title.data, content=form.content.data, author_id=current_user.id
-        )
+        new_post = Post(content=form.content.data, author_id=current_user.id)
         for file in image_files:
             if file:
                 result = cloudinary.uploader.upload(
