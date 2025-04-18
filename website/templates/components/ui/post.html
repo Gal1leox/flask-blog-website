@@ -29,64 +29,93 @@
       </div>
       {% endfor %}
     </div>
+    {% if post.images|length > 1 %}
     <div class="swiper-pagination"></div>
     <div class="swiper-button-prev"></div>
     <div class="swiper-button-next"></div>
+    {% endif %}
   </div>
 
   <div
-    class="px-4 py-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700"
+    x-data="{
+      shareLink: '',
+      toastOpen: false,
+      copy() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(this.shareLink);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = this.shareLink;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'absolute';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        this.toastOpen = true;
+        setTimeout(() => this.toastOpen = false, 2000);
+      }
+    }"
+    x-init="shareLink = window.location.origin + '/posts/{{ post.id }}'"
+    class="px-4 py-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 relative"
   >
     <div class="flex space-x-4">
       <button type="button" class="focus:outline-none" aria-label="Comment">
-          <svg
-            class="text-gray-900 dark:text-gray-100 w-[22px]"
-            aria-label="Comment"
-            fill="currentColor"
-            height="24"
-            role="img"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <title>Comment</title>
-            <path
-              d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
-              fill="none"
-              stroke="currentColor"
-              stroke-linejoin="round"
-              stroke-width="2"
-            ></path>
-          </svg>
+        <svg
+          class="text-gray-900 dark:text-gray-100 w-[22px]"
+          aria-label="Comment"
+          fill="currentColor"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <title>Comment</title>
+          <path
+            d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-linejoin="round"
+            stroke-width="2"
+          />
+        </svg>
       </button>
-      <button type="button" class="focus:outline-none" aria-label="Share">
-          <svg
-            class="text-gray-900 dark:text-gray-100 w-[22px]"
-            aria-label="Share"
-            fill="currentColor"
-            height="24"
-            role="img"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <title>Share</title>
-            <line
-              fill="none"
-              stroke="currentColor"
-              stroke-linejoin="round"
-              stroke-width="2"
-              x1="22"
-              x2="9.218"
-              y1="3"
-              y2="10.083"
-            ></line>
-            <polygon
-              fill="none"
-              points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
-              stroke="currentColor"
-              stroke-linejoin="round"
-              stroke-width="2"
-            ></polygon>
-          </svg>
+      <button
+        type="button"
+        class="focus:outline-none"
+        aria-label="Copy link"
+        @click="copy()"
+      >
+        <svg
+          class="text-gray-900 dark:text-gray-100 w-[22px]"
+          aria-label="Copy link"
+          fill="currentColor"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <title>Copy link</title>
+          <path
+            d="m9.726 5.123 1.228-1.228a6.47 6.47 0 0 1 9.15 9.152l-1.227 1.227m-4.603 4.603-1.228 1.228a6.47 6.47 0 0 1-9.15-9.152l1.227-1.227"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          />
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="8.471"
+            x2="15.529"
+            y1="15.529"
+            y2="8.471"
+          />
+        </svg>
       </button>
     </div>
     <button type="button" class="focus:outline-none" aria-label="Save">
@@ -95,7 +124,6 @@
         aria-label="Save"
         fill="currentColor"
         height="24"
-        role="img"
         viewBox="0 0 24 24"
         width="24"
       >
@@ -107,14 +135,22 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
-        ></polygon>
+        />
       </svg>
     </button>
+    <template x-if="toastOpen">
+      <div class="fixed z-50 inset-0 flex items-end justify-center pointer-events-none">
+        <div class="bg-gray-700 text-sm dark:bg-gray-700 text-white px-4 py-2 rounded-t-lg w-full shadow-lg z-10 pointer-events-auto">
+          Link copied to clipboard.
+        </div>
+      </div>
+    </template>
   </div>
   {% endif %}
 
   <div class="px-4 pb-4 pt-3">
-    {% set words = post.content.split(' ') %} {% if words|length > 50 %}
+    {% set words = post.content.split(' ') %}
+    {% if words|length > 50 %}
     <div x-data="{ expanded: false }">
       <p class="text-sm text-gray-900 dark:text-gray-300">
         {% set excerpt = words[:50]|join(' ') %} {{ excerpt }}
@@ -135,9 +171,7 @@
     <p class="text-sm text-gray-700 dark:text-gray-100">{{ post.content }}</p>
     {% endif %}
     <div class="mt-2 flex items-center justify-start">
-      <span class="text-gray-500 text-xs"
-        >{{ post.created_at.strftime("%b %d, %Y") }}</span
-      >
+      <span class="text-gray-500 text-xs">{{ post.created_at.strftime("%b %d, %Y") }}</span>
     </div>
   </div>
 </div>
