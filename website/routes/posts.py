@@ -15,6 +15,23 @@ load_dotenv()
 posts_bp = Blueprint("posts", __name__, template_folder="../templates")
 
 
+@posts_bp.route("/", methods=["GET"])
+@token_required
+@admin_required
+def all_posts():
+    posts = Post.query.order_by(Post.created_at.desc()).all()
+    user = User.query.get(current_user.id)
+
+    return render_template(
+        "pages/shared/posts.html",
+        posts=posts,
+        avatar_url=user.avatar_url if user else "",
+        is_admin=user.role == UserRole.ADMIN if user else False,
+        token=os.getenv("SECRET_KEY") if user else "",
+        active_page="",
+    )
+
+
 @posts_bp.route("/new", methods=["GET", "POST"])
 @token_required
 @admin_required
@@ -146,4 +163,4 @@ def delete_post(post_id):
         db.session.rollback()
         flash("An error occurred while deleting the post.", "danger")
 
-    return redirect(url_for("home.home", token=os.getenv("SECRET_KEY")))
+    return redirect(url_for("posts.all_posts", token=os.getenv("SECRET_KEY")))

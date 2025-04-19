@@ -1,11 +1,11 @@
-{# templates/pages/shared/saved_posts.html #}
+{# templates/pages/shared/posts.html #}
 
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
 {% from "components/ui/post.html" import render_post with context %}
 
-{% block title %}{{ current_user.username }} - Saved Posts{% endblock %}
+{% block title %}Kalts Daniil - Posts{% endblock %}
 
 {% block content %}
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -13,7 +13,7 @@
 <div
   x-data="{ count: {{ messages|length }} }"
   x-show="count > 0"
-  class="mb-6 mx-auto w-full {{ 'max-w-lg' if posts and posts|length > 0 else '' }}"
+  class="mb-6 w-full"
 >
   {% for category, message in messages %}
   {{ alert(category, message) }}
@@ -21,10 +21,10 @@
 </div>
 {% endif %}
 {% endwith %}
-{% if saved_posts and saved_posts|length > 0 %}
+{% if posts and posts|length > 0 %}
 <div>
   <div class="grid gap-[3px] grid-cols-2 [@media(min-width:475px)]:grid-cols-3 [@media(min-width:625px)]:grid-cols-4">
-    {% for post in saved_posts %}
+    {% for post in posts %}
     <a
       href="{{ url_for('posts.view_post', post_id=post.id) }}"
       class="relative aspect-[5/5] block transition duration-150 hover:opacity-90 active:brightness-90"
@@ -50,7 +50,7 @@
   <h4
     class="text-center text-base font-medium text-gray-800 dark:text-gray-300"
   >
-    You don't have any saved posts..<br />
+    You don't have any posts yet..<br />
   </h4>
 </div>
 {% endif %}
