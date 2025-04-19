@@ -158,7 +158,7 @@ class ContactForm(FlaskForm):
     phone = StringField(
         "Phone Number (optional)",
         validators=[Optional(), validate_phone],
-        render_kw={"placeholder": "123-456-7890"},
+        render_kw={"placeholder": "+7 475 638 8929"},
         filters=[strip_filter],
     )
     message = TextAreaField(
