@@ -23,7 +23,7 @@ def all_posts():
     user = User.query.get(current_user.id)
 
     return render_template(
-        "pages/shared/posts.html",
+        "pages/shared/posts/posts.html",
         posts=posts,
         avatar_url=user.avatar_url if user else "",
         is_admin=user.role == UserRole.ADMIN if user else False,
@@ -122,7 +122,7 @@ def saved_posts():
     saved_posts = [s.post for s in saved]
 
     return render_template(
-        "pages/shared/saved_posts.html",
+        "pages/shared/posts/saved_posts.html",
         saved_posts=saved_posts,
         avatar_url=user.avatar_url,
         is_admin=user.role == UserRole.ADMIN,
@@ -138,7 +138,7 @@ def view_post(post_id):
     user = User.query.get(current_user.id)
 
     return render_template(
-        "pages/shared/selected_post.html",
+        "pages/shared/posts/selected_post.html",
         post=post,
         avatar_url=user.avatar_url if user else "",
         is_admin=user.role == UserRole.ADMIN if user else False,

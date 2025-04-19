@@ -1,9 +1,9 @@
-{# templates/pages/shared/saved_posts.html #}
+{# templates/pages/shared/posts/saved_posts.html #}
 
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/post.html" import render_post with context %}
+{% from "components/ui/post/post.html" import render_post with context %}
 
 {% block title %}{{ current_user.username }} - Saved Posts{% endblock %}
 
