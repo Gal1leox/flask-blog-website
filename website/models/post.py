@@ -23,9 +23,6 @@ class Post(db.Model):
     images: Mapped[list["Image"]] = relationship(
         "Image", secondary="post_images", back_populates="posts"
     )
-    tags: Mapped[list["Tag"]] = relationship(
-        "Tag", secondary="post_tags", back_populates="posts"
-    )
     comments: Mapped[list["Comment"]] = relationship(
         "Comment", back_populates="post", cascade="all, delete", passive_deletes=True
     )
@@ -42,12 +39,6 @@ class Post(db.Model):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    post_tags: Mapped[list["PostTag"]] = relationship(
-        "PostTag",
-        back_populates="post",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
 
     def __repr__(self):
         return (
@@ -55,7 +46,6 @@ class Post(db.Model):
             f"ID: {self.id}\n"
             f"Content: {self.content}\n"
             f"Images: {[image.image_url for image in self.images]}\n"
-            f"Tags: {[tag.name for tag in self.tags]}\n"
             f"Created At: {self.created_at}\n"
             f"Updated At: {self.updated_at}"
         )
@@ -91,44 +81,6 @@ class Image(db.Model):
             f"Image Info:\n"
             f"ID: {self.id}\n"
             f"Image URL: {self.image_url}\n"
-            f"Created At: {self.created_at}\n"
-            f"Updated At: {self.updated_at}"
-        )
-
-
-class Tag(db.Model):
-    __tablename__ = "tags"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    author_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
-    name: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
-    color: Mapped[str] = mapped_column(String(7), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    author: Mapped["User"] = relationship("User", back_populates="tags")
-    posts: Mapped[list["Post"]] = relationship(
-        "Post", secondary="post_tags", back_populates="tags"
-    )
-    post_tags: Mapped[list["PostTag"]] = relationship(
-        "PostTag",
-        back_populates="tag",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
-    def __repr__(self):
-        return (
-            f"Tag Info:\n"
-            f"ID: {self.id}\n"
-            f"Name: {self.name}\n"
-            f"Description: {self.description}\n"
-            f"Color: {self.color}\n"
             f"Created At: {self.created_at}\n"
             f"Updated At: {self.updated_at}"
         )
@@ -221,27 +173,6 @@ class PostImage(db.Model):
 
     def __repr__(self):
         return f"PostImage Info:\nPost ID: {self.post_id}\nImage ID: {self.image_id}"
-
-
-class PostTag(db.Model):
-    __tablename__ = "post_tags"
-
-    post_id: Mapped[int] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"), primary_key=True
-    )
-    tag_id: Mapped[int] = mapped_column(
-        ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True
-    )
-
-    post: Mapped["Post"] = relationship(
-        "Post", back_populates="post_tags", passive_deletes=True
-    )
-    tag: Mapped["Tag"] = relationship(
-        "Tag", back_populates="post_tags", passive_deletes=True
-    )
-
-    def __repr__(self):
-        return f"PostTag Info:\nPost ID: {self.post_id}\nTag ID: {self.tag_id}"
 
 
 @event.listens_for(Session, "after_flush_postexec")

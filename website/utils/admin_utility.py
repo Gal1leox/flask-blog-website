@@ -1,11 +1,9 @@
 from website.models import (
     User,
     Post,
-    Tag,
     Image,
     Comment,
     PostImage,
-    PostTag,
     SavedPost,
     VerificationCode,
 )
@@ -32,11 +30,6 @@ TABLES = {
         "columns": get_table_columns(Post),
         "query": lambda: Post.query.all(),
     },
-    "tags": {
-        "table": Tag,
-        "columns": get_table_columns(Tag),
-        "query": lambda: Tag.query.all(),
-    },
     "comments": {
         "table": Comment,
         "columns": get_table_columns(Comment),
@@ -56,11 +49,6 @@ TABLES = {
         "table": PostImage,
         "columns": get_table_columns(PostImage),
         "query": lambda: PostImage.query.all(),
-    },
-    "post_tags": {
-        "table": PostTag,
-        "columns": get_table_columns(PostTag),
-        "query": lambda: PostTag.query.all(),
     },
     "saved_posts": {
         "table": SavedPost,

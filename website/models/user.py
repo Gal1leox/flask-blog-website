@@ -31,7 +31,6 @@ class User(db.Model, UserMixin):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    # Add missing images relationship to match the back_populates in Image model.
     images: Mapped[list["Image"]] = relationship(
         "Image",
         back_populates="author",
@@ -40,12 +39,6 @@ class User(db.Model, UserMixin):
     )
     posts: Mapped[list["Post"]] = relationship(
         "Post",
-        back_populates="author",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-    tags: Mapped[list["Tag"]] = relationship(
-        "Tag",
         back_populates="author",
         cascade="all, delete-orphan",
         passive_deletes=True,
