@@ -87,86 +87,65 @@
   >
     <div class="flex space-x-4">
       <button type="button" class="focus:outline-none" aria-label="Comment">
-        <svg
-          class="text-gray-900 dark:text-gray-100 w-[22px]"
-          aria-label="Comment"
-          fill="currentColor"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-        >
+        <svg class="text-gray-900 dark:text-gray-100 w-[22px]" fill="currentColor" width="24" height="24" viewBox="0 0 24 24">
           <title>Comment</title>
-          <path
-            d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-linejoin="round"
-            stroke-width="2"
-          />
+          <path d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2"/>
         </svg>
       </button>
+      <button type="button" class="focus:outline-none" aria-label="Copy link" @click="copy()">
+        <svg class="text-gray-900 dark:text-gray-100 w-[22px]" fill="currentColor" width="24" height="24" viewBox="0 0 24 24">
+          <title>Copy link</title>
+          <path d="m9.726 5.123 1.228-1.228a6.47 6.47 0 0 1 9.15 9.152l-1.227 1.227m-4.603 4.603-1.228 1.228a6.47 6.47 0 0 1-9.15-9.152l1.227-1.227" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <line x1="8.471" y1="15.529" x2="15.529" y2="8.471" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+        </svg>
+      </button>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div
+      x-data="{
+        saved: {{ post.saved_by|selectattr('user_id','equalto', current_user.id)|list and 'true' or 'false' }},
+        toggle() {
+          fetch('{{ url_for('posts.toggle_save', post_id=post.id) }}', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          })
+          .then(r => r.json())
+          .then(data => this.saved = data.saved);
+        }
+      }"
+      class="flex items-center"
+    >
       <button
         type="button"
+        @click.prevent="toggle()"
+        :aria-label="saved ? 'Unsave' : 'Save'"
         class="focus:outline-none"
-        aria-label="Copy link"
-        @click="copy()"
       >
         <svg
-          class="text-gray-900 dark:text-gray-100 w-[22px]"
-          aria-label="Copy link"
-          fill="currentColor"
+          class="w-[22px] transition-colors duration-150 text-gray-900 dark:text-gray-100"
+          fill="none"
+          width="24"
           height="24"
           viewBox="0 0 24 24"
-          width="24"
         >
-          <title>Copy link</title>
-          <path
-            d="m9.726 5.123 1.228-1.228a6.47 6.47 0 0 1 9.15 9.152l-1.227 1.227m-4.603 4.603-1.228 1.228a6.47 6.47 0 0 1-9.15-9.152l1.227-1.227"
-            fill="none"
+          <title x-text="saved ? 'Unsave' : 'Save'"></title>
+          <polygon
+            :fill="saved ? 'currentColor' : 'none'"
+            points="20 21 12 13.44 4 21 4 3 20 3 20 21"
             stroke="currentColor"
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-          />
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="8.471"
-            x2="15.529"
-            y1="15.529"
-            y2="8.471"
           />
         </svg>
       </button>
     </div>
-    {% if current_user.is_authenticated %}
-    <button type="button" class="focus:outline-none" aria-label="Save">
-      <svg
-        class="text-gray-900 dark:text-gray-100 w-[22px]"
-        aria-label="Save"
-        fill="currentColor"
-        height="24"
-        viewBox="0 0 24 24"
-        width="24"
-      >
-        <title>Save</title>
-        <polygon
-          fill="none"
-          points="20 21 12 13.44 4 21 4 3 20 3 20 21"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-        />
-      </svg>
-    </button>
     {% endif %}
+
     <template x-if="toastOpen">
       <div class="fixed inset-x-0 bottom-0 z-50 flex justify-center items-end pointer-events-none">
-        <div class="pointer-events-auto w-full max-w-sm bg-gray-700 dark:bg-gray-700 text-white text-sm px-4 py-2 rounded-t-lg shadow-lg">
+        <div class="pointer-events-auto w-full bg-gray-700 dark:bg-gray-700 text-white text-sm px-4 py-2 rounded-t-lg shadow-lg">
           Link copied to clipboard.
         </div>
       </div>
