@@ -2,14 +2,14 @@
 
 {% macro render_post(post) %}
 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-  <div class="flex items-center px-4 py-3">
+  <div class="flex items-center px-4 py-2">
     <div
       x-data="{ loaded: false, bg: '{{ post.author.avatar_url if post.author.avatar_url else url_for('static', filename='images/no-avatar.jpg') }}' }"
       :style="{
         backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
         backgroundColor: loaded ? 'transparent' : '#DBDBDB'
       }"
-      class="relative h-11 w-11 rounded-full overflow-hidden bg-cover bg-center mr-3"
+      class="relative h-9 w-9 rounded-full overflow-hidden bg-cover bg-center mr-3"
       aria-label="profile picture"
       role="img"
     >
@@ -142,6 +142,7 @@
         </svg>
       </button>
     </div>
+    {% if current_user.is_authenticated %}
     <button type="button" class="focus:outline-none" aria-label="Save">
       <svg
         class="text-gray-900 dark:text-gray-100 w-[22px]"
@@ -162,9 +163,10 @@
         />
       </svg>
     </button>
+    {% endif %}
     <template x-if="toastOpen">
-      <div class="fixed z-50 inset-0 flex items-end justify-center pointer-events-none">
-        <div class="bg-gray-700 text-sm dark:bg-gray-700 text-white px-4 py-3 sm:py-2 rounded-t-lg w-full shadow-lg z-10 pointer-events-auto">
+      <div class="fixed inset-x-0 bottom-0 z-50 flex justify-center items-end pointer-events-none">
+        <div class="pointer-events-auto w-full max-w-sm bg-gray-700 dark:bg-gray-700 text-white text-sm px-4 py-2 rounded-t-lg shadow-lg">
           Link copied to clipboard.
         </div>
       </div>

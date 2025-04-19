@@ -3,7 +3,7 @@
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/post.html" import render_post %}
+{% from "components/ui/post.html" import render_post with context %}
 
 {% block title %}Kalts Daniil - Personal Blog{% endblock %}
 
@@ -38,4 +38,5 @@
     But don't worry, the keyboard is warming up! 🤓
   </h4>
 </div>
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}
