@@ -128,7 +128,7 @@
     return {
       previewFiles: [],
       acceptedFiles: [],
-      maxFileSize: 5 * 1024 * 1024,
+      maxFileSize: 8 * 1024 * 1024,
       updatePreview(event) {
         this.previewFiles = [];
         this.acceptedFiles = [];
@@ -143,7 +143,7 @@
             continue;
           }
           if (file.size > this.maxFileSize) {
-            alert("File too large (max 5MB): " + file.name);
+            alert("File too large (max 8MB): " + file.name);
             continue;
           }
           const previewUrl = URL.createObjectURL(file);
