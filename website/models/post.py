@@ -30,7 +30,10 @@ class Post(db.Model):
         "Comment", back_populates="post", cascade="all, delete", passive_deletes=True
     )
     saved_by: Mapped[list["SavedPost"]] = relationship(
-        "SavedPost", back_populates="post"
+        "SavedPost",
+        back_populates="post",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     post_images: Mapped[list["PostImage"]] = relationship(
@@ -184,7 +187,11 @@ class SavedPost(db.Model):
     saved_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user: Mapped["User"] = relationship("User", back_populates="saved_posts")
-    post: Mapped["Post"] = relationship("Post", back_populates="saved_by")
+    post: Mapped["Post"] = relationship(
+        "Post",
+        back_populates="saved_by",
+        passive_deletes=True,
+    )
 
     def __repr__(self):
         return (
