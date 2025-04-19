@@ -3,6 +3,7 @@
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
+{% from "components/ui/modal.html" import modal %}
 {% from "components/ui/field.html" import render_username_field, render_email_field, render_password_field %}
 
 {% block title %}Kalts Daniil - Settings{% endblock %}
@@ -144,7 +145,11 @@
       <h2 class="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-1">Delete Account</h2>
       <p class="text-sm text-gray-500 dark:text-gray-400">No longer using my blog? Delete your account and all associated data will be permanently removed.</p>
     </aside>
-    {% include "components/ui/modal/delete_account_modal.html" %}
+    {{ modal(
+      "Delete Account",
+      "All data will be permanently removed.",
+      "/settings/delete-account"
+    ) }}
   </div>
   {% endif %}
 </div>
