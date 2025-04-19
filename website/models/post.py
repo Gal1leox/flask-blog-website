@@ -190,7 +190,7 @@ class SavedPost(db.Model):
     post: Mapped["Post"] = relationship(
         "Post",
         back_populates="saved_by",
-        passive_deletes=True,
+        passive_deletes=False,
     )
 
     def __repr__(self):

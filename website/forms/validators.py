@@ -63,5 +63,5 @@ def validate_num_images(_, field):
         file.seek(0, 2)
         size = file.tell()
         file.seek(0)
-        if size > 5 * 1024 * 1024:
+        if size > 8 * 1024 * 1024:
             raise ValidationError(f"File {file.filename} exceeds the 5MB limit.")

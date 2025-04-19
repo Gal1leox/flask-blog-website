@@ -128,3 +128,22 @@ def view_post(post_id):
         token=os.getenv("SECRET_KEY") if user else "",
         active_page="",
     )
+
+
+@posts_bp.route("/<int:post_id>/delete", methods=["POST"])
+@login_required
+@admin_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    try:
+        SavedPost.query.filter_by(post_id=post.id).delete()
+
+        db.session.delete(post)
+        db.session.commit()
+        flash(f"Post with id {post.id} was deleted successfully.", "success")
+    except Exception:
+        db.session.rollback()
+        flash("An error occurred while deleting the post.", "danger")
+
+    return redirect(url_for("home.home", token=os.getenv("SECRET_KEY")))
