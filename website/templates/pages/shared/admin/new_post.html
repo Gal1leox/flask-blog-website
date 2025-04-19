@@ -7,7 +7,9 @@
   render_textarea_field
 %}
 
-{% block title %}Kalts Daniil - New Post{% endblock %}
+{% block title %}
+  Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
+{% endblock %}
 
 {% block content %}
 <div class="w-full max-w-lg mx-auto">

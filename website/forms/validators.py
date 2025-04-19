@@ -3,7 +3,7 @@ import re
 from wtforms import (
     ValidationError,
 )
-from wtforms.validators import DataRequired, Email, Length, Regexp
+from wtforms.validators import DataRequired, Email, Length, Regexp, StopValidation
 
 gmail_validators = [
     DataRequired(),
@@ -65,3 +65,9 @@ def validate_num_images(_, field):
         file.seek(0)
         if size > 8 * 1024 * 1024:
             raise ValidationError(f"File {file.filename} exceeds the 5MB limit.")
+
+
+class OptionalImages:
+    def __call__(self, form, field):
+        if getattr(form, "editing", False):
+            raise StopValidation()

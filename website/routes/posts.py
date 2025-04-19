@@ -37,14 +37,16 @@ def all_posts():
 @admin_required
 def new_post():
     form = CreatePostForm()
-    user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    user = User.query.get(current_user.id)
     avatar_url = user.avatar_url if user else ""
-    is_admin = user and user.role == UserRole.ADMIN
+    is_admin = user.role == UserRole.ADMIN if user else False
     token = os.getenv("SECRET_KEY") if is_admin else ""
 
     if form.validate_on_submit():
         image_files = request.files.getlist("images")
-        if not image_files or len(image_files) == 0:
+        image_files = [f for f in image_files if f and f.filename]  # remove empty
+
+        if not image_files:
             flash("At least one image is required.", "error")
             return render_template(
                 "pages/shared/admin/new_post.html",
@@ -57,15 +59,14 @@ def new_post():
 
         new_post = Post(content=form.content.data, author_id=current_user.id)
         for file in image_files:
-            if file:
-                result = cloudinary.uploader.upload(
-                    file, folder="posts", resource_type="image"
-                )
-                secure_url = result.get("secure_url")
-                if secure_url:
-                    new_image = Image(author_id=current_user.id, image_url=secure_url)
-                    new_post.images.append(new_image)
-                    db.session.add(new_image)
+            result = cloudinary.uploader.upload(
+                file, folder="posts", resource_type="image"
+            )
+            secure_url = result.get("secure_url")
+            if secure_url:
+                new_image = Image(author_id=current_user.id, image_url=secure_url)
+                new_post.images.append(new_image)
+                db.session.add(new_image)
 
         db.session.add(new_post)
         db.session.commit()
@@ -79,6 +80,71 @@ def new_post():
         token=token,
         active_page="",
         form=form,
+    )
+
+
+@posts_bp.route("/edit/<int:post_id>", methods=["GET", "POST"])
+@token_required
+@admin_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author_id != current_user.id and current_user.role != UserRole.ADMIN:
+        flash("You are not authorized to edit this post.", "error")
+        return redirect(url_for("home.home"))
+
+    form = CreatePostForm(obj=post)
+    form.editing = True
+    user = User.query.get(current_user.id)
+    avatar_url = user.avatar_url if user else ""
+    is_admin = user.role == UserRole.ADMIN if user else False
+    token = os.getenv("SECRET_KEY") if is_admin else ""
+
+    if form.validate_on_submit():
+        image_files = request.files.getlist("images")
+        image_files = [f for f in image_files if f and f.filename]
+
+        has_existing_images = len(post.images) > 0
+        has_new_images = len(image_files) > 0
+
+        if not has_existing_images and not has_new_images:
+            flash("At least one image is required.", "error")
+            return render_template(
+                "pages/shared/admin/new_post.html",
+                form=form,
+                is_admin=is_admin,
+                avatar_url=avatar_url,
+                token=token,
+                editing=True,
+                post_id=post.id,
+                post_images=post.images,
+            )
+
+        if form.content.data != post.content:
+            post.content = form.content.data
+
+        for file in image_files:
+            result = cloudinary.uploader.upload(
+                file, folder="posts", resource_type="image"
+            )
+            secure_url = result.get("secure_url")
+            if secure_url:
+                new_image = Image(author_id=current_user.id, image_url=secure_url)
+                post.images.append(new_image)
+                db.session.add(new_image)
+
+        db.session.commit()
+        flash("Post updated successfully!", "success")
+        return redirect(url_for("home.home", token=token))
+
+    return render_template(
+        "pages/shared/admin/new_post.html",
+        form=form,
+        is_admin=is_admin,
+        avatar_url=avatar_url,
+        token=token,
+        editing=True,
+        post_id=post.id,
+        post_images=post.images,
     )
 
 

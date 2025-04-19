@@ -20,6 +20,7 @@ from .validators import (
     calculate_word_count,
     validate_phone,
     validate_num_images,
+    OptionalImages,
 )
 from ..models import User
 
@@ -190,6 +191,7 @@ class CreatePostForm(FlaskForm):
     images = MultiFileField(
         "Upload an Image",
         validators=[
+            OptionalImages(),
             FileRequired(message="At least one image is required."),
             validate_num_images,
             FileAllowed(["jpg", "jpeg", "png"], "Only JPG and PNG images are allowed."),
