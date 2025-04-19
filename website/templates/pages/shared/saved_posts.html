@@ -25,7 +25,10 @@
 <div>
   <div class="grid gap-[3px] grid-cols-2 [@media(min-width:475px)]:grid-cols-3 [@media(min-width:625px)]:grid-cols-4">
     {% for post in saved_posts %}
-    <div class="relative aspect-[4/5]">
+    <a
+      href="{{ url_for('posts.view_post', post_id=post.id) }}"
+      class="relative aspect-[5/5] block transition duration-150 hover:opacity-90 active:brightness-90"
+    >
       <img
         class="w-full h-full object-cover rounded-sm"
         src="{{ post.images[0].image_url }}"
@@ -39,7 +42,7 @@
         </svg>
       </div>
       {% endif %}
-    </div>
+    </a>
     {% endfor %}
   </div>
 </div>

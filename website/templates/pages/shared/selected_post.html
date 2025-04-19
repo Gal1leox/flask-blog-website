@@ -1,0 +1,25 @@
+{# templates/pages/shared/home.html #}
+
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/post.html" import render_post with context %}
+
+{% block title %}Kalts Daniil - Personal Blog{% endblock %}
+
+{% block content %}
+{% if post %}
+<div class="container max-w-lg mx-auto">
+  <div class="grid grid-cols-1 gap-8">
+    {{ render_post(post) }}
+  </div>
+</div>
+{% else %}
+<div class="flex flex-grow items-center justify-center py-16">
+  <h4
+    class="text-center text-base font-medium text-gray-800 dark:text-gray-300"
+  >
+    No post found..<br />
+  </h4>
+</div>
+{% endif %}
+{% endblock %}

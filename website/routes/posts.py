@@ -112,3 +112,19 @@ def saved_posts():
         token=os.getenv("SECRET_KEY"),
         active_page="",
     )
+
+
+@posts_bp.route("<int:post_id>")
+@login_required
+def view_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    user = User.query.get(current_user.id)
+
+    return render_template(
+        "pages/shared/selected_post.html",
+        post=post,
+        avatar_url=user.avatar_url if user else "",
+        is_admin=user.role == UserRole.ADMIN if user else False,
+        token=os.getenv("SECRET_KEY") if user else "",
+        active_page="",
+    )
