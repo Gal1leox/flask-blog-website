@@ -2,7 +2,6 @@ from website.models import (
     User,
     Post,
     Image,
-    Comment,
     PostImage,
     SavedPost,
     VerificationCode,
@@ -29,11 +28,6 @@ TABLES = {
         "table": Post,
         "columns": get_table_columns(Post),
         "query": lambda: Post.query.all(),
-    },
-    "comments": {
-        "table": Comment,
-        "columns": get_table_columns(Comment),
-        "query": lambda: Comment.query.all(),
     },
     "verification_codes": {
         "table": VerificationCode,

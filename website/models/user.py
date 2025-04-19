@@ -43,12 +43,6 @@ class User(db.Model, UserMixin):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    comments: Mapped[list["Comment"]] = relationship(
-        "Comment",
-        back_populates="author",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
     saved_posts: Mapped[list["SavedPost"]] = relationship(
         "SavedPost",
         back_populates="user",

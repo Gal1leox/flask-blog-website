@@ -23,9 +23,6 @@ class Post(db.Model):
     images: Mapped[list["Image"]] = relationship(
         "Image", secondary="post_images", back_populates="posts"
     )
-    comments: Mapped[list["Comment"]] = relationship(
-        "Comment", back_populates="post", cascade="all, delete", passive_deletes=True
-    )
     saved_by: Mapped[list["SavedPost"]] = relationship(
         "SavedPost",
         back_populates="post",
@@ -81,47 +78,6 @@ class Image(db.Model):
             f"Image Info:\n"
             f"ID: {self.id}\n"
             f"Image URL: {self.image_url}\n"
-            f"Created At: {self.created_at}\n"
-            f"Updated At: {self.updated_at}"
-        )
-
-
-class Comment(db.Model):
-    __tablename__ = "comments"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    author_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
-    content: Mapped[str] = mapped_column(String(500), nullable=False)
-    parent_comment_id: Mapped[int | None] = mapped_column(
-        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
-    )
-    post_id: Mapped[int] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    author: Mapped["User"] = relationship("User", back_populates="comments")
-    post: Mapped["Post"] = relationship("Post", back_populates="comments")
-    parent_comment: Mapped["Comment"] = relationship(
-        "Comment", back_populates="replies", remote_side="Comment.id"
-    )
-    replies: Mapped[list["Comment"]] = relationship(
-        "Comment",
-        back_populates="parent_comment",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-
-    def __repr__(self):
-        return (
-            f"Comment Info:\n"
-            f"ID: {self.id}\n"
-            f"Content: {self.content}\n"
             f"Created At: {self.created_at}\n"
             f"Updated At: {self.updated_at}"
         )
