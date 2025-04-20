@@ -27,7 +27,6 @@ class Post(db.Model):
         "SavedPost",
         back_populates="post",
         cascade="all, delete-orphan",
-        passive_deletes=True,
     )
 
     post_images: Mapped[list["PostImage"]] = relationship(

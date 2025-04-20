@@ -137,7 +137,7 @@
 
         const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
         const files = event.target.files;
-        const fileArray = Array.from(files).slice(0, 3);
+        const fileArray = Array.from(files).slice(0, 5);
 
         for (let file of fileArray) {
           if (!allowedTypes.includes(file.type)) {

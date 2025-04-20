@@ -56,8 +56,8 @@ def calculate_word_count(_, field):
 def validate_num_images(_, field):
     if not field.data or len(field.data) < 1:
         raise ValidationError("At least one image is required.")
-    if len(field.data) > 3:
-        raise ValidationError("You can upload a maximum of 3 images.")
+    if len(field.data) > 5:
+        raise ValidationError("You can upload a maximum of 5 images.")
 
     for file in field.data:
         file.seek(0, 2)
