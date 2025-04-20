@@ -184,7 +184,7 @@ class MultiFileField(StringField):
 class CreatePostForm(FlaskForm):
     content = TextAreaField(
         "Content",
-        validators=[DataRequired()],
+        validators=[DataRequired(), calculate_word_count],
         render_kw={"placeholder": "Content of a new post", "rows": 10},
         filters=[strip_filter],
     )
