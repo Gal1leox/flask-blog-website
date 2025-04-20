@@ -17,6 +17,12 @@ from authlib.integrations.flask_client import OAuth
 # Cloudinary Integration
 import cloudinary
 
+
+# Markdown + Bleach Formatting
+import bleach
+import markdown as _md
+from markupsafe import Markup
+
 # -----------------------------------------------------------------------------
 # Load Environment Variables
 # -----------------------------------------------------------------------------
@@ -54,3 +60,63 @@ google = oauth.register(
     refresh_token_url="https://oauth2.googleapis.com/token",
     jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
 )
+
+# -----------------------------------------------------------------------------
+# Markdown + Bleach configuration
+# -----------------------------------------------------------------------------
+
+# Which HTML tags and attributes you’ll allow in posts
+ALLOWED_TAGS = set(bleach.sanitizer.ALLOWED_TAGS) | {
+    "p",
+    "pre",
+    "code",
+    "blockquote",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "ul",
+    "ol",
+    "li",
+    "a",
+    "img",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
+    "div",
+    "span",
+    "br",
+    "strong",
+    "em",
+}
+ALLOWED_ATTRS = {
+    **bleach.sanitizer.ALLOWED_ATTRIBUTES,
+    "*": ["class"],  # allow Tailwind classes on any tag
+    "a": ["href", "title", "rel", "target", "class"],
+    "img": ["src", "alt", "title", "width", "height", "loading", "class"],
+}
+
+MD_EXTENSIONS = [
+    "fenced_code",
+    "tables",
+    "codehilite",
+    "attr_list",
+]
+
+
+def init_markdown(app):
+    @app.template_filter("markdown")
+    def render_md(text: str):
+        # 1) convert Markdown→HTML (raw HTML is passed through)
+        raw = _md.markdown(text or "", extensions=MD_EXTENSIONS, output_format="html5")
+        # 2) sanitize any unwanted tags/attrs
+        clean = bleach.clean(
+            raw, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True
+        )
+        # 3) mark safe for Jinja
+        return Markup(clean)

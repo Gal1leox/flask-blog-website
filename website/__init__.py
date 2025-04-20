@@ -13,6 +13,7 @@ from website.init import (
     register_error_handlers,
     schedule_jobs,
     oauth,
+    init_markdown,
 )
 
 load_dotenv()
@@ -33,6 +34,7 @@ def create_app():
     mail.init_app(app)
     limiter.init_app(app)
     oauth.init_app(app)
+    init_markdown(app)
 
     @login_manager.user_loader
     def load_user(user_id):
