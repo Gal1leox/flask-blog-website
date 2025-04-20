@@ -7,12 +7,12 @@
       <div
         x-data="{ loaded: false, bg: '{{ post.author.avatar_url if post.author.avatar_url else url_for('static', filename='images/no-avatar.jpg') }}' }"
         :style="{
-        backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
-        backgroundColor: loaded ? 'transparent' : '#DBDBDB'
-      }"
+          backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+          backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+        }"
         class="relative h-9 w-9 rounded-full overflow-hidden bg-cover bg-center mr-3"
-        aria-label="profile picture"
         role="img"
+        aria-label="profile picture"
       >
         {% if post.author.avatar_url %}
         <img
@@ -20,12 +20,13 @@
           class="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
           src="{{ post.author.avatar_url }}"
+          alt="{{ post.author.username }}’s avatar"
         />
         {% endif %}
       </div>
       <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-      {{ post.author.username }}
-    </span>
+        {{ post.author.username }}
+      </span>
     </div>
 
     {% if is_admin %}
@@ -36,19 +37,12 @@
         class="flex items-center justify-center rounded-full dark:bg-gray-800 p-1 focus:outline-none"
         aria-label="More options"
       >
-        <svg
-          aria-label="More options"
-          class="w-6 h-6 text-gray-800 dark:text-white"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <title>More options</title>
-          <circle cx="12" cy="12" r="1.5"></circle>
-          <circle cx="6" cy="12" r="1.5"></circle>
-          <circle cx="18" cy="12" r="1.5"></circle>
+        <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="6" cy="12" r="1.5"/>
+          <circle cx="12" cy="12" r="1.5"/>
+          <circle cx="18" cy="12" r="1.5"/>
         </svg>
       </button>
-
       <div
         x-show="open"
         x-cloak
@@ -59,28 +53,24 @@
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
         @click.outside="open = false"
-        class="overflow-hidden absolute right-0 z-50 mt-8 w-44 origin-top-right rounded-md bg-gray-800 focus:outline-none dark:bg-white"
+        class="absolute right-0 mt-8 w-44 origin-top-right rounded-md bg-gray-800 dark:bg-white shadow-lg z-50"
         style="display: none"
       >
         <a
-          href="/posts/edit/{{ post.id }}?token={{ token }}"
+          href="{{ url_for('posts.edit_post', post_id=post.id, token=token) }}"
           class="block px-4 py-2 text-sm text-white hover:bg-gray-700 dark:text-gray-700 dark:hover:bg-gray-100"
-          role="menuitem"
-        >
-          Edit Post
-        </a>
-        <form method="POST" action="/posts/{{ post.id }}/delete" class="w-full">
+        >Edit Post</a>
+        <form method="POST" action="{{ url_for('posts.delete_post', post_id=post.id) }}">
           <button
             type="submit"
-            class="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 dark:text-red-700 dark:hover:bg-gray-100"
-          >
-            Remove Post
-          </button>
+            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 dark:text-red-700 dark:hover:bg-gray-100"
+          >Remove Post</button>
         </form>
       </div>
     </div>
     {% endif %}
   </div>
+
   {% if post.images and post.images|length > 0 %}
   <div
     x-data
@@ -101,51 +91,69 @@
     <div class="swiper-wrapper">
       {% for image in post.images %}
       <div class="swiper-slide">
-        <img
-          class="w-full h-[275px] [@media(min-width:475px)]:h-[325px] object-cover"
-          src="{{ image.image_url }}"
-        />
+        <div
+          x-data="{ loaded: false }"
+          :style='{
+            backgroundImage: loaded
+              ? "none"
+              : "url({{ url_for("static", filename="images/post-loading.svg") }})",
+            backgroundColor: loaded ? "transparent" : "#374151"
+          }'
+          class="relative w-full h-[275px] [@media(min-width:475px)]:h-[325px] bg-center bg-cover overflow-hidden"
+          role="img"
+          aria-label="Post image placeholder"
+        >
+          <img
+            @load="loaded = true"
+            class="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            src="{{ image.image_url }}"
+          />
+        </div>
       </div>
       {% endfor %}
     </div>
+
     {% if post.images|length > 1 %}
     <div class="swiper-pagination"></div>
     <div class="swiper-button-prev"></div>
     <div class="swiper-button-next"></div>
     {% endif %}
   </div>
+  {% endif %}
 
   <div
     x-data="{
       shareLink: '',
       toastOpen: false,
       copy() {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(this.shareLink);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = this.shareLink;
-          ta.setAttribute('readonly', '');
-          ta.style.position = 'absolute';
-          ta.style.left = '-9999px';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
+        navigator.clipboard?.writeText(this.shareLink)
+          ?? (function(){
+           const ta = document.createElement('textarea');
+           ta.value = this.shareLink;
+           ta.setAttribute('readonly','');
+           ta.style.position='absolute';
+           ta.style.left='-9999px';
+           document.body.appendChild(ta);
+           ta.select();
+           document.execCommand('copy');
+           document.body.removeChild(ta);
+         })();
         this.toastOpen = true;
-        setTimeout(() => this.toastOpen = false, 2000);
+        setTimeout(()=> this.toastOpen = false, 2000);
       }
     }"
-    x-init="shareLink = window.location.origin + '/posts/{{ post.id }}'"
+    x-init="shareLink = window.location.origin + '{{ url_for('posts.view_post', post_id=post.id) }}'"
     class="px-4 py-2 flex justify-between items-center border-b border-gray-200 dark:border-gray-700 relative"
   >
     <div class="flex space-x-4">
       <button type="button" class="focus:outline-none" aria-label="Copy link" @click="copy()">
-        <svg class="text-gray-900 dark:text-gray-100 w-[22px]" fill="currentColor" width="24" height="24" viewBox="0 0 24 24">
+        <svg class="w-[22px] text-gray-900 dark:text-gray-100" fill="currentColor" viewBox="0 0 24 24">
           <title>Copy link</title>
-          <path d="m9.726 5.123 1.228-1.228a6.47 6.47 0 0 1 9.15 9.152l-1.227 1.227m-4.603 4.603-1.228 1.228a6.47 6.47 0 0 1-9.15-9.152l1.227-1.227" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-          <line x1="8.471" y1="15.529" x2="15.529" y2="8.471" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <path d="m9.726 5.123 1.228-1.228a6.47 6.47 0 0 1 9.15 9.152l-1.227 1.227m-4.603 4.603-1.228 1.228a6.47 6.47 0 0 1-9.15-9.152l1.227-1.227"
+                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          <line x1="8.471" y1="15.529" x2="15.529" y2="8.471"
+                fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
         </svg>
       </button>
     </div>
@@ -156,11 +164,11 @@
         saved: {{ post.saved_by|selectattr('user_id','equalto', current_user.id)|list and 'true' or 'false' }},
         toggle() {
           fetch('{{ url_for('posts.toggle_save', post_id=post.id) }}', {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            method:'POST',
+            headers:{'X-Requested-With':'XMLHttpRequest'}
           })
-          .then(r => r.json())
-          .then(data => this.saved = data.saved);
+          .then(r=>r.json())
+          .then(d=>this.saved=d.saved);
         }
       }"
       class="flex items-center"
@@ -171,21 +179,13 @@
         :aria-label="saved ? 'Unsave' : 'Save'"
         class="focus:outline-none"
       >
-        <svg
-          class="w-[22px] transition-colors duration-150 text-gray-900 dark:text-gray-100"
-          fill="none"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-        >
+        <svg class="w-[22px] transition-colors duration-150 text-gray-900 dark:text-gray-100"
+             fill="none" viewBox="0 0 24 24">
           <title x-text="saved ? 'Unsave' : 'Save'"></title>
           <polygon
             :fill="saved ? 'currentColor' : 'none'"
             points="20 21 12 13.44 4 21 4 3 20 3 20 21"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           />
         </svg>
       </button>
@@ -193,14 +193,13 @@
     {% endif %}
 
     <template x-if="toastOpen">
-      <div class="fixed inset-x-0 bottom-0 z-50 flex justify-center items-end pointer-events-none">
+      <div class="fixed inset-x-0 bottom-0 flex justify-center items-end pointer-events-none z-50">
         <div class="pointer-events-auto w-full bg-gray-700 dark:bg-gray-700 text-white text-sm px-4 py-3 sm:py-2 rounded-t-lg shadow-lg">
           Link copied to clipboard.
         </div>
       </div>
     </template>
   </div>
-  {% endif %}
 
   <div class="px-4 pb-4 pt-3">
     {% set words = post.content.split(' ') %}
@@ -209,10 +208,7 @@
       <p class="text-sm text-gray-900 dark:text-gray-300">
         {% set excerpt = words[:50]|join(' ') %} {{ excerpt }}
         <span x-show="!expanded">
-          <button
-            @click="expanded = true"
-            class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline"
-          >
+          <button @click="expanded = true" class="inline text-blue-600 dark:text-blue-400 text-sm hover:underline">
             more
           </button>
         </span>
@@ -224,7 +220,7 @@
     {% else %}
     <p class="text-sm text-gray-700 dark:text-gray-100">{{ post.content }}</p>
     {% endif %}
-    <div class="mt-2 flex items-center justify-start">
+    <div class="mt-2">
       <span class="text-gray-500 text-xs">{{ post.created_at.strftime("%b %d, %Y") }}</span>
     </div>
   </div>

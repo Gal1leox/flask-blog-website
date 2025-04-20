@@ -4,11 +4,27 @@
   href="{{ url_for('posts.view_post', post_id=post.id) }}"
   class="relative aspect-[5/5] block transition duration-150 hover:opacity-90 active:brightness-90"
 >
-  <img
-    class="w-full h-full object-cover rounded-sm"
-    src="{{ post.images[0].image_url }}"
-    alt="Post preview"
-  />
+  <div
+    x-data="{ loaded: false }"
+    :style="{
+      backgroundImage: loaded
+        ? 'none'
+        : 'url({{ url_for('static', filename='images/post-loading.svg') }})',
+      backgroundColor: loaded ? 'transparent' : '#374151'
+    }"
+    class="relative w-full h-full rounded-sm bg-center bg-cover overflow-hidden"
+    role="img"
+    aria-label="Post preview placeholder"
+  >
+    <img
+      @load="loaded = true"
+      class="absolute inset-0 w-full h-full object-cover"
+      loading="lazy"
+      src="{{ post.images[0].image_url }}"
+      alt="Post preview"
+    />
+  </div>
+
   {% if post.images|length > 1 %}
   <div class="absolute top-1 right-1 bg-black/60 rounded-full p-1">
     <svg aria-label="Carousel" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 48 48">

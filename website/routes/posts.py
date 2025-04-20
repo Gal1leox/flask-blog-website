@@ -24,7 +24,7 @@ def all_posts():
     theme = user.theme.value if user else "system"
 
     return render_template(
-        "pages/shared/posts/posts.html",
+        "pages/shared/posts/list.html",
         posts=posts,
         avatar_url=user.avatar_url if user else "",
         is_admin=user.role == UserRole.ADMIN if user else False,
@@ -196,7 +196,7 @@ def saved_posts():
     saved_posts = [s.post for s in saved]
 
     return render_template(
-        "pages/shared/posts/saved_posts.html",
+        "pages/shared/posts/saved.html",
         saved_posts=saved_posts,
         avatar_url=user.avatar_url,
         is_admin=user.role == UserRole.ADMIN,
@@ -214,7 +214,7 @@ def view_post(post_id):
     theme = user.theme.value if user else "system"
 
     return render_template(
-        "pages/shared/posts/selected_post.html",
+        "pages/shared/posts/detail.html",
         post=post,
         avatar_url=user.avatar_url if user else "",
         is_admin=user.role == UserRole.ADMIN if user else False,
