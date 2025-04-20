@@ -1,7 +1,10 @@
-import os
+import os, re
+import urllib
+
 from dotenv import load_dotenv
 
 # Flask Extensions
+from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -112,7 +115,7 @@ MD_EXTENSIONS = [
 def init_markdown(app):
     @app.template_filter("markdown")
     def render_md(text: str):
-        # 1) convert Markdown→HTML (raw HTML is passed through)
+        # 1) convert Markdown -> HTML (raw HTML is passed through)
         raw = _md.markdown(text or "", extensions=MD_EXTENSIONS, output_format="html5")
         # 2) sanitize any unwanted tags/attrs
         clean = bleach.clean(
@@ -120,3 +123,27 @@ def init_markdown(app):
         )
         # 3) mark safe for Jinja
         return Markup(clean)
+
+    @app.template_filter("link_hashtags")
+    def link_hashtags(text):
+        path = request.path
+        tags = request.args.getlist("tag")
+
+        def _replace(m):
+            hashtag = m.group(1)
+            tag = hashtag[1:]
+            new_tags = tags.copy()
+
+            if tag in new_tags:
+                new_tags.remove(tag)
+            else:
+                new_tags.append(tag)
+
+            qs = urllib.parse.urlencode([("tag", t) for t in new_tags], doseq=True)
+            href = path + ("?" + qs if qs else "")
+
+            cls = "underline" if tag in tags else ""
+            return f'<a href="{href}" class="text-blue-500 hover:underline {cls}">{hashtag}</a>'
+
+        linked = re.sub(r"(#\w+)", _replace, text)
+        return Markup(linked)
