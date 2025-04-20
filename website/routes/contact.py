@@ -1,5 +1,3 @@
-import os
-
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from dotenv import load_dotenv
@@ -24,6 +22,7 @@ def contact():
     form = ContactForm()
 
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    theme = user.theme.value if user else "system"
 
     if form.validate_on_submit():
         subject = (
@@ -56,4 +55,5 @@ def contact():
         avatar_url=avatar_url,
         token=token,
         active_page="Contact Me",
+        theme=theme,
     )

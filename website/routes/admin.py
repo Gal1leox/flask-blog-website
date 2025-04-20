@@ -39,6 +39,7 @@ admin_bp = Blueprint("admin", __name__, template_folder="../templates")
 @admin_required
 def database():
     user = User.query.get(current_user.id)
+    theme = user.theme.value if user else "system"
 
     avatar_url = user.avatar_url if user else ""
     table = request.args.get("table")
@@ -65,6 +66,7 @@ def database():
         records=records,
         token=secret_key,
         active_page="Database",
+        theme=theme,
     )
 
 

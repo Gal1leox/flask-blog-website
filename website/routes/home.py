@@ -18,6 +18,7 @@ def home():
     avatar_url = user.avatar_url if user else ""
     is_admin = user and user.role == UserRole.ADMIN
     token = os.getenv("SECRET_KEY") if is_admin else ""
+    theme = user.theme.value if user else "system"
 
     posts = Post.query.order_by(Post.created_at.desc()).all()
 
@@ -28,4 +29,5 @@ def home():
         token=token,
         active_page="Home",
         posts=posts,
+        theme=theme,
     )

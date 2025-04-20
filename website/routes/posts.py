@@ -21,6 +21,7 @@ posts_bp = Blueprint("posts", __name__, template_folder="../templates")
 def all_posts():
     posts = Post.query.order_by(Post.created_at.desc()).all()
     user = User.query.get(current_user.id)
+    theme = user.theme.value if user else "system"
 
     return render_template(
         "pages/shared/posts/posts.html",
@@ -29,6 +30,7 @@ def all_posts():
         is_admin=user.role == UserRole.ADMIN if user else False,
         token=os.getenv("SECRET_KEY") if user else "",
         active_page="",
+        theme=theme,
     )
 
 
@@ -41,6 +43,7 @@ def new_post():
     avatar_url = user.avatar_url if user else ""
     is_admin = user.role == UserRole.ADMIN if user else False
     token = os.getenv("SECRET_KEY") if is_admin else ""
+    theme = user.theme.value if user else "system"
 
     if form.validate_on_submit():
         image_files = request.files.getlist("images")
@@ -55,6 +58,7 @@ def new_post():
                 token=token,
                 active_page="",
                 form=form,
+                theme=theme,
             )
 
         new_post = Post(content=form.content.data, author_id=current_user.id)
@@ -80,6 +84,7 @@ def new_post():
         token=token,
         active_page="",
         form=form,
+        theme=theme,
     )
 
 
@@ -98,6 +103,7 @@ def edit_post(post_id):
     avatar_url = user.avatar_url if user else ""
     is_admin = user.role == UserRole.ADMIN if user else False
     token = os.getenv("SECRET_KEY") if is_admin else ""
+    theme = user.theme.value if user else "system"
 
     if form.validate_on_submit():
         image_files = request.files.getlist("images")
@@ -145,6 +151,7 @@ def edit_post(post_id):
         editing=True,
         post_id=post.id,
         post_images=post.images,
+        theme=theme,
     )
 
 
@@ -176,6 +183,7 @@ def toggle_save(post_id):
 @login_required
 def saved_posts():
     user = User.query.get(current_user.id)
+    theme = user.theme.value if user else "system"
 
     saved = (
         db.session.query(SavedPost)
@@ -194,6 +202,7 @@ def saved_posts():
         is_admin=user.role == UserRole.ADMIN,
         token=os.getenv("SECRET_KEY"),
         active_page="",
+        theme=theme,
     )
 
 
@@ -202,6 +211,7 @@ def saved_posts():
 def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     user = User.query.get(current_user.id)
+    theme = user.theme.value if user else "system"
 
     return render_template(
         "pages/shared/posts/selected_post.html",
@@ -210,6 +220,7 @@ def view_post(post_id):
         is_admin=user.role == UserRole.ADMIN if user else False,
         token=os.getenv("SECRET_KEY") if user else "",
         active_page="",
+        theme=theme,
     )
 
 

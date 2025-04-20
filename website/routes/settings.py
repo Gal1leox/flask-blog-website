@@ -22,6 +22,7 @@ def settings():
     change_password_form = ChangePasswordForm()
 
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    theme = user.theme.value if user else "system"
 
     if request.method == "POST":
         if form.validate_on_submit():
@@ -62,6 +63,7 @@ def settings():
         form=form,
         change_password_form=change_password_form,
         show_change_password=show_change_password,
+        theme=theme,
     )
 
 
@@ -88,6 +90,7 @@ def delete_avatar():
 def change_password():
     change_password_form = ChangePasswordForm()
     user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    theme = user.theme.value if user else "system"
 
     if not (user and user.password_hash):
         flash("Password change is not available for your account.", "danger")
@@ -123,6 +126,7 @@ def change_password():
         form=profile_form,
         change_password_form=change_password_form,
         show_change_password=show_change_password,
+        theme=theme,
     )
 
 
