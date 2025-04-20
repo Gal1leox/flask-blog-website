@@ -126,7 +126,7 @@ def register():
                 "danger",
             )
 
-    return render_template("pages/auth/user/register.html", form=form)
+    return render_template("pages/auth/user/register.html", form=form, theme="system")
 
 
 @auth_bp.route("/login/", methods=["GET", "POST"])
@@ -157,7 +157,7 @@ def login():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("pages/auth/user/login.html", form=form)
+    return render_template("pages/auth/user/login.html", form=form, theme="system")
 
 
 @auth_bp.route("/logout/")
@@ -198,6 +198,7 @@ def forgot_password():
                     "pages/auth/user/email_message.html",
                     code=code,
                     verification_link=verification_link,
+                    theme="system",
                 ),
                 sender=admin_email,
                 recipients=[form.email.data],
@@ -213,7 +214,9 @@ def forgot_password():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("pages/auth/user/forgot_password.html", form=form)
+    return render_template(
+        "pages/auth/user/forgot_password.html", form=form, theme="system"
+    )
 
 
 @auth_bp.route("/verify-code/", methods=["GET", "POST"])
@@ -243,11 +246,10 @@ def verify_code():
             return redirect(url_for("auth.reset_password", token=token))
 
         return render_template(
-            "pages/auth/user/verify_code.html",
-            is_valid=False,
+            "pages/auth/user/verify_code.html", is_valid=False, theme="system"
         )
 
-    return render_template("pages/auth/user/verify_code.html")
+    return render_template("pages/auth/user/verify_code.html", theme="system")
 
 
 @auth_bp.route("/reset-password/", methods=["GET", "POST"])
@@ -284,7 +286,9 @@ def reset_password():
         flash("Password reset successfully.", "success")
         return redirect(url_for("auth.login"))
 
-    return render_template("pages/auth/user/reset_password.html", form=form)
+    return render_template(
+        "pages/auth/user/reset_password.html", form=form, theme="system"
+    )
 
 
 # --- Admin Routes ---
@@ -310,4 +314,4 @@ def admin_login():
             flash("Invalid credentials. Please try again.", "danger")
             return redirect(request.url)
 
-    return render_template("pages/auth/admin/login.html", form=form)
+    return render_template("pages/auth/admin/login.html", form=form, theme="system")

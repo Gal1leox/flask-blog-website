@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..forms.forms import UpdateProfileForm, ChangePasswordForm
-from ..models import User, UserRole
+from ..models import User, UserRole, UserTheme
 from website import db
 
 load_dotenv()
@@ -128,6 +128,24 @@ def change_password():
         show_change_password=show_change_password,
         theme=theme,
     )
+
+
+@settings_bp.route("/theme", methods=["POST"])
+@login_required
+def set_theme():
+    data = request.get_json() or {}
+    theme = data.get("theme")
+
+    try:
+        theme_enum = UserTheme(theme)
+    except ValueError:
+        return ("Invalid theme", 400)
+
+    user = User.query.get(current_user.id) if current_user.is_authenticated else None
+    user.theme = theme_enum
+    db.session.commit()
+
+    return ("", 204)
 
 
 @settings_bp.route("/delete-account", methods=["POST"])

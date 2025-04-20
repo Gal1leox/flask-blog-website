@@ -138,6 +138,77 @@
   </div>
   {% endif %}
 
+  <hr class="my-8 border-gray-300 dark:border-gray-700">
+
+  <div
+    x-data="{
+      theme: '{{ theme }}',
+      effective: null,
+      init() {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+        this.effective = (this.theme === 'system')
+          ? (mq.matches ? 'dark' : 'light')
+          : this.theme;
+
+        this.$refs.toggle.checked = (this.effective === 'dark');
+
+        mq.addEventListener('change', e => {
+          if (this.theme === 'system') {
+            this.effective = e.matches ? 'dark' : 'light';
+            this.$refs.toggle.checked = (this.effective === 'dark');
+          }
+        });
+      },
+
+      async change() {
+        this.effective = this.$refs.toggle.checked ? 'dark' : 'light';
+        this.theme = this.effective;
+
+        document.documentElement.classList.toggle('dark', this.effective === 'dark');
+        document.documentElement.classList.toggle('light', this.effective === 'light');
+
+        await fetch('/settings/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: this.theme })
+        });
+      }
+    }"
+    x-init="init()"
+    class="grid grid-cols-1 sm:grid-cols-[250px_1fr] gap-x-10 gap-y-4"
+  >
+    <aside>
+      <h2 class="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-1">
+        Appearance
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Toggle between light and dark mode.
+      </p>
+    </aside>
+
+    <label class="inline-flex w-fit items-center cursor-pointer">
+      <input
+        x-ref="toggle"
+        type="checkbox"
+        class="sr-only peer"
+        @change="change()"
+      />
+      <div
+        class="relative w-11 h-6 bg-gray-200 rounded-full peer
+             dark:bg-gray-700 peer-checked:bg-blue-500
+             peer-checked:after:translate-x-full
+             after:content-[''] after:absolute after:top-[2px] after:start-[2px]
+             after:bg-white after:border-gray-300 after:border
+             after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600"
+      ></div>
+      <span
+        class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+        x-text="effective === 'dark' ? 'Dark Mode' : 'Light Mode'"
+      ></span>
+    </label>
+  </div>
+
   {% if not is_admin %}
   <hr class="my-8 border-gray-300 dark:border-gray-700">
   <div class="grid grid-cols-1 sm:grid-cols-[250px_1fr] gap-x-10 gap-y-4">

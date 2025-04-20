@@ -86,22 +86,18 @@ tailwind.config = {
   darkMode: 'class'
 }
 
-;(function(){
-  const html = document.documentElement;
+  ;(function(){
+    const html = document.documentElement;
+    if (!html.classList.contains('system')) return;
 
-  const apply = isDark => {
-    html.classList.remove('system','dark','light');
-    html.classList.add(isDark ? 'dark' : 'light');
-  };
-
-  if (html.classList.length === 0) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const apply = isDark => {
+      html.classList.remove('system','dark','light');
+      html.classList.add(isDark ? 'dark' : 'light');
+    };
+
     apply(mq.matches);
-  };
 
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-
-  apply(mq.matches);
-
-  mq.addEventListener('change', e => apply(e.matches));
-})();
+    mq.addEventListener('change', e => apply(e.matches));
+  })();
