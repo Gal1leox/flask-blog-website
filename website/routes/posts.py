@@ -50,7 +50,7 @@ def new_post():
         image_files = [f for f in image_files if f and f.filename]  # remove empty
 
         if not image_files:
-            flash("At least one image is required.", "error")
+            flash("At least one image is required.", "danger")
             return render_template(
                 "pages/shared/admin/new_post.html",
                 is_admin=is_admin,
@@ -92,9 +92,11 @@ def new_post():
 @token_required
 @admin_required
 def edit_post(post_id):
+    MAX_IMAGES = 5
+
     post = Post.query.get_or_404(post_id)
     if post.author_id != current_user.id and current_user.role != UserRole.ADMIN:
-        flash("You are not authorized to edit this post.", "error")
+        flash("You are not authorized to edit this post.", "danger")
         return redirect(url_for("home.home"))
 
     form = CreatePostForm(obj=post)
@@ -105,15 +107,25 @@ def edit_post(post_id):
     token = os.getenv("SECRET_KEY") if is_admin else ""
     theme = user.theme.value if user else "system"
 
+    existing_count = len(post.images)
+
     if form.validate_on_submit():
-        image_files = request.files.getlist("images")
-        image_files = [f for f in image_files if f and f.filename]
+        delete_ids = [
+            int(i) for i in request.form.getlist("delete_images") if i.isdigit()
+        ]
+        if delete_ids:
+            for img in post.images[:]:
+                if img.id in delete_ids:
+                    post.images.remove(img)
+                    db.session.delete(img)
+            db.session.flush()
+            existing_count = len(post.images)
 
-        has_existing_images = len(post.images) > 0
-        has_new_images = len(image_files) > 0
+        new_files = [f for f in request.files.getlist("images") if f and f.filename]
+        new_count = len(new_files)
 
-        if not has_existing_images and not has_new_images:
-            flash("At least one image is required.", "error")
+        if existing_count + new_count == 0:
+            flash("At least one image is required.", "danger")
             return render_template(
                 "pages/shared/admin/new_post.html",
                 form=form,
@@ -123,20 +135,42 @@ def edit_post(post_id):
                 editing=True,
                 post_id=post.id,
                 post_images=post.images,
+                existing_count=existing_count,
+                max_images=MAX_IMAGES,
+                theme=theme,
+            )
+
+        if existing_count + new_count > MAX_IMAGES:
+            flash(
+                f"A post can't have more than {MAX_IMAGES} images.",
+                "danger",
+            )
+            return render_template(
+                "pages/shared/admin/new_post.html",
+                form=form,
+                is_admin=is_admin,
+                avatar_url=avatar_url,
+                token=token,
+                editing=True,
+                post_id=post.id,
+                post_images=post.images,
+                existing_count=existing_count,
+                max_images=MAX_IMAGES,
+                theme=theme,
             )
 
         if form.content.data != post.content:
             post.content = form.content.data
 
-        for file in image_files:
+        for file in new_files:
             result = cloudinary.uploader.upload(
                 file, folder="posts", resource_type="image"
             )
-            secure_url = result.get("secure_url")
-            if secure_url:
-                new_image = Image(author_id=current_user.id, image_url=secure_url)
-                post.images.append(new_image)
-                db.session.add(new_image)
+            url = result.get("secure_url")
+            if url:
+                img = Image(author_id=current_user.id, image_url=url)
+                post.images.append(img)
+                db.session.add(img)
 
         db.session.commit()
         flash("Post updated successfully!", "success")
@@ -151,6 +185,8 @@ def edit_post(post_id):
         editing=True,
         post_id=post.id,
         post_images=post.images,
+        existing_count=existing_count,
+        max_images=MAX_IMAGES,
         theme=theme,
     )
 

@@ -3,123 +3,77 @@
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/field.html" import
-  render_textarea_field
-%}
+{% from "components/ui/field.html" import render_textarea_field %}
 
 {% block title %}
-  Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
+Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
 {% endblock %}
 
 {% block content %}
 <div class="w-full max-w-lg mx-auto">
-  {# Flash messages #} {% with messages =
-  get_flashed_messages(with_categories=true) %} {% if messages %}
-  <div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="mb-6">
     {% for category, message in messages %}
-    <div class="mb-6">{{ alert(category, message) }}</div>
+    {{ alert(category, message) }}
     {% endfor %}
   </div>
-  {% endif %} {% endwith %}
+  {% endif %}
+  {% endwith %}
 
-  <div
-    x-data="filePreviewAndSubmit()"
-    class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg mx-auto shadow p-6"
-  >
-    <form
-      x-on:submit="submitting = true"
-      method="POST"
-      action=""
-      enctype="multipart/form-data"
-      novalidate
-    >
+  <div x-data="filePreviewAndSubmit()" class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg mx-auto shadow p-6">
+    <form x-on:submit="submitting = true" method="POST" action="" enctype="multipart/form-data" novalidate>
       {{ form.hidden_tag() }}
 
       <div class="flex items-center justify-center mb-6">
-        <label
-          class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-          for="dropzone-file"
-        >
+        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <svg
-              class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 16"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-              />
+            <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
             </svg>
             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span class="font-semibold">Click to upload</span> or drag and
-              drop
+              <span class="font-semibold">Click to upload</span> or drag and drop
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">
               PNG, JPG or JPEG
             </p>
           </div>
-          <input
-            x-on:change="updatePreview($event)"
-            id="dropzone-file"
-            name="images"
-            type="file"
-            class="hidden"
-            accept="image/png, image/jpeg, image/jpg"
-            multiple
-          />
+          <input x-on:change="updatePreview($event)" id="dropzone-file" name="images" type="file" class="hidden" accept="image/png, image/jpeg" multiple />
         </label>
       </div>
 
+      {% if editing and post_images %}
+      <div class="mb-6 space-y-2">
+        {% for img in post_images %}
+        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
+          <img src="{{ img.image_url }}" class="w-10 h-10 mr-2 object-cover rounded" alt="Existing image {{ loop.index }}" />
+          <span class="truncate text-sm text-gray-700 dark:text-gray-200">{{ img.image_url.split('/')[-1] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <div x-show="previewFiles.length > 0" class="mb-6">
         <template x-for="(file, index) in previewFiles" :key="index">
-          <div
-            class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2"
-          >
+          <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
             <div class="flex items-center flex-grow max-w-3/4 mr-2">
-              <img
-                :src="file.preview"
-                class="w-10 h-10 mr-2 object-cover rounded"
-                alt="preview"
-              />
-              <span
-                x-text="file.name"
-                class="text-sm text-gray-700 dark:text-gray-200 truncate"
-              ></span>
+              <img :src="file.preview" class="w-10 h-10 mr-2 object-cover rounded" alt="preview" />
+              <span x-text="file.name" class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
             </div>
-            <button
-              @click="removeFile(index)"
-              type="button"
-              class="text-sm text-red-500 hover:text-red-600"
-              title="Remove file"
-            >
-              Remove
-            </button>
+            <button @click="removeFile(index)" type="button" class="text-sm text-red-500 hover:text-red-600" title="Remove file">Remove</button>
           </div>
         </template>
       </div>
 
       {% if form.images.errors %}
       <div class="text-red-500 text-sm -mt-5 mb-4">
-        {% for error in form.images.errors %}
-        <p>{{ error }}</p>
-        {% endfor %}
+        {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
       </div>
       {% endif %}
 
       <div class="mb-6">{{ render_textarea_field(form.content) }}</div>
       <div>
-        <input
-          :value="submitting ? 'Publishing...' : submit_text"
-          :disabled="submitting"
-          :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''"
-          type="submit"
-          class="w-full py-2 px-4 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+        <input :value="submitting ? 'Publishing...' : submitText" :disabled="submitting" :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''" type="submit" class="w-full py-2 px-4 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400" />
       </div>
     </form>
   </div>
@@ -128,50 +82,50 @@
 <script>
   function filePreviewAndSubmit() {
     return {
+      maxFiles: 5,
+      submitText: '{{ form.submit.label.text }}',
+      submitting: false,
       previewFiles: [],
       acceptedFiles: [],
       maxFileSize: 8 * 1024 * 1024,
+
       updatePreview(event) {
         this.previewFiles = [];
         this.acceptedFiles = [];
+        const files = Array.from(event.target.files);
+        if (files.length > this.maxFiles) {
+          alert(`You can only upload up to ${this.maxFiles} images.`);
+        }
+        const fileArray = files.slice(0, this.maxFiles);
 
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
-        const files = event.target.files;
-        const fileArray = Array.from(files).slice(0, 5);
-
+        const allowedTypes = ['image/png', 'image/jpeg'];
         for (let file of fileArray) {
           if (!allowedTypes.includes(file.type)) {
-            alert("Invalid file type: " + file.name);
+            alert(`Invalid file type: ${file.name}`);
             continue;
           }
           if (file.size > this.maxFileSize) {
-            alert("File too large (max 8MB): " + file.name);
+            alert(`File too large (max 8MB): ${file.name}`);
             continue;
           }
-          const previewUrl = URL.createObjectURL(file);
-          this.previewFiles.push({ name: file.name, preview: previewUrl });
+          this.previewFiles.push({ name: file.name, preview: URL.createObjectURL(file) });
           this.acceptedFiles.push(file);
         }
-        this.updateFileInput();
+        this.syncFiles();
       },
+
       removeFile(index) {
         URL.revokeObjectURL(this.previewFiles[index].preview);
-
         this.previewFiles.splice(index, 1);
         this.acceptedFiles.splice(index, 1);
-
-        this.updateFileInput();
-      },
-      updateFileInput() {
-        let dt = new DataTransfer();
-        for (let file of this.acceptedFiles) {
-          dt.items.add(file);
-        }
-        document.getElementById("dropzone-file").files = dt.files;
+        this.syncFiles();
       },
 
-      submitting: false,
-      submit_text: "{{ form.submit.label.text }}",
+      syncFiles() {
+        const dt = new DataTransfer();
+        this.acceptedFiles.forEach(file => dt.items.add(file));
+        document.getElementById('dropzone-file').files = dt.files;
+      }
     };
   }
 </script>
