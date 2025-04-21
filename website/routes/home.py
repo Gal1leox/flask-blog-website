@@ -18,6 +18,7 @@ def home():
     is_admin = user and user.role == UserRole.ADMIN
     token = os.getenv("SECRET_KEY") if is_admin else ""
     theme = user.theme.value if user else "system"
+    avatar_url = user.avatar_url if user else ""
 
     selected_tags = request.args.getlist("tag")
 
@@ -31,6 +32,7 @@ def home():
         is_admin=is_admin,
         token=token,
         posts=posts,
+        avatar_url=avatar_url,
         theme=theme,
         selected_tags=selected_tags,
     )

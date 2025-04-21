@@ -1,12 +1,13 @@
 import os
+from datetime import datetime
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import current_user, login_required
 from dotenv import load_dotenv
 import cloudinary.uploader
 
-from ..models import User, UserRole, Post, Image, SavedPost
-from ..forms import CreatePostForm
+from ..models import User, UserRole, Post, Image, SavedPost, Comment
+from ..forms import CreatePostForm, CommentForm
 from ..utils import token_required, admin_required
 from website import db
 
@@ -242,22 +243,79 @@ def saved_posts():
     )
 
 
-@posts_bp.route("<int:post_id>")
+@posts_bp.route("/<int:post_id>", methods=["GET", "POST"])
 @login_required
 def view_post(post_id):
     post = Post.query.get_or_404(post_id)
-    user = User.query.get(current_user.id)
-    theme = user.theme.value if user else "system"
+    form = CommentForm()
 
+    if form.validate_on_submit():
+        comment = Comment(
+            content=form.content.data,
+            author_id=current_user.id,
+            post_id=post.id,
+            created_at=datetime.utcnow(),
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash("Your comment has been posted.", "success")
+        return redirect(url_for("posts.view_post", post_id=post.id))
+
+    comments = (
+        Comment.query.filter_by(post_id=post.id)
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+
+    user = User.query.get(current_user.id)
     return render_template(
         "pages/shared/posts/detail.html",
         post=post,
+        comments=comments,
+        form=form,
         avatar_url=user.avatar_url if user else "",
-        is_admin=user.role == UserRole.ADMIN if user else False,
+        is_admin=(user.role == UserRole.ADMIN) if user else False,
         token=os.getenv("SECRET_KEY") if user else "",
         active_page="",
-        theme=theme,
+        theme=user.theme.value if user else "system",
     )
+
+
+@posts_bp.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if current_user.id != comment.author_id and current_user.role != UserRole.ADMIN:
+        flash("Not authorized", "danger")
+        return redirect(url_for("posts.view_post", post_id=comment.post_id))
+    form = CommentForm(obj=comment)
+    if form.validate_on_submit():
+        comment.content = form.content.data
+        db.session.commit()
+        flash("Comment updated", "success")
+        return redirect(url_for("posts.view_post", post_id=comment.post_id))
+    user = User.query.get(current_user.id)
+    return render_template(
+        "pages/shared/posts/comment_edit.html",
+        form=form,
+        comment=comment,
+        avatar_url=user.avatar_url if user else "",
+        theme=user.theme.value if user else "system",
+    )
+
+
+@posts_bp.route("/comment/<int:comment_id>/delete", methods=["POST"])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if current_user.id != comment.author_id and current_user.role != UserRole.ADMIN:
+        flash("Not authorized", "danger")
+        return redirect(url_for("posts.view_post", post_id=comment.post_id))
+    post_id = comment.post_id
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Comment deleted", "success")
+    return redirect(url_for("posts.view_post", post_id=post_id))
 
 
 @posts_bp.route("/<int:post_id>/delete", methods=["POST"])

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import Flask
 from dotenv import load_dotenv
@@ -19,6 +20,23 @@ from website.init import (
 load_dotenv()
 
 
+def timesince(dt, default="just now"):
+    now = datetime.utcnow()
+    diff = now - dt
+    periods = [
+        (diff.days // 365, "year"),
+        ((diff.days % 365) // 30, "month"),
+        ((diff.days % 30), "day"),
+        (diff.seconds // 3600, "hour"),
+        ((diff.seconds % 3600) // 60, "minute"),
+        (diff.seconds % 60, "second"),
+    ]
+    for amount, name in periods:
+        if amount:
+            return f"{amount} {name}{'s ago' if amount > 1 else ''}"
+    return default
+
+
 def create_app():
     app = Flask(__name__)
 
@@ -31,10 +49,13 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "danger"
     mail.init_app(app)
     limiter.init_app(app)
     oauth.init_app(app)
     init_markdown(app)
+
+    app.jinja_env.filters["timesince"] = timesince
 
     @login_manager.user_loader
     def load_user(user_id):

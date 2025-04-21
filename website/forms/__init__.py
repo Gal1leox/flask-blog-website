@@ -5,4 +5,5 @@ from .forms import (
     ResetPasswordForm,
     ContactForm,
     CreatePostForm,
+    CommentForm,
 )

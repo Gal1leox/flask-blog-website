@@ -2,24 +2,181 @@
 
 {% extends "pages/shared/base.html" %}
 
+{% from "components/ui/alert.html" import alert %}
 {% from "components/ui/post/post.html" import render_post with context %}
+{% from "components/ui/field.html" import render_textarea_field %}
 
 {% block title %}Kalts Daniil - Personal Blog{% endblock %}
 
 {% block content %}
-{% if post %}
-<div class="container max-w-lg mx-auto">
+<div class="container mx-auto max-w-lg">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div x-data="{ count: {{ messages|length }} }" x-show="count > 0" class="mb-6 w-full">
+    {% for category, message in messages %}
+    {{ alert(category, message) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  {% if post %}
   <div class="grid grid-cols-1 gap-8">
     {{ render_post(post) }}
   </div>
+
+  <hr class="my-8 border-gray-200 dark:border-gray-700" />
+
+  <section class="antialiased mt-8">
+    <div class="mb-6">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+        {{ comments|length }} Comments
+      </h2>
+    </div>
+
+    <form class="mb-6" method="POST" action="{{ url_for('posts.view_post', post_id=post.id) }}">
+      {{ form.hidden_tag() }}
+      <div class="flex items-start mb-4 gap-4">
+        <img class="w-10 h-10 object-cover rounded-full"
+             src="{{ avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
+             alt="Your avatar">
+        <div class="flex-1">
+          {{ render_textarea_field(form.content) }}
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit"
+                class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 rounded-lg px-3 py-2 text-[13px] text-white focus:outline-none focus:ring-2">
+          Comment
+        </button>
+      </div>
+    </form>
+
+    {% for comment in comments if not comment.parent_comment_id %}
+    <article class="relative flex space-x-3 p-4 bg-white dark:bg-gray-900 rounded-lg" x-data="{ open: false, editing: false }">
+      <img
+        class="w-9 h-9 object-cover rounded-full"
+        src="{{ comment.author.avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
+        alt="{{ comment.author.username }}"
+      >
+      <div class="flex-1">
+        <div class="flex items-center space-x-2">
+          <p class="font-semibold text-gray-900 dark:text-white text-sm">
+            {{ comment.author.username }}
+          </p>
+          <span class="text-xs text-gray-500 dark:text-gray-400">
+            {{ comment.created_at|timesince }}
+          </span>
+        </div>
+
+        <div x-show="!editing">
+          <p class="mt-1 text-gray-800 dark:text-gray-100 text-sm">
+            {{ comment.content }}
+          </p>
+        </div>
+
+        <form x-show="editing" method="POST" action="{{ url_for('posts.edit_comment', comment_id=comment.id) }}" class="mt-2">
+          {{ render_textarea_field(form.content) }}
+          <div class="mt-2 flex space-x-2">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2">
+              Save
+            </button>
+            <button type="button" @click="editing = false" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded-lg text-sm">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        {% if comment.author.id == current_user.id %}
+        <button type="button" @click="open = !open" class="absolute top-2 right-2 p-1">
+          <svg class="w-5 h-5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+               fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="5" cy="12" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="19" cy="12" r="1.5" />
+          </svg>
+        </button>
+        <div x-show="open" x-cloak @click.outside="open = false" class="absolute top-6 right-0 mt-1 w-28 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
+          <button @click.prevent="editing = true; open = false" class="block w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+            Edit
+          </button>
+          <form method="POST" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}">
+            <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Delete
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+
+    {% for reply in comment.replies %}
+    <article class="relative flex space-x-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg mt-4 ml-8" x-data="{ open: false, editing: false }">
+      <img
+        class="w-6 h-6 object-cover rounded-full"
+        src="{{ reply.author.avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
+        alt="{{ reply.author.username }}"
+      >
+      <div class="flex-1">
+        <div class="flex items-center space-x-2">
+          <p class="font-semibold text-gray-900 dark:text-white text-xs">
+            {{ reply.author.username }}
+          </p>
+          <span class="text-2xs text-gray-500 dark:text-gray-400">
+            {{ reply.created_at|timesince }}
+          </span>
+        </div>
+
+        <div x-show="!editing">
+          <p class="mt-1 text-gray-800 dark:text-gray-100 text-xs">
+            {{ reply.content }}
+          </p>
+        </div>
+        <form x-show="editing" method="POST" action="{{ url_for('posts.edit_comment', comment_id=reply.id) }}" class="mt-2">
+          {{ render_textarea_field(form.content) }}
+          <div class="mt-2 flex space-x-2">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2">
+              Save
+            </button>
+            <button type="button" @click="editing = false" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-2 py-1 rounded-lg text-xs">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        {% if reply.author.id == current_user.id %}
+        <button type="button" @click="open = !open" class="absolute top-2 right-2 p-1">
+          <svg class="w-4 h-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+               fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="5" cy="12" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="19" cy="12" r="1.5" />
+          </svg>
+        </button>
+        <div x-show="open" x-cloak @click.outside="open = false" class="absolute top-5 right-0 mt-1 w-24 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
+          <button @click.prevent="editing = true; open = false" class="block w-full text-left px-3 py-1 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+            Edit
+          </button>
+          <form method="POST" action="{{ url_for('posts.delete_comment', comment_id=reply.id) }}">
+            <button type="submit" class="w-full text-left px-3 py-1 text-xs text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+              Delete
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+    {% endfor %}
+  </section>
+  {% else %}
+  <div class="flex items-center justify-center py-16">
+    <h4 class="text-center text-base font-medium text-gray-800 dark:text-gray-300">
+      No post found..<br />
+    </h4>
+  </div>
+  {% endif %}
 </div>
-{% else %}
-<div class="flex flex-grow items-center justify-center py-16">
-  <h4
-    class="text-center text-base font-medium text-gray-800 dark:text-gray-300"
-  >
-    No post found..<br />
-  </h4>
-</div>
-{% endif %}
 {% endblock %}
+

@@ -108,8 +108,10 @@ def register():
             flash("A user with this email already exists.", "danger")
             return redirect(request.url)
         try:
+            ts_ms = str(int(time.time() * 1000))
+
             new_user = User(
-                username=f"user.{int(round(time.time() * 1000))}",
+                username=("user." + ts_ms)[-15:],
                 email=form.email.data,
                 password_hash=generate_password_hash(form.password.data),
             )

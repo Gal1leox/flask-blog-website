@@ -199,3 +199,23 @@ class CreatePostForm(FlaskForm):
         render_kw={"multiple": True, "id": "dropzone-file"},
     )
     submit = SubmitField("Publish")
+
+
+class CommentForm(FlaskForm):
+    content = TextAreaField(
+        "Your Comment",
+        validators=[
+            DataRequired(),
+            Length(min=4, max=200),
+        ],
+        render_kw={
+            "placeholder": "What do you think..",
+            "rows": 3,
+            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
+        },
+        filters=[strip_filter],
+    )
+    submit = SubmitField(
+        "Comment",
+        render_kw={"class": "mt-2 px-4 py-2 bg-blue-600 text-white rounded"},
+    )
