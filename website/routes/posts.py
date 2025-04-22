@@ -262,11 +262,12 @@ def view_post(post_id):
     elif request.method == "POST":
         flash("Please log in to leave comments.", "danger")
 
-    comments = (
-        Comment.query.filter_by(post_id=post.id)
-        .order_by(Comment.created_at.asc())
-        .all()
-    )
+    sort = request.args.get("sort", "oldest")
+    if sort == "newest":
+        order = Comment.created_at.desc()
+    else:
+        order = Comment.created_at.asc()
+    comments = Comment.query.filter_by(post_id=post.id).order_by(order).all()
 
     if current_user.is_authenticated:
         user = User.query.get(current_user.id)
