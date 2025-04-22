@@ -27,14 +27,20 @@
 
   <hr class="my-8 border-gray-200 dark:border-gray-700" />
 
-  <section class="antialiased mt-8">
+  <section class="antialiased mt-8 mb-2">
     <div class="mb-6">
       <h2 class="text-lg font-bold text-gray-900 dark:text-white">
         {{ comments|length }} Comments
       </h2>
     </div>
 
-    <form class="mb-6" method="POST" action="{{ url_for('posts.view_post', post_id=post.id) }}">
+    <form
+      x-data="{ submitting: false }"
+      x-on:submit="submitting = true"
+      class="mb-6"
+      method="POST"
+      action="{{ url_for('posts.view_post', post_id=post.id) }}"
+    >
       {{ form.hidden_tag() }}
       <div class="flex items-start mb-4 gap-4">
         <img class="w-10 h-10 object-cover rounded-full"
@@ -46,9 +52,15 @@
       </div>
 
       <div class="flex justify-end">
-        <button type="submit"
-                class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 rounded-lg px-3 py-2 text-[13px] text-white focus:outline-none focus:ring-2">
-          Comment
+        <button
+          type="submit"
+          :disabled="submitting"
+          :class="submitting
+        ? 'bg-blue-600 opacity-50 cursor-not-allowed hover:bg-blue-600'
+        : 'bg-blue-500 hover:bg-blue-600'"
+          class="focus:ring-blue-400 rounded-lg px-3 py-2 text-[13px] text-white focus:outline-none focus:ring-2"
+        >
+          <span x-text="submitting ? 'Commenting…' : 'Comment'"></span>
         </button>
       </div>
     </form>
@@ -89,7 +101,7 @@
         </form>
 
         {% if comment.author.id == current_user.id %}
-        <button type="button" @click="open = !open" class="absolute top-2 right-2 p-1">
+        <button type="button" @click="open = !open" class="absolute top-3 right-3 p-1">
           <svg class="w-5 h-5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                fill="currentColor" viewBox="0 0 24 24">
             <circle cx="5" cy="12" r="1.5" />
@@ -97,12 +109,12 @@
             <circle cx="19" cy="12" r="1.5" />
           </svg>
         </button>
-        <div x-show="open" x-cloak @click.outside="open = false" class="absolute top-6 right-0 mt-1 w-28 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-10">
-          <button @click.prevent="editing = true; open = false" class="block w-full text-left px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <div x-show="open" x-cloak @click.outside="open = false" class="overflow-hidden absolute top-8 right-0 mt-1 w-28 bg-white border border-gray-200 rounded shadow-lg z-10">
+          <button @click.prevent="editing = true; open = false" class="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100">
             Edit
           </button>
           <form method="POST" action="{{ url_for('posts.delete_comment', comment_id=comment.id) }}">
-            <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button type="submit" class="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-gray-100">
               Delete
             </button>
           </form>
