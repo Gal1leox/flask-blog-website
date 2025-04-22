@@ -293,13 +293,13 @@ def view_post(post_id):
 def edit_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
 
-    if current_user.id != comment.author_id and current_user.role != UserRole.ADMIN:
-        flash("Not authorized", "danger")
+    if current_user.id != comment.author_id:
+        flash("You can modify only your comments.", "danger")
         return redirect(url_for("posts.view_post", post_id=comment.post_id))
 
     new_content = request.form.get("content", "").strip()
     if not new_content:
-        flash("Comment cannot be empty.", "error")
+        flash("Comment cannot be empty.", "danger")
     else:
         comment.content = new_content
         db.session.commit()
