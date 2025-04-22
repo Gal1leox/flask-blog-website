@@ -1,7 +1,6 @@
 {# templates/pages/shared/admin/new_post.html #}
 
 {% extends "pages/shared/base.html" %}
-
 {% from "components/ui/alert.html" import alert %}
 {% from "components/ui/field.html" import render_textarea_field %}
 
@@ -22,14 +21,21 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
   {% endwith %}
 
   <div x-data="filePreviewAndSubmit()" class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg mx-auto shadow p-6">
-    <form x-on:submit="submitting = true" method="POST" action="" enctype="multipart/form-data" novalidate>
+    <form x-on:submit="submitting = true"
+          method="POST"
+          action=""
+          enctype="multipart/form-data"
+          novalidate>
       {{ form.hidden_tag() }}
 
+      <!-- upload dropzone -->
       <div class="flex items-center justify-center mb-6">
-        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+        <label for="dropzone-file"
+               class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:border-gray-600 dark:hover:border-gray-500">
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
             <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
             </svg>
             <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
               <span class="font-semibold">Click to upload</span> or drag and drop
@@ -38,42 +44,88 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
               PNG, JPG or JPEG
             </p>
           </div>
-          <input x-on:change="updatePreview($event)" id="dropzone-file" name="images" type="file" class="hidden" accept="image/png, image/jpeg" multiple />
+          <input x-on:change="updatePreview($event)"
+                 id="dropzone-file"
+                 name="images"
+                 type="file"
+                 class="hidden"
+                 accept="image/png, image/jpeg"
+                 multiple>
         </label>
       </div>
 
-      {% if editing and post_images %}
-      <div class="mb-6 space-y-2">
-        {% for img in post_images %}
-        <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
-          <img src="{{ img.image_url }}" class="w-10 h-10 mr-2 object-cover rounded" alt="Existing image {{ loop.index }}" />
-          <span class="truncate text-sm text-gray-700 dark:text-gray-200">{{ img.image_url.split('/')[-1] }}</span>
+      <!-- existing images (edit mode) -->
+      <template x-if="existingFiles.length > 0">
+        <div class="mb-6 space-y-2">
+          <template x-for="(img, idx) in existingFiles" :key="img.id">
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
+              <img :src="img.image_url"
+                   class="w-10 h-10 mr-2 object-cover rounded"
+                   alt="">
+              <span class="truncate text-sm text-gray-700 dark:text-gray-200"
+                    x-text="img.image_url.split('/').pop()"></span>
+              <button @click="removeExisting(idx)"
+                      type="button"
+                      :disabled="existingFiles.length + previewFiles.length <= 1"
+                      :class="existingFiles.length + previewFiles.length <= 1
+                        ? 'opacity-60 cursor-not-allowed'
+                        : 'text-red-500 hover:text-red-600'"
+                      class="ml-auto text-sm"
+                      title="Remove this image">
+                Remove
+              </button>
+            </div>
+          </template>
         </div>
-        {% endfor %}
-      </div>
-      {% endif %}
+      </template>
 
+      <!-- hidden inputs for deleted images (always present) -->
+      <template x-for="id in deleteIds" :key="id">
+        <input type="hidden" name="delete_images" :value="id">
+      </template>
+
+      <!-- new-file previews -->
       <div x-show="previewFiles.length > 0" class="mb-6">
         <template x-for="(file, index) in previewFiles" :key="index">
           <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded p-2 pr-5 mb-2">
             <div class="flex items-center flex-grow max-w-3/4 mr-2">
-              <img :src="file.preview" class="w-10 h-10 mr-2 object-cover rounded" alt="preview" />
-              <span x-text="file.name" class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
+              <img :src="file.preview"
+                   class="w-10 h-10 mr-2 object-cover rounded"
+                   alt="preview">
+              <span x-text="file.name"
+                    class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
             </div>
-            <button @click="removeFile(index)" type="button" class="text-sm text-red-500 hover:text-red-600" title="Remove file">Remove</button>
+            <button @click="removeFile(index)"
+                    type="button"
+                    class="text-sm text-red-500 hover:text-red-600"
+                    title="Remove file">
+              Remove
+            </button>
           </div>
         </template>
       </div>
 
+      <!-- validation errors -->
       {% if form.images.errors %}
       <div class="text-red-500 text-sm -mt-5 mb-4">
-        {% for error in form.images.errors %}<p>{{ error }}</p>{% endfor %}
+        {% for error in form.images.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
       </div>
       {% endif %}
 
-      <div class="mb-6">{{ render_textarea_field(form.content) }}</div>
+      <!-- content textarea -->
+      <div class="mb-6">
+        {{ render_textarea_field(form.content) }}
+      </div>
+
+      <!-- submit -->
       <div>
-        <input :value="submitting ? 'Publishing...' : submitText" :disabled="submitting" :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''" type="submit" class="w-full py-2 px-4 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        <input type="submit"
+               :value="submitting ? 'Publishing...' : submitText"
+               :disabled="submitting"
+               :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''"
+               class="w-full py-2 px-4 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
     </form>
   </div>
@@ -89,44 +141,67 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
       acceptedFiles: [],
       maxFileSize: 8 * 1024 * 1024,
 
+      // always define existingFiles (empty unless in edit-mode with images)
+      existingFiles: [
+        {% if editing and post_images %}
+    {% for img in post_images %}
+    { id: {{ img.id }}, image_url: '{{ img.image_url }}' }{% if not loop.last %},{% endif %}
+    {% endfor %}
+    {% endif %}
+  ],
+
+    deleteIds: [],
+
       updatePreview(event) {
-        this.previewFiles = [];
-        this.acceptedFiles = [];
-        const files = Array.from(event.target.files);
-        if (files.length > this.maxFiles) {
-          alert(`You can only upload up to ${this.maxFiles} images.`);
-        }
-        const fileArray = files.slice(0, this.maxFiles);
-
-        const allowedTypes = ['image/png', 'image/jpeg'];
-        for (let file of fileArray) {
-          if (!allowedTypes.includes(file.type)) {
-            alert(`Invalid file type: ${file.name}`);
-            continue;
-          }
-          if (file.size > this.maxFileSize) {
-            alert(`File too large (max 8MB): ${file.name}`);
-            continue;
-          }
-          this.previewFiles.push({ name: file.name, preview: URL.createObjectURL(file) });
-          this.acceptedFiles.push(file);
-        }
-        this.syncFiles();
-      },
-
-      removeFile(index) {
-        URL.revokeObjectURL(this.previewFiles[index].preview);
-        this.previewFiles.splice(index, 1);
-        this.acceptedFiles.splice(index, 1);
-        this.syncFiles();
-      },
-
-      syncFiles() {
-        const dt = new DataTransfer();
-        this.acceptedFiles.forEach(file => dt.items.add(file));
-        document.getElementById('dropzone-file').files = dt.files;
+      this.previewFiles = []
+      this.acceptedFiles = []
+      const files = Array.from(event.target.files)
+      if (files.length > this.maxFiles) {
+        alert(`You can only upload up to ${this.maxFiles} images.`)
       }
-    };
+      const fileArray = files.slice(0, this.maxFiles)
+      const allowedTypes = ['image/png', 'image/jpeg']
+      for (let file of fileArray) {
+        if (!allowedTypes.includes(file.type)) {
+          alert(`Invalid file type: ${file.name}`)
+          continue
+        }
+        if (file.size > this.maxFileSize) {
+          alert(`File too large (max 8MB): ${file.name}`)
+          continue
+        }
+        this.previewFiles.push({
+          name: file.name,
+          preview: URL.createObjectURL(file)
+        })
+        this.acceptedFiles.push(file)
+      }
+      this.syncFiles()
+    },
+
+    removeFile(index) {
+      URL.revokeObjectURL(this.previewFiles[index].preview)
+      this.previewFiles.splice(index, 1)
+      this.acceptedFiles.splice(index, 1)
+      this.syncFiles()
+    },
+
+    removeExisting(index) {
+      // enforce at least one image total
+      if (this.existingFiles.length + this.previewFiles.length <= 1) {
+        alert('You must have at least one image.')
+        return
+      }
+      this.deleteIds.push(this.existingFiles[index].id)
+      this.existingFiles.splice(index, 1)
+    },
+
+    syncFiles() {
+      const dt = new DataTransfer()
+      this.acceptedFiles.forEach(file => dt.items.add(file))
+      document.getElementById('dropzone-file').files = dt.files
+    }
+  }
   }
 </script>
 {% endblock %}
