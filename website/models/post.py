@@ -19,12 +19,15 @@ class Post(db.Model):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    author: Mapped["User"] = relationship("User", back_populates="posts")
+    author: Mapped["User"] = relationship("User", lazy="joined", back_populates="posts")
     images: Mapped[list["Image"]] = relationship(
-        "Image", secondary="post_images", back_populates="posts"
+        "Image", lazy="subquery", secondary="post_images", back_populates="posts"
     )
     saved_by: Mapped[list["SavedPost"]] = relationship(
-        "SavedPost", back_populates="post", cascade="all, delete-orphan"
+        "SavedPost",
+        lazy="subquery",
+        back_populates="post",
+        cascade="all, delete-orphan",
     )
     post_images: Mapped[list["PostImage"]] = relationship(
         "PostImage",
@@ -149,7 +152,9 @@ class Comment(db.Model):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    author: Mapped["User"] = relationship("User", back_populates="comments")
+    author: Mapped["User"] = relationship(
+        "User", lazy="joined", back_populates="comments"
+    )
     post: Mapped["Post"] = relationship(
         "Post", back_populates="comments", passive_deletes=True
     )
@@ -157,7 +162,10 @@ class Comment(db.Model):
         "Comment", back_populates="replies", remote_side=[id], passive_deletes=True
     )
     replies: Mapped[list["Comment"]] = relationship(
-        "Comment", back_populates="parent", cascade="all, delete-orphan"
+        "Comment",
+        lazy="subquery",
+        back_populates="parent",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self):

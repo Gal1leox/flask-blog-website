@@ -244,12 +244,11 @@ def saved_posts():
 
 
 @posts_bp.route("/<int:post_id>", methods=["GET", "POST"])
-@login_required
 def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
 
-    if form.validate_on_submit():
+    if current_user.is_authenticated and form.validate_on_submit():
         comment = Comment(
             content=form.content.data,
             author_id=current_user.id,
@@ -260,6 +259,8 @@ def view_post(post_id):
         db.session.commit()
         flash("Your comment has been posted.", "success")
         return redirect(url_for("posts.view_post", post_id=post.id))
+    elif request.method == "POST":
+        flash("Please log in to leave comments.", "danger")
 
     comments = (
         Comment.query.filter_by(post_id=post.id)
@@ -267,9 +268,14 @@ def view_post(post_id):
         .all()
     )
 
-    user = User.query.get(current_user.id)
+    if current_user.is_authenticated:
+        user = User.query.get(current_user.id)
+    else:
+        user = None
+
     return render_template(
         "pages/shared/posts/detail.html",
+        is_authorized=bool(user),
         post=post,
         comments=comments,
         form=form,
@@ -288,6 +294,7 @@ def edit_comment(comment_id):
     if current_user.id != comment.author_id and current_user.role != UserRole.ADMIN:
         flash("Not authorized", "danger")
         return redirect(url_for("posts.view_post", post_id=comment.post_id))
+
     form = CommentForm(obj=comment)
     if form.validate_on_submit():
         comment.content = form.content.data
@@ -295,6 +302,7 @@ def edit_comment(comment_id):
         flash("Comment updated", "success")
         return redirect(url_for("posts.view_post", post_id=comment.post_id))
     user = User.query.get(current_user.id)
+
     return render_template(
         "pages/shared/posts/comment_edit.html",
         form=form,

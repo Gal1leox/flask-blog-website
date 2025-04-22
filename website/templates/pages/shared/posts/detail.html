@@ -34,6 +34,7 @@
       </h2>
     </div>
 
+    {% if is_authorized %}
     <form
       x-data="{ submitting: false }"
       x-on:submit="submitting = true"
@@ -64,6 +65,7 @@
         </button>
       </div>
     </form>
+    {% endif %}
 
     {% for comment in comments if not comment.parent_comment_id %}
     <article class="relative flex space-x-3 p-4 bg-white dark:bg-gray-900 rounded-lg" x-data="{ open: false, editing: false }">
