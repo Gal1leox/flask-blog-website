@@ -69,8 +69,8 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
                       :disabled="existingFiles.length + previewFiles.length <= 1"
                       :class="existingFiles.length + previewFiles.length <= 1
                         ? 'opacity-60 cursor-not-allowed'
-                        : 'text-red-500 hover:text-red-600'"
-                      class="ml-auto text-sm"
+                        : 'hover:text-red-600'"
+                      class="ml-auto text-sm text-red-500"
                       title="Remove this image">
                 Remove
               </button>

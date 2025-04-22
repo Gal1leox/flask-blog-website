@@ -288,29 +288,24 @@ def view_post(post_id):
     )
 
 
-@posts_bp.route("/comment/<int:comment_id>/edit", methods=["GET", "POST"])
+@posts_bp.route("/comment/<int:comment_id>/edit", methods=["POST"])
 @login_required
 def edit_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
+
     if current_user.id != comment.author_id and current_user.role != UserRole.ADMIN:
         flash("Not authorized", "danger")
         return redirect(url_for("posts.view_post", post_id=comment.post_id))
 
-    form = CommentForm(obj=comment)
-    if form.validate_on_submit():
-        comment.content = form.content.data
+    new_content = request.form.get("content", "").strip()
+    if not new_content:
+        flash("Comment cannot be empty.", "error")
+    else:
+        comment.content = new_content
         db.session.commit()
-        flash("Comment updated", "success")
-        return redirect(url_for("posts.view_post", post_id=comment.post_id))
-    user = User.query.get(current_user.id)
+        flash("Comment edited successfully.", "success")
 
-    return render_template(
-        "pages/shared/posts/comment_edit.html",
-        form=form,
-        comment=comment,
-        avatar_url=user.avatar_url if user else "",
-        theme=user.theme.value if user else "system",
-    )
+    return redirect(url_for("posts.view_post", post_id=comment.post_id))
 
 
 @posts_bp.route("/comment/<int:comment_id>/delete", methods=["POST"])
