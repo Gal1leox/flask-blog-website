@@ -17,10 +17,7 @@ from ..config import Config
 from ..init import google
 from ..forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 from ..models import User, VerificationCode
-from ..utils import (
-    anonymous_required,
-    get_verification_code,
-)
+from ..utils import anonymous_required, get_verification_code, token_required
 from website import db, mail, limiter
 
 admin_email = Config.ADMIN_EMAIL
@@ -298,6 +295,7 @@ def reset_password():
 
 @auth_bp.route("/admin/login/", methods=["GET", "POST"])
 @limiter.limit("3/hour", methods=["POST"])
+@token_required
 def admin_login():
     form = LoginForm()
     form.email.label.text = "Admin email"
