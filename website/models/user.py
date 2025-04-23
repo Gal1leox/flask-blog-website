@@ -25,7 +25,6 @@ class User(db.Model, UserMixin):
     theme: Mapped[str] = mapped_column(
         SQLEnum(UserTheme), nullable=False, default=UserTheme.SYSTEM
     )
-    is_banned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow

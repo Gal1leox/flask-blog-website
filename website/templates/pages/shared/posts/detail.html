@@ -136,7 +136,7 @@
               x-show="open"
               x-cloak
               @click.outside="open = false"
-              class="absolute top-6 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50"
+              class="absolute top-5 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50"
             >
               {% if comment.author.id == current_user.id %}
               <button
@@ -241,12 +241,12 @@
               <button
                 :disabled="submitting"
                 :class="submitting
-        ? 'bg-blue-600 opacity-50 cursor-not-allowed'
-        : 'bg-blue-500 hover:bg-blue-600'"
+                  ? 'bg-blue-600 opacity-50 cursor-not-allowed'
+                  : 'bg-blue-500 hover:bg-blue-600'"
                 type="submit"
                 class="px-3 py-2 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-white transition"
               >
-                <span x-text="submitting ? 'Posting…' : 'Post'"></span>
+                <span x-text="submitting ? 'Posting...' : 'Post'"></span>
               </button>
             </div>
           </form>
@@ -291,7 +291,7 @@
                     x-show="open"
                     x-cloak
                     @click.outside="open = false"
-                    class="absolute top-6 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50"
+                    class="absolute top-5 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50"
                   >
                     {% if reply.author.id == current_user.id %}
                     <button
@@ -326,6 +326,8 @@
                 </div>
                 <form
                   x-show="editing"
+                  x-data="{ submitting: false }"
+                  @submit.prevent="submitting = true; $el.submit()"
                   class="mt-2"
                   method="POST"
                   action="{{ url_for('posts.edit_comment', comment_id=reply.id) }}"
@@ -347,10 +349,14 @@
                       Cancel
                     </button>
                     <button
+                      :disabled="submitting"
+                      :class="submitting
+                        ? 'bg-blue-600 opacity-50 cursor-not-allowed'
+                        : 'bg-blue-500 hover:bg-blue-600'"
                       type="submit"
                       class="px-3 py-2 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 bg-blue-500 hover:bg-blue-600 text-white transition"
                     >
-                      Save
+                      <span x-text="submitting ? 'Saving...' : 'Save'"></span>
                     </button>
                   </div>
                 </form>
