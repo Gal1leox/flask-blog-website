@@ -24,7 +24,11 @@ class Post(db.Model):
         "User", back_populates="posts", lazy="joined", foreign_keys=[author_id]
     )
     images = relationship(
-        "Image", secondary="post_images", back_populates="posts", lazy="subquery"
+        "Image",
+        secondary="post_images",
+        back_populates="posts",
+        lazy="subquery",
+        order_by="Image.created_at",
     )
     saved_by = relationship(
         "SavedPost",
