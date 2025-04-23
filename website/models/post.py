@@ -1,5 +1,6 @@
-from datetime import datetime
+# website/models/post.py
 
+from datetime import datetime
 from sqlalchemy import Integer, Text, String, DateTime, ForeignKey, event, inspect
 from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
 
@@ -19,17 +20,19 @@ class Post(db.Model):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    author: Mapped["User"] = relationship("User", lazy="joined", back_populates="posts")
-    images: Mapped[list["Image"]] = relationship(
-        "Image", lazy="subquery", secondary="post_images", back_populates="posts"
+    author = relationship(
+        "User", back_populates="posts", lazy="joined", foreign_keys=[author_id]
     )
-    saved_by: Mapped[list["SavedPost"]] = relationship(
+    images = relationship(
+        "Image", secondary="post_images", back_populates="posts", lazy="subquery"
+    )
+    saved_by = relationship(
         "SavedPost",
-        lazy="subquery",
         back_populates="post",
+        lazy="subquery",
         cascade="all, delete-orphan",
     )
-    post_images: Mapped[list["PostImage"]] = relationship(
+    post_images = relationship(
         "PostImage",
         back_populates="post",
         cascade="all, delete-orphan",
@@ -42,15 +45,8 @@ class Post(db.Model):
         passive_deletes=True,
     )
 
-    def __repr__(self):
-        return (
-            f"Post Info:\n"
-            f"ID: {self.id}\n"
-            f"Content: {self.content}\n"
-            f"Images: {[image.image_url for image in self.images]}\n"
-            f"Created At: {self.created_at}\n"
-            f"Updated At: {self.updated_at}"
-        )
+    def __repr__(self) -> str:
+        return f"<Post id={self.id!r} created_at={self.created_at!r}>"
 
 
 class Image(db.Model):
@@ -66,25 +62,17 @@ class Image(db.Model):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    author: Mapped["User"] = relationship("User", back_populates="images")
-    posts: Mapped[list["Post"]] = relationship(
-        "Post", secondary="post_images", back_populates="images"
-    )
-    post_images: Mapped[list["PostImage"]] = relationship(
+    author = relationship("User", back_populates="images", foreign_keys=[author_id])
+    posts = relationship("Post", secondary="post_images", back_populates="images")
+    post_images = relationship(
         "PostImage",
         back_populates="image",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
 
-    def __repr__(self):
-        return (
-            f"Image Info:\n"
-            f"ID: {self.id}\n"
-            f"Image URL: {self.image_url}\n"
-            f"Created At: {self.created_at}\n"
-            f"Updated At: {self.updated_at}"
-        )
+    def __repr__(self) -> str:
+        return f"<Image id={self.id!r} url={self.image_url!r}>"
 
 
 class SavedPost(db.Model):
@@ -98,18 +86,11 @@ class SavedPost(db.Model):
     )
     saved_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
-    user: Mapped["User"] = relationship("User", back_populates="saved_posts")
-    post: Mapped["Post"] = relationship(
-        "Post", back_populates="saved_by", passive_deletes=False
-    )
+    user = relationship("User", back_populates="saved_posts")
+    post = relationship("Post", back_populates="saved_by")
 
-    def __repr__(self):
-        return (
-            f"Saved Post Info:\n"
-            f"User ID: {self.user_id}\n"
-            f"Post ID: {self.post_id}\n"
-            f"Saved At: {self.saved_at}"
-        )
+    def __repr__(self) -> str:
+        return f"<SavedPost user_id={self.user_id!r} post_id={self.post_id!r}>"
 
 
 class PostImage(db.Model):
@@ -122,15 +103,11 @@ class PostImage(db.Model):
         ForeignKey("images.id", ondelete="CASCADE"), primary_key=True
     )
 
-    post: Mapped["Post"] = relationship(
-        "Post", back_populates="post_images", passive_deletes=True
-    )
-    image: Mapped["Image"] = relationship(
-        "Image", back_populates="post_images", passive_deletes=True
-    )
+    post = relationship("Post", back_populates="post_images")
+    image = relationship("Image", back_populates="post_images")
 
-    def __repr__(self):
-        return f"PostImage Info:\nPost ID: {self.post_id}\nImage ID: {self.image_id}"
+    def __repr__(self) -> str:
+        return f"<PostImage post_id={self.post_id!r} image_id={self.image_id!r}>"
 
 
 class Comment(db.Model):
@@ -146,16 +123,12 @@ class Comment(db.Model):
         ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
     )
 
-    # The flattened parent for threading (always top-level comment or None)
+    # the _thread_ parent (top-level comment or NULL)
     parent_comment_id: Mapped[int] = mapped_column(
         ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
     )
-    # The exact comment you clicked "Reply" on
+    # the exact comment you clicked “Reply” on (or NULL)
     reply_to_comment_id: Mapped[int] = mapped_column(
-        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
-    )
-    # Convenience field for grouping threads (same as parent_comment_id here)
-    root_comment_id: Mapped[int] = mapped_column(
         ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
     )
 
@@ -164,23 +137,31 @@ class Comment(db.Model):
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    # -- relationships --
-    author: Mapped["User"] = relationship(
-        "User", lazy="joined", back_populates="comments"
+    # — relationships —
+
+    author = relationship(
+        "User",
+        back_populates="comments",
+        foreign_keys=[author_id],
+        lazy="joined",
+        passive_deletes=True,
     )
-    post: Mapped["Post"] = relationship(
-        "Post", back_populates="comments", passive_deletes=True
+    post = relationship(
+        "Post",
+        back_populates="comments",
+        foreign_keys=[post_id],
+        lazy="joined",
+        passive_deletes=True,
     )
 
-    parent: Mapped["Comment"] = relationship(
+    parent = relationship(
         "Comment",
         back_populates="replies",
         remote_side=[id],
         foreign_keys=[parent_comment_id],
         passive_deletes=True,
     )
-
-    replies: Mapped[list["Comment"]] = relationship(
+    replies = relationship(
         "Comment",
         back_populates="parent",
         foreign_keys=[parent_comment_id],
@@ -188,57 +169,40 @@ class Comment(db.Model):
         cascade="all, delete-orphan",
     )
 
-    reply_to: Mapped["Comment"] = relationship(
+    # the exact comment you clicked reply on
+    reply_to = relationship(
         "Comment",
+        remote_side=[id],
         foreign_keys=[reply_to_comment_id],
-        remote_side=[id],
         lazy="joined",
+        passive_deletes=True,
     )
 
-    root_comment: Mapped["Comment"] = relationship(
-        "Comment",
-        remote_side=[id],
-        foreign_keys=[root_comment_id],
-        lazy="joined",
-    )
-
-    def __repr__(self):
-        parent = f", parent={self.parent_comment_id}" if self.parent_comment_id else ""
-        replyto = (
-            f", reply_to={self.reply_to_comment_id}" if self.reply_to_comment_id else ""
-        )
-        root = f", root={self.root_comment_id}" if self.root_comment_id else ""
+    def __repr__(self) -> str:
+        p = f", parent={self.parent_comment_id}" if self.parent_comment_id else ""
+        r = f", reply_to={self.reply_to_comment_id}" if self.reply_to_comment_id else ""
         return (
-            f"Comment(id={self.id}{parent}{replyto}{root}, "
-            f"author={self.author_id}, post={self.post_id})"
+            f"<Comment id={self.id}{p}{r} author={self.author_id} post={self.post_id}>"
         )
+
+
+# ------------------------------------------------------------------------
+# cleanup hooks
 
 
 @event.listens_for(Session, "after_flush_postexec")
 def delete_orphan_images(session: Session, _):
-    orphan_images = (
-        session.query(Image)
-        .outerjoin(PostImage)
-        .filter(PostImage.image_id == None)
-        .all()
-    )
-    for image in orphan_images:
-        session.delete(image)
+    for img in (
+        session.query(Image).outerjoin(PostImage).filter(PostImage.image_id == None)
+    ):
+        session.delete(img)
 
 
 @event.listens_for(Session, "after_flush_postexec")
 def delete_orphan_posts(session: Session, _):
-    orphan_posts = (
-        session.query(Post).outerjoin(PostImage).filter(PostImage.post_id == None).all()
-    )
-    for post in orphan_posts:
-        state = inspect(post)
-        if state.deleted:
-            continue
-        try:
-            session.delete(post)
-        except Exception as e:
-            print(f"Error deleting post {post.id}: {e}")
+    for p in session.query(Post).outerjoin(PostImage).filter(PostImage.post_id == None):
+        if not inspect(p).deleted:
+            session.delete(p)
 
 
 @event.listens_for(Post, "before_delete")

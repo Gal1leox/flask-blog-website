@@ -250,50 +250,43 @@ def view_post(post_id):
     form = CommentForm()
 
     if request.method == "POST":
-        # 1) Not logged in? flash and redirect immediately
         if not current_user.is_authenticated:
             flash("Please log in to leave comments.", "danger")
             return redirect(url_for("posts.view_post", post_id=post.id))
 
-        # 2) Logged in & content valid? save comment/reply
         if form.validate_on_submit():
-            parent_id = request.form.get("parent_comment_id", type=int)
-            reply_to_id = parent_id
+            clicked_id = request.form.get("parent_comment_id", type=int)
 
-            if parent_id:
-                parent = Comment.query.get(parent_id)
-                if parent.parent_comment_id:
-                    thread_parent_id = parent.parent_comment_id
-                else:
-                    thread_parent_id = parent.id
+            if clicked_id:
+                clicked = Comment.query.get(clicked_id)
+                # thread parent = top-level comment
+                thread_parent = clicked.parent_comment_id or clicked.id
             else:
-                thread_parent_id = None
+                thread_parent = None
 
-            comment = Comment(
+            c = Comment(
                 content=form.content.data,
                 author_id=current_user.id,
                 post_id=post.id,
-                parent_comment_id=thread_parent_id,
-                reply_to_comment_id=reply_to_id,
-                root_comment_id=thread_parent_id,
-                created_at=datetime.utcnow(),
+                parent_comment_id=thread_parent,
+                reply_to_comment_id=clicked_id,
             )
-            db.session.add(comment)
+            db.session.add(c)
             db.session.commit()
-
-            msg = (
-                "Your reply has been posted."
-                if parent_id
-                else "Your comment has been posted."
+            flash(
+                (
+                    "Your reply has been posted."
+                    if clicked_id
+                    else "Your comment has been posted."
+                ),
+                "success",
             )
-            flash(msg, "success")
             return redirect(url_for("posts.view_post", post_id=post.id))
 
-        # 3) Logged in but validation failed (e.g. empty content)
         flash("Comment cannot be empty.", "danger")
         return redirect(url_for("posts.view_post", post_id=post.id))
 
-    # GET path: load & render
+    # GET
     sort = request.args.get("sort", "oldest")
     order = Comment.created_at.desc() if sort == "newest" else Comment.created_at.asc()
     comments = (
