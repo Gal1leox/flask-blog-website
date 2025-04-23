@@ -138,46 +138,79 @@ class Comment(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+
     author_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     post_id: Mapped[int] = mapped_column(
         ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
     )
+
+    # The flattened parent for threading (always top-level comment or None)
     parent_comment_id: Mapped[int] = mapped_column(
         ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
     )
+    # The exact comment you clicked "Reply" on
+    reply_to_comment_id: Mapped[int] = mapped_column(
+        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
+    )
+    # Convenience field for grouping threads (same as parent_comment_id here)
+    root_comment_id: Mapped[int] = mapped_column(
+        ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
+    )
+
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
+    # -- relationships --
     author: Mapped["User"] = relationship(
         "User", lazy="joined", back_populates="comments"
     )
     post: Mapped["Post"] = relationship(
         "Post", back_populates="comments", passive_deletes=True
     )
+
     parent: Mapped["Comment"] = relationship(
-        "Comment", back_populates="replies", remote_side=[id], passive_deletes=True
+        "Comment",
+        back_populates="replies",
+        remote_side=[id],
+        foreign_keys=[parent_comment_id],
+        passive_deletes=True,
     )
+
     replies: Mapped[list["Comment"]] = relationship(
         "Comment",
-        lazy="subquery",
         back_populates="parent",
+        foreign_keys=[parent_comment_id],
+        lazy="subquery",
         cascade="all, delete-orphan",
+    )
+
+    reply_to: Mapped["Comment"] = relationship(
+        "Comment",
+        foreign_keys=[reply_to_comment_id],
+        remote_side=[id],
+        lazy="joined",
+    )
+
+    root_comment: Mapped["Comment"] = relationship(
+        "Comment",
+        remote_side=[id],
+        foreign_keys=[root_comment_id],
+        lazy="joined",
     )
 
     def __repr__(self):
         parent = f", parent={self.parent_comment_id}" if self.parent_comment_id else ""
+        replyto = (
+            f", reply_to={self.reply_to_comment_id}" if self.reply_to_comment_id else ""
+        )
+        root = f", root={self.root_comment_id}" if self.root_comment_id else ""
         return (
-            f"Comment Info:\n"
-            f"ID: {self.id}\n"
-            f"Content: {self.content}\n"
-            f"Author ID: {self.author_id}\n"
-            f"Post ID: {self.post_id}{parent}\n"
-            f"Created At: {self.created_at}\n"
-            f"Updated At: {self.updated_at}"
+            f"Comment(id={self.id}{parent}{replyto}{root}, "
+            f"author={self.author_id}, post={self.post_id})"
         )
 
 

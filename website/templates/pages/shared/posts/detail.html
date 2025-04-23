@@ -63,6 +63,11 @@
     </div>
 
     <div x-show="!editing" class="text-gray-800 dark:text-gray-100 text-sm">
+      {% if comment.reply_to %}
+        <span class="font-semibold text-blue-500">
+          @{{ comment.reply_to.author.username }}
+        </span>
+      {% endif %}
       {{ comment.content }}
     </div>
     <form

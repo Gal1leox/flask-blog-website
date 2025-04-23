@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import current_user, login_required
@@ -258,11 +258,24 @@ def view_post(post_id):
         # 2) Logged in & content valid? save comment/reply
         if form.validate_on_submit():
             parent_id = request.form.get("parent_comment_id", type=int)
+            reply_to_id = parent_id
+
+            if parent_id:
+                parent = Comment.query.get(parent_id)
+                if parent.parent_comment_id:
+                    thread_parent_id = parent.parent_comment_id
+                else:
+                    thread_parent_id = parent.id
+            else:
+                thread_parent_id = None
+
             comment = Comment(
                 content=form.content.data,
                 author_id=current_user.id,
                 post_id=post.id,
-                parent_comment_id=parent_id,
+                parent_comment_id=thread_parent_id,
+                reply_to_comment_id=reply_to_id,
+                root_comment_id=thread_parent_id,
                 created_at=datetime.utcnow(),
             )
             db.session.add(comment)
@@ -285,7 +298,11 @@ def view_post(post_id):
     order = Comment.created_at.desc() if sort == "newest" else Comment.created_at.asc()
     comments = (
         Comment.query.filter_by(post_id=post_id)
-        .options(selectinload(Comment.replies))
+        .options(
+            selectinload(Comment.replies),
+            joinedload(Comment.parent).joinedload(Comment.author),
+            joinedload(Comment.reply_to).joinedload(Comment.author),
+        )
         .order_by(order)
         .all()
     )
