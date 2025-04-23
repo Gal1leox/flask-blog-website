@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from sqlalchemy.orm import selectinload
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import current_user, login_required
@@ -248,43 +249,70 @@ def view_post(post_id):
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
 
-    if current_user.is_authenticated and form.validate_on_submit():
-        comment = Comment(
-            content=form.content.data,
-            author_id=current_user.id,
-            post_id=post.id,
-            created_at=datetime.utcnow(),
-        )
-        db.session.add(comment)
-        db.session.commit()
-        flash("Your comment has been posted.", "success")
+    if request.method == "POST":
+        # 1) Not logged in? flash and redirect immediately
+        if not current_user.is_authenticated:
+            flash("Please log in to leave comments.", "danger")
+            return redirect(url_for("posts.view_post", post_id=post.id))
+
+        # 2) Logged in & content valid? save comment/reply
+        if form.validate_on_submit():
+            parent_id = request.form.get("parent_comment_id", type=int)
+            comment = Comment(
+                content=form.content.data,
+                author_id=current_user.id,
+                post_id=post.id,
+                parent_comment_id=parent_id,
+                created_at=datetime.utcnow(),
+            )
+            db.session.add(comment)
+            db.session.commit()
+
+            msg = (
+                "Your reply has been posted."
+                if parent_id
+                else "Your comment has been posted."
+            )
+            flash(msg, "success")
+            return redirect(url_for("posts.view_post", post_id=post.id))
+
+        # 3) Logged in but validation failed (e.g. empty content)
+        flash("Comment cannot be empty.", "danger")
         return redirect(url_for("posts.view_post", post_id=post.id))
-    elif request.method == "POST":
-        flash("Please log in to leave comments.", "danger")
 
+    # GET path: load & render
     sort = request.args.get("sort", "oldest")
-    if sort == "newest":
-        order = Comment.created_at.desc()
-    else:
-        order = Comment.created_at.asc()
-    comments = Comment.query.filter_by(post_id=post.id).order_by(order).all()
-
-    if current_user.is_authenticated:
-        user = User.query.get(current_user.id)
-    else:
-        user = None
+    order = Comment.created_at.desc() if sort == "newest" else Comment.created_at.asc()
+    comments = (
+        Comment.query.filter_by(post_id=post_id)
+        .options(selectinload(Comment.replies))
+        .order_by(order)
+        .all()
+    )
 
     return render_template(
         "pages/shared/posts/detail.html",
-        is_authorized=bool(user),
+        is_authorized=current_user.is_authenticated,
         post=post,
         comments=comments,
         form=form,
-        avatar_url=user.avatar_url if user else "",
-        is_admin=(user.role == UserRole.ADMIN) if user else False,
-        token=os.getenv("SECRET_KEY") if user else "",
+        avatar_url=(
+            User.query.get(current_user.id).avatar_url
+            if current_user.is_authenticated
+            else ""
+        ),
+        is_admin=(
+            (current_user.role == UserRole.ADMIN)
+            if current_user.is_authenticated
+            else False
+        ),
+        token=os.getenv("SECRET_KEY") if current_user.is_authenticated else "",
         active_page="",
-        theme=user.theme.value if user else "system",
+        theme=(
+            User.query.get(current_user.id).theme.value
+            if current_user.is_authenticated
+            else "system"
+        ),
     )
 
 

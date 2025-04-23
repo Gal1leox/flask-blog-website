@@ -90,7 +90,7 @@ class UpdateProfileForm(FlaskForm):
         "Username",
         validators=[
             DataRequired(),
-            Length(min=2, max=50),
+            Length(min=2, max=20),
             validate_username,
             unique_username,
         ],
