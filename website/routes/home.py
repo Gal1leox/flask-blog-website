@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request
 from flask_login import current_user
 from dotenv import load_dotenv
 
-from ..models import User, UserRole, Post
+from website.domain.models import User, UserRole, Post
 
 load_dotenv()
 

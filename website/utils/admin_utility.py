@@ -1,4 +1,4 @@
-from website.models import (
+from website.domain.models import (
     User,
     Post,
     Image,

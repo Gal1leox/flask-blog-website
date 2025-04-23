@@ -5,7 +5,7 @@ from flask_mail import Message
 
 from ..config import Config
 from ..forms import ContactForm
-from ..models import User, UserRole
+from website.domain.models import User, UserRole
 from website import mail
 
 load_dotenv()

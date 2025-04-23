@@ -15,7 +15,7 @@ from flask import (
 from flask_login import current_user
 
 from ..config import Config
-from ..models import (
+from website.domain.models import (
     User,
     UserRole,
 )

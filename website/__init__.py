@@ -59,7 +59,7 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        from .models import User
+        from website.domain.models import User
 
         with db.session() as session:
             return session.get(User, int(user_id))
@@ -68,7 +68,7 @@ def create_app():
     register_error_handlers(app)
 
     with app.app_context():
-        from . import models
+        from website.domain import models
 
         db.create_all()
 

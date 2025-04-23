@@ -5,7 +5,7 @@ from flask import request, abort, render_template, redirect, url_for
 from flask_login import current_user
 from dotenv import load_dotenv
 
-from ..models import User, UserRole, VerificationCode
+from website.domain.models import User, UserRole, VerificationCode
 
 load_dotenv()
 secret_key = os.getenv("SECRET_KEY")

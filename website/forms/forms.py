@@ -22,7 +22,7 @@ from .validators import (
     validate_num_images,
     OptionalImages,
 )
-from ..models import User
+from website.domain.models import User
 
 
 def gmail_email_field(label, placeholder="user@gmail.com", extra_validators=None):

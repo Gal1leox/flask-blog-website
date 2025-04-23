@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..config import Config
 from ..init import google
 from ..forms import RegisterForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
-from ..models import User, VerificationCode
+from website.domain.models import User, VerificationCode
 from ..utils import anonymous_required, get_verification_code, token_required
 from website import db, mail, limiter
 

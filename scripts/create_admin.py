@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash
 
 from website import create_app, db
-from website.models import User, UserRole
+from website.domain.models import User, UserRole
 
 load_dotenv()
 

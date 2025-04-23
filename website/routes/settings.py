@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from ..forms.forms import UpdateProfileForm, ChangePasswordForm
-from ..models import User, UserRole, UserTheme
+from website.domain.models import User, UserRole, UserTheme
 from website import db
 
 load_dotenv()

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from sqlalchemy.orm import selectinload, joinedload
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
@@ -7,7 +6,7 @@ from flask_login import current_user, login_required
 from dotenv import load_dotenv
 import cloudinary.uploader
 
-from ..models import User, UserRole, Post, Image, SavedPost, Comment
+from website.domain.models import User, UserRole, Post, Image, SavedPost, Comment
 from ..forms import CreatePostForm, CommentForm
 from ..utils import token_required, admin_required
 from website import db
