@@ -217,3 +217,36 @@ def delete_subcomments(mapper, connection, target):
     Session.object_session(target).query(Comment).filter_by(
         parent_comment_id=target.id
     ).delete(synchronize_session=False)
+
+
+@event.listens_for(Session, "after_flush_postexec")
+def delete_orphan_comments(session: Session, flush_context):
+    """
+    Wipe out any Comment whose parent_comment_id or reply_to_comment_id
+    points at a non-existent Comment.
+    """
+    # collect all real comment IDs
+    existing = session.query(Comment.id).subquery()
+
+    # find comments with a parent that no longer exists
+    bad_parents = (
+        session.query(Comment)
+        .filter(
+            Comment.parent_comment_id.isnot(None),
+            ~Comment.parent_comment_id.in_(existing),
+        )
+        .all()
+    )
+
+    # find comments with a reply_to that no longer exists
+    bad_replies = (
+        session.query(Comment)
+        .filter(
+            Comment.reply_to_comment_id.isnot(None),
+            ~Comment.reply_to_comment_id.in_(existing),
+        )
+        .all()
+    )
+
+    for c in bad_parents + bad_replies:
+        session.delete(c)

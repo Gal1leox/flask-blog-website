@@ -2,12 +2,21 @@ import secrets
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
-from sqlalchemy import Integer, Enum as SQLEnum, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    Integer,
+    Enum as SQLEnum,
+    String,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    event,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship, Session
 from flask_login import UserMixin
 
 from website import db
 from .enums import UserRole, UserTheme
+from .post import Comment, Image, Post, SavedPost
 
 
 class User(db.Model, UserMixin):
@@ -94,3 +103,17 @@ class VerificationCode(db.Model):
             VerificationCode.expires_at < datetime.utcnow()
         ).delete()
         db.session.commit()
+
+
+@event.listens_for(User, "before_delete")
+def _cleanup_user_related(mapper, connection, target: User):
+    """Explicitly wipe out everything owned by this user."""
+    sess: Session = Session.object_session(target)
+
+    sess.query(Comment).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(Image).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(Post).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(SavedPost).filter_by(user_id=target.id).delete(synchronize_session=False)
+    sess.query(VerificationCode).filter_by(user_id=target.id).delete(
+        synchronize_session=False
+    )
