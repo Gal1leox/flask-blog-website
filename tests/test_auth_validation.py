@@ -1,6 +1,6 @@
 import pytest
 
-from website.forms import RegisterForm, LoginForm
+from website.interface.forms import RegisterForm, LoginForm
 from tests.test_data import register_form_test_cases, login_form_test_cases
 
 

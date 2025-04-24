@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 from website import db, limiter
 from website.config import Config
 from website.domain.models import User, UserRole, Post, Image, SavedPost
-from website.forms import CreatePostForm
+from website.interface.forms import CreatePostForm
 
 posts_bp = Blueprint(
     "posts",

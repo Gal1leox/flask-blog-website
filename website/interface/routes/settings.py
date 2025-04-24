@@ -13,7 +13,7 @@ from flask_login import current_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from website import db, limiter
-from website.forms.forms import UpdateProfileForm, ChangePasswordForm
+from website.interface.forms import UpdateProfileForm, ChangePasswordForm
 from website.domain.models import User, UserRole, UserTheme
 
 settings_bp = Blueprint(

@@ -1,14 +1,13 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed, FileRequired
+from flask_wtf.file import FileAllowed, FileRequired, FileField
 from wtforms import (
     StringField,
     PasswordField,
     SubmitField,
-    FileField,
-    ValidationError,
     SelectField,
     TextAreaField,
+    ValidationError,
 )
 from flask_wtf.recaptcha import RecaptchaField
 from wtforms.validators import DataRequired, Length, EqualTo, Optional, Regexp
@@ -25,7 +24,23 @@ from .validators import (
 from website.domain.models import User
 
 
+class BaseForm(FlaskForm):
+    """
+    Base form that applies strip_filter to all fields automatically.
+    """
+
+    class Meta:
+        def bind_field(self, form, unbound_field, options):
+            filters = options.pop("filters", [])
+            filters.append(strip_filter)
+            options["filters"] = filters
+            return unbound_field.bind(form=form, **options)
+
+
 def gmail_email_field(label, placeholder="user@gmail.com", extra_validators=None):
+    """
+    Reusable email field with Gmail-specific validators.
+    """
     validators = gmail_validators.copy()
     if extra_validators:
         validators.extend(extra_validators)
@@ -33,11 +48,13 @@ def gmail_email_field(label, placeholder="user@gmail.com", extra_validators=None
         label,
         validators=validators,
         render_kw={"placeholder": placeholder},
-        filters=[strip_filter],
     )
 
 
 def password_field(label, placeholder="password", extra_validators=None):
+    """
+    Reusable password field with basic length requirement.
+    """
     validators = [DataRequired(), Length(min=8)]
     if extra_validators:
         validators.extend(extra_validators)
@@ -45,17 +62,30 @@ def password_field(label, placeholder="password", extra_validators=None):
         label,
         validators=validators,
         render_kw={"placeholder": placeholder},
-        filters=[strip_filter],
     )
 
 
+def textarea_field(label, placeholder=None, rows=4, extra_validators=None):
+    """
+    Reusable textarea field with word count and optional custom validators.
+    """
+    validators = extra_validators or [DataRequired(), calculate_word_count]
+    render_kw = {"rows": rows}
+    if placeholder:
+        render_kw["placeholder"] = placeholder
+    return TextAreaField(label, validators=validators, render_kw=render_kw)
+
+
 def unique_username(_, field):
-    user = User.query.filter_by(username=field.data).first()
-    if user and user.id != current_user.id:
+    """
+    Ensure the username is unique (ignoring the current user).
+    """
+    existing = User.query.filter_by(username=field.data).first()
+    if existing and existing.id != current_user.id:
         raise ValidationError("This username is already taken.")
 
 
-class RegisterForm(FlaskForm):
+class RegisterForm(BaseForm):
     email = gmail_email_field("Your email")
     password = password_field("Password")
     confirm_password = password_field(
@@ -65,18 +95,18 @@ class RegisterForm(FlaskForm):
     submit = SubmitField("Sign up")
 
 
-class LoginForm(FlaskForm):
+class LoginForm(BaseForm):
     email = gmail_email_field("Your email")
     password = password_field("Password")
     submit = SubmitField("Sign in")
 
 
-class ForgotPasswordForm(FlaskForm):
+class ForgotPasswordForm(BaseForm):
     email = gmail_email_field("Your registered email")
     submit = SubmitField("Submit")
 
 
-class ResetPasswordForm(FlaskForm):
+class ResetPasswordForm(BaseForm):
     password = password_field("Password")
     confirm_password = password_field(
         "Confirm password",
@@ -85,7 +115,7 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField("Reset")
 
 
-class UpdateProfileForm(FlaskForm):
+class UpdateProfileForm(BaseForm):
     username = StringField(
         "Username",
         validators=[
@@ -95,24 +125,21 @@ class UpdateProfileForm(FlaskForm):
             unique_username,
         ],
         render_kw={"placeholder": "username"},
-        filters=[strip_filter],
     )
-    email = StringField(
-        "Email address",
-        render_kw={"placeholder": "user@gmail.com", "disabled": True},
-    )
+    email = gmail_email_field("Email address")
+    email.render_kw.update({"disabled": True})
     profile_image = FileField(
         "Profile image",
         validators=[
             FileAllowed(
                 ["jpg", "jpeg", "png"], "Profile image must be a JPG or PNG file."
-            ),
+            )
         ],
     )
     submit = SubmitField("Save")
 
 
-class ChangePasswordForm(FlaskForm):
+class ChangePasswordForm(BaseForm):
     current_password = password_field(
         "Current Password", placeholder="Current password"
     )
@@ -125,7 +152,7 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField("Change Password")
 
 
-class ContactForm(FlaskForm):
+class ContactForm(BaseForm):
     first_name = StringField(
         "First Name",
         validators=[
@@ -134,7 +161,6 @@ class ContactForm(FlaskForm):
             Regexp(r"^[A-Za-z]+$", message="First name must contain only letters."),
         ],
         render_kw={"placeholder": "First name"},
-        filters=[strip_filter],
     )
     last_name = StringField(
         "Last Name",
@@ -144,7 +170,6 @@ class ContactForm(FlaskForm):
             Regexp(r"^[A-Za-z]+$", message="Last name must contain only letters."),
         ],
         render_kw={"placeholder": "Last name"},
-        filters=[strip_filter],
     )
     inquiry_type = SelectField(
         "I am interested in",
@@ -154,42 +179,38 @@ class ContactForm(FlaskForm):
             ("hiring inquiry", "Hiring Inquiry"),
         ],
         validators=[DataRequired()],
-        filters=[strip_filter],
     )
     phone = StringField(
         "Phone Number (optional)",
         validators=[Optional(), validate_phone],
         render_kw={"placeholder": "+7 475 638 8929"},
-        filters=[strip_filter],
     )
-    message = TextAreaField(
+    message = textarea_field(
         "Message",
-        validators=[DataRequired(), calculate_word_count],
-        render_kw={"placeholder": "Your message (max 300 words)", "rows": 4},
-        filters=[strip_filter],
+        placeholder="Your message (max 300 words)",
+        rows=4,
     )
     recaptcha = RecaptchaField()
     submit = SubmitField("Submit")
 
 
-class MultiFileField(StringField):
+class FileListField(FileField):
     """
-    A custom field that processes multiple file inputs.
+    Handle multiple file inputs as a list.
     """
 
     def process_formdata(self, valuelist):
-        self.data = valuelist if valuelist else []
+        self.data = valuelist or []
 
 
-class CreatePostForm(FlaskForm):
-    content = TextAreaField(
+class CreatePostForm(BaseForm):
+    content = textarea_field(
         "Content",
-        validators=[DataRequired(), calculate_word_count],
-        render_kw={"placeholder": "Content of a new post", "rows": 10},
-        filters=[strip_filter],
+        placeholder="Content of a new post",
+        rows=10,
     )
-    images = MultiFileField(
-        "Upload an Image",
+    images = FileListField(
+        "Upload Images",
         validators=[
             OptionalImages(),
             FileRequired(message="At least one image is required."),
@@ -201,19 +222,15 @@ class CreatePostForm(FlaskForm):
     submit = SubmitField("Publish")
 
 
-class CommentForm(FlaskForm):
-    content = TextAreaField(
+class CommentForm(BaseForm):
+    content = textarea_field(
         "Your Comment",
-        validators=[
-            DataRequired(),
-            Length(min=4, max=200),
-        ],
-        render_kw={
-            "placeholder": "What do you think..",
-            "rows": 3,
-            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
-        },
-        filters=[strip_filter],
+        rows=3,
+        extra_validators=[DataRequired(), Length(min=4, max=200)],
+        placeholder="What do you think..",
+    )
+    content.render_kw.update(
+        {"class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"}
     )
     submit = SubmitField(
         "Comment",

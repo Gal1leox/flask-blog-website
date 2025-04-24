@@ -10,11 +10,10 @@ from flask_login import login_required, current_user
 from website import db, limiter
 from website.domain.models import (
     Comment,
-    Post,
     User,
     UserRole,
 )
-from website.forms import CommentForm
+from website.interface.forms import CommentForm
 
 comments_bp = Blueprint(
     "comments",

@@ -12,7 +12,7 @@ from flask_mail import Message
 from website import limiter, mail
 from website.config import Config
 from website.domain.models import User, UserRole, Post
-from website.forms import ContactForm
+from website.interface.forms import ContactForm
 
 public_bp = Blueprint(
     "public",

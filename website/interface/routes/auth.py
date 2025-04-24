@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from website import db, mail, limiter
 from website.config import Config
 from website.init import google
-from website.forms import (
+from website.interface.forms import (
     RegisterForm,
     LoginForm,
     ForgotPasswordForm,
