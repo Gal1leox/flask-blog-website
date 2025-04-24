@@ -1,4 +1,5 @@
 import os, re
+import atexit
 import urllib
 
 from dotenv import load_dotenv
@@ -147,3 +148,17 @@ def init_markdown(app):
 
         linked = re.sub(r"(#\w+)", _replace, text)
         return Markup(linked)
+
+
+def schedule_jobs(app):
+    def cleanup_expired_codes():
+        from website.domain.models import VerificationCode
+
+        with app.app_context():
+            VerificationCode.delete_expired()
+            db.session.commit()
+
+    if not scheduler.get_jobs():
+        scheduler.add_job(cleanup_expired_codes, "interval", minutes=5)
+        scheduler.start()
+        atexit.register(lambda: scheduler.shutdown())

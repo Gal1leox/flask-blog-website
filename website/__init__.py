@@ -5,7 +5,7 @@ from flask import Flask
 from dotenv import load_dotenv
 
 from website.config import DevelopmentConfig, ProductionConfig
-from website.init import (
+from website.extensions import (
     db,
     login_manager,
     mail,
