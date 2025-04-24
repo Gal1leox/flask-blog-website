@@ -1,27 +1,43 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Query
 
 from website import db
-from website.utils import TABLES
+from website.domain.models import (
+    User,
+    Post,
+    Comment,
+    VerificationCode,
+    Image,
+    PostImage,
+    SavedPost,
+)
+
+TABLES: Dict[str, Dict[str, Any]] = {
+    "users": {"table": User},
+    "posts": {"table": Post},
+    "comments": {"table": Comment},
+    "verification_codes": {"table": VerificationCode},
+    "images": {"table": Image},
+    "post_images": {"table": PostImage},
+    "saved_posts": {"table": SavedPost},
+}
 
 
 class TableRepository:
     @staticmethod
-    def all_tables() -> Dict[str, Any]:
-        return TABLES
+    def all_tables() -> List[str]:
+        return list(TABLES.keys())
 
     @staticmethod
     def query_for(table_name: str) -> Optional[Query]:
-        table_info = TABLES.get(table_name)
-        model = table_info.get("table") if table_info else None
-        return model.query if model else None
+        info = TABLES.get(table_name)
+        return info["table"].query if info else None
 
     @staticmethod
     def get(table_name: str, record_id: int) -> Optional[Any]:
-        table_info = TABLES.get(table_name)
-        model = table_info.get("table") if table_info else None
-        return model.query.get(record_id) if model else None
+        qry = TableRepository.query_for(table_name)
+        return qry.get(record_id) if qry else None
 
     @staticmethod
     def delete(record: Any) -> None:
@@ -33,3 +49,12 @@ class TableRepository:
         deleted = query.delete(synchronize_session=False)
         db.session.commit()
         return deleted
+
+    @staticmethod
+    def get_columns(table_name: str) -> List[str]:
+        """Reflectively pull column names from the model’s __table__."""
+        info = TABLES.get(table_name)
+        model = info and info["table"]
+        if model and hasattr(model, "__table__"):
+            return [c.name for c in model.__table__.columns]
+        return []
