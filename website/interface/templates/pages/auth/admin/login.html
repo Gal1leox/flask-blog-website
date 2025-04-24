@@ -1,0 +1,39 @@
+{# templates/pages/auth/admin/login.html #}
+
+{% extends "pages/auth/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/field.html" import render_email_field, render_password_field %}
+
+{% block title %}Kalts Daniil - Admin Login{% endblock %}
+
+{% block content %}
+<div
+  class="w-full bg-white rounded-lg shadow dark:bg-gray-800 dark:border dark:border-gray-700"
+>
+  <div class="p-6 space-y-6 sm:p-8">
+    <h1
+      class="text-xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white"
+    >
+      Sign in to admin account
+    </h1>
+    <form
+      x-data="{ isSubmitting: false, submitButtonText: '{{ form.submit.label.text }}' }"
+      x-on:submit="isSubmitting = true"
+      class="space-y-4"
+      method="POST"
+    >
+      {{ form.hidden_tag() }}
+      {{ render_email_field(form.email) }}
+      {{ render_password_field(form.password) }}
+      <input
+        :value="!isSubmitting ? submitButtonText : 'Signing in...'"
+        :disabled="isSubmitting"
+        :class="isSubmitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''"
+        type="submit"
+        class="py-2.5 px-5 mt-2 w-full text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      />
+    </form>
+  </div>
+</div>
+{% endblock %}

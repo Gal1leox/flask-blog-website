@@ -1,0 +1,69 @@
+{# templates/components/ui/modal.html #}
+
+{% macro modal(title, description, action_url, confirm_text='Yes, I do', cancel_text='No, cancel') %}
+<div x-data="{ open: false }" x-init="$watch('open', value => document.body.classList.toggle('overflow-hidden', value))">
+  <button
+    @click="open = true"
+    type="button"
+    class="self-start py-2 px-4 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400 focus:outline-none"
+  >
+    {{ title }}
+  </button>
+
+  <div
+    x-show="open"
+    x-cloak
+    x-transition.opacity.duration.300ms
+    class="flex fixed inset-0 z-50 justify-center items-center"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div class="fixed inset-0 transition-opacity bg-gray-500/75 dark:bg-gray-900/75"></div>
+    <div class="overflow-y-auto relative z-50 p-4 w-full max-h-full max-w-[420px]" @click.away="open = false">
+      <div class="relative bg-white rounded-2xl shadow-lg transition-all dark:bg-gray-800">
+        <div class="px-4 pt-5 pb-4 bg-white sm:p-6 dark:bg-gray-800">
+          <div class="sm:flex sm:items-start">
+            <div class="flex justify-center items-center mx-auto w-14 h-14 bg-red-100 rounded-full sm:w-12 sm:h-12 dark:bg-red-900 shrink-0">
+              <svg
+                class="w-9 h-9 text-red-600 sm:w-8 sm:h-8 dark:text-red-400"
+                aria-hidden="true"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 id="modal-title" class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {{ title }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                  {{ description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="py-3 px-4 bg-gray-50 sm:flex sm:justify-end dark:bg-gray-700">
+          <form action="{{ action_url }}" method="POST" class="inline">
+            <button type="submit" class="py-2 px-4 w-full text-sm text-center text-white whitespace-nowrap bg-red-600 rounded-md sm:w-auto hover:bg-red-700 focus:ring-2 focus:ring-red-300 focus:outline-none">
+              {{ confirm_text }}
+            </button>
+          </form>
+          <button
+            @click="open = false"
+            type="button"
+            class="py-2 px-4 mt-3 w-full text-sm text-center text-gray-800 whitespace-nowrap bg-white rounded-md sm:mt-0 sm:ml-3 sm:w-auto dark:text-gray-200 dark:bg-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300 focus:outline-none dark:hover:bg-gray-600"
+          >
+            {{ cancel_text }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
