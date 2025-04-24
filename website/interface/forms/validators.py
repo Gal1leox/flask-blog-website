@@ -2,104 +2,72 @@ import re
 
 from wtforms import ValidationError
 from wtforms.validators import DataRequired, Email, Length, Regexp, StopValidation
+from flask_login import current_user
 
-# Precompiled regex patterns
-GMAIL_PATTERN = re.compile(r"^[A-Za-z0-9_.+-]+@gmail\.com$")
-PHONE_PATTERN = re.compile(r"^\+?[\d\s\-\(\)]+$")
+from website.infrastructure.repositories import UserRepository
 
-# Composite Gmail-specific validators
+# Patterns
+gmail_re = re.compile(r"^[\w.+-]+@gmail\.com$")
+phone_re = re.compile(r"^\+?[\d\s\-()]+$")
+
+# Gmail field validators
 gmail_validators = [
-    DataRequired(message="Email is required."),
-    Email(message="Invalid email address."),
-    Length(min=6, max=100, message="Email must be between 6 and 100 characters."),
-    Regexp(
-        GMAIL_PATTERN,
-        message="Email must be a Gmail address.",
-    ),
+    DataRequired("Email is required."),
+    Email("Invalid email address."),
+    Length(6, 100, "Email must be between 6 and 100 characters."),
+    Regexp(gmail_re, "Email must be a Gmail address."),
 ]
 
 
 def strip_filter(value: str) -> str:
-    """
-    Trim leading/trailing whitespace from input values.
-    """
     return value.strip() if value else value
 
 
-def validate_username(form, field):
-    """
-    Ensure username:
-      - Starts with a letter
-      - Ends with a letter or digit
-      - Contains only lowercase letters, digits, '.' or '_'
-    """
-    username = (field.data or "").strip()
-    if not username:
+def validate_username(_, field):
+    name = (field.data or "").strip()
+    if not name:
         raise ValidationError("Username is required.")
-
-    if not username[0].isalpha():
-        raise ValidationError("Username must start with a letter.")
-
-    if not (username[-1].isalnum()):
-        raise ValidationError("Username must end with a letter or digit.")
-
-    for char in username:
-        if char.isalpha() and not char.islower():
-            raise ValidationError("Username must use only lowercase letters.")
-        if not (char.islower() or char.isdigit() or char in "._"):
-            raise ValidationError(
-                "Username may only contain lowercase letters, digits, '.' or '_'."
-            )
+    if not name[0].isalpha() or not name[-1].isalnum():
+        raise ValidationError(
+            "Username must start with a letter and end with a letter or digit."
+        )
+    if not re.fullmatch(r"[a-z0-9._]+", name):
+        raise ValidationError("Use only lowercase letters, digits, '.' or '_'.")
 
 
-def validate_phone(form, field):
+def unique_username(_, field):
     """
-    Validate optional phone number format.
-    Accepts digits, spaces, parentheses, dashes, and optional leading '+'.
+    Ensure username is unique (excluding current user).
     """
-    value = (field.data or "").strip()
-    if not value:
-        return
-    if not PHONE_PATTERN.match(value):
+    existing = UserRepository.get_by_username(field.data)
+    if existing and existing.id != current_user.id:
+        raise ValidationError("This username is already taken.")
+
+
+def validate_phone(_, field):
+    val = (field.data or "").strip()
+    if val and not phone_re.match(val):
         raise ValidationError("Invalid phone number format.")
 
 
-def calculate_word_count(form, field):
-    """
-    Enforce a maximum of 300 words in a text field.
-    """
-    text = field.data or ""
-    word_count = len(text.split())
-    if word_count > 300:
+def calculate_word_count(_, field):
+    if len((field.data or "").split()) > 300:
         raise ValidationError("Cannot exceed 300 words.")
 
 
-def validate_num_images(form, field):
-    """
-    Ensure at least one and at most five images,
-    each no larger than 8MB.
-    """
+def validate_num_images(_, field):
     files = getattr(field, "data", []) or []
     count = len(files)
-    if count < 1:
-        raise ValidationError("At least one image is required.")
-    if count > 5:
-        raise ValidationError("You can upload a maximum of 5 images.")
-
-    for file in files:
-        # Check file size
-        file.seek(0, 2)
-        size = file.tell()
-        file.seek(0)
-        if size > 8 * 1024 * 1024:
-            raise ValidationError(f"File '{file.filename}' exceeds the 8MB limit.")
+    if count < 1 or count > 5:
+        raise ValidationError("Upload between 1 and 5 images.")
+    for f in files:
+        f.seek(0, 2)
+        if f.tell() > 8 * 1024 * 1024:
+            raise ValidationError(f"{f.filename} exceeds 8MB.")
+        f.seek(0)
 
 
 class OptionalImages:
-    """
-    Skip image validators when editing an existing post.
-    """
-
     def __call__(self, form, field):
         if getattr(form, "editing", False):
             raise StopValidation()
