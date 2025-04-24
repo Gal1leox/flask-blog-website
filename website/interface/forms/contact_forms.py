@@ -21,6 +21,8 @@ class ContactForm(BaseForm):
     phone = StringField(
         "Phone (opt)", validators=[Optional(), Regexp(r"^[+0-9 ()-]+$")]
     )
-    message = textarea_field("Message", validators=[DataRequired(), Length(max=300)])
+    message = textarea_field(
+        "Message", extra_validators=[DataRequired(), Length(max=300)]
+    )
     recaptcha = RecaptchaField()
     submit = SubmitField("Submit")

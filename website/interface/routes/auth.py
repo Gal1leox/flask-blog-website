@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, redirect, url_for, flash
 from flask_login import login_required
 
 from website.config import Config
-from website.init import google
+from website.extensions import google
 from website.interface.forms import (
     RegisterForm,
     LoginForm,
@@ -10,7 +10,7 @@ from website.interface.forms import (
     ResetPasswordForm,
 )
 from website.application.services import AuthService
-from website.utils import (
+from ..middlewares.auth import (
     anonymous_required,
     get_verification_code,
     token_required,

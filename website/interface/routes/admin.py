@@ -15,7 +15,7 @@ from flask_login import current_user
 from website import limiter
 from website.config import Config
 from website.application.services import AdminService
-from website.utils import (
+from website.interface.middlewares import (
     token_required,
     admin_required,
 )

@@ -1,31 +1,23 @@
-import os, re
+import os
+import re
 import atexit
-import urllib
+import urllib.parse
 
+from authlib.integrations.flask_client import OAuth
+from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import load_dotenv
-
-# Flask Extensions
 from flask import request
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_sqlalchemy import SQLAlchemy
 
-# Task Scheduling
-from apscheduler.schedulers.background import BackgroundScheduler
-
-# OAuth Integration
-from authlib.integrations.flask_client import OAuth
-
-# Cloudinary Integration
-import cloudinary
-
-
-# Markdown + Bleach Formatting
 import bleach
 import markdown as _md
 from markupsafe import Markup
+
+import cloudinary
 
 # -----------------------------------------------------------------------------
 # Load Environment Variables
@@ -33,17 +25,17 @@ from markupsafe import Markup
 load_dotenv()
 
 # -----------------------------------------------------------------------------
-# Initialize Flask Extensions
+# Flask Extensions
 # -----------------------------------------------------------------------------
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
-limiter = Limiter(get_remote_address)
+limiter = Limiter(key_func=get_remote_address)
 scheduler = BackgroundScheduler()
 oauth = OAuth()
 
 # -----------------------------------------------------------------------------
-# Configure Cloudinary
+# Cloudinary Configuration
 # -----------------------------------------------------------------------------
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_NAME"),
@@ -52,7 +44,7 @@ cloudinary.config(
 )
 
 # -----------------------------------------------------------------------------
-# Register OAuth Providers
+# OAuth Providers
 # -----------------------------------------------------------------------------
 google = oauth.register(
     name="google",
@@ -66,10 +58,8 @@ google = oauth.register(
 )
 
 # -----------------------------------------------------------------------------
-# Markdown + Bleach configuration
+# Markdown + Bleach Configuration
 # -----------------------------------------------------------------------------
-
-# Which HTML tags and attributes you’ll allow in posts
 ALLOWED_TAGS = set(bleach.sanitizer.ALLOWED_TAGS) | {
     "p",
     "pre",
@@ -100,51 +90,44 @@ ALLOWED_TAGS = set(bleach.sanitizer.ALLOWED_TAGS) | {
 }
 ALLOWED_ATTRS = {
     **bleach.sanitizer.ALLOWED_ATTRIBUTES,
-    "*": ["class"],  # allow Tailwind classes on any tag
+    "*": ["class"],  # allow Tailwind classes
     "a": ["href", "title", "rel", "target", "class"],
     "img": ["src", "alt", "title", "width", "height", "loading", "class"],
 }
-
-MD_EXTENSIONS = [
-    "fenced_code",
-    "tables",
-    "codehilite",
-    "attr_list",
-]
+MD_EXTENSIONS = ["fenced_code", "tables", "codehilite", "attr_list"]
 
 
 def init_markdown(app):
     @app.template_filter("markdown")
     def render_md(text: str):
-        # 1) convert Markdown -> HTML (raw HTML is passed through)
-        raw = _md.markdown(text or "", extensions=MD_EXTENSIONS, output_format="html5")
-        # 2) sanitize any unwanted tags/attrs
-        clean = bleach.clean(
-            raw, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True
+        raw_html = _md.markdown(
+            text or "", extensions=MD_EXTENSIONS, output_format="html5"
         )
-        # 3) mark safe for Jinja
-        return Markup(clean)
+        clean_html = bleach.clean(
+            raw_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True
+        )
+        return Markup(clean_html)
 
     @app.template_filter("link_hashtags")
-    def link_hashtags(text):
+    def link_hashtags(text: str):
         path = request.path
-        tags = request.args.getlist("tag")
+        current_tags = request.args.getlist("tag")
 
-        def _replace(m):
-            hashtag = m.group(1)
-            tag = hashtag[1:]
-            new_tags = tags.copy()
+        def _replace(match):
+            hashtag = match.group(1)
+            tag = hashtag.lstrip("#")
+            tags = current_tags.copy()
 
-            if tag in new_tags:
-                new_tags.remove(tag)
+            if tag in tags:
+                tags.remove(tag)
             else:
-                new_tags.append(tag)
+                tags.append(tag)
 
-            qs = urllib.parse.urlencode([("tag", t) for t in new_tags], doseq=True)
-            href = path + ("?" + qs if qs else "")
+            qs = urllib.parse.urlencode([("tag", t) for t in tags], doseq=True)
+            href = f"{path}?{qs}" if qs else path
+            css = "underline" if tag in current_tags else ""
 
-            cls = "underline" if tag in tags else ""
-            return f'<a href="{href}" class="text-blue-500 hover:underline {cls}">{hashtag}</a>'
+            return f'<a href="{href}" class="text-blue-500 hover:underline {css}">{hashtag}</a>'
 
         linked = re.sub(r"(#\w+)", _replace, text)
         return Markup(linked)
@@ -162,3 +145,11 @@ def schedule_jobs(app):
         scheduler.add_job(cleanup_expired_codes, "interval", minutes=5)
         scheduler.start()
         atexit.register(lambda: scheduler.shutdown())
+
+
+@login_manager.user_loader
+def load_user(user_id: str):
+    from website.domain.models import User
+
+    with db.session() as session:
+        return session.get(User, int(user_id))

@@ -7,7 +7,7 @@ from website.interface.forms import ContactForm
 from website.application.services.public_service import PublicService
 
 public_bp = Blueprint(
-    "public", __name__, url_prefix="/", template_folder="../templates/shared"
+    "public", __name__, url_prefix="/", template_folder="../templates"
 )
 _service = PublicService()
 

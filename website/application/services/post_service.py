@@ -6,7 +6,7 @@ import cloudinary.uploader
 from website import db
 from website.domain.models.post import Post
 from website.domain.models.image import Image
-from website.domain.models.saved_post import SavedPost
+from website.domain.models import SavedPost
 from website.infrastructure.repositories.post_repository import (
     PostRepository,
     ImageRepository,

@@ -1,4 +1,4 @@
-from auth import (
+from .auth import (
     anonymous_required,
     token_required,
     admin_required,

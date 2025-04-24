@@ -2,7 +2,7 @@ import time
 import random
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import request
+from flask import request, render_template
 from flask_login import login_user, logout_user
 
 from website.infrastructure.repositories.user_repository import UserRepository
@@ -11,7 +11,7 @@ from website.infrastructure.repositories.verification_code_repository import (
 )
 from website.domain.models.user import User
 from website.domain.models.verification_code import VerificationCode
-from website.utils import google, mail, render_template
+from website.extensions import google, mail
 
 
 class AuthService:

@@ -21,12 +21,12 @@ class UpdateProfileForm(BaseForm):
 
 class ChangePasswordForm(BaseForm):
     current_password = password_field(
-        "Current Password", validators=[DataRequired(), Length(min=8)]
+        "Current Password", extra_validators=[DataRequired(), Length(min=8)]
     )
     new_password = password_field(
-        "New Password", validators=[DataRequired(), Length(min=8)]
+        "New Password", extra_validators=[DataRequired(), Length(min=8)]
     )
     confirm_new = password_field(
-        "Confirm New", validators=[EqualTo("new_password", message="Must match.")]
+        "Confirm New", extra_validators=[EqualTo("new_password", message="Must match.")]
     )
     submit = SubmitField("Change Password")

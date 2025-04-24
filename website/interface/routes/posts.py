@@ -11,7 +11,7 @@ from flask_login import login_required, current_user
 
 from website import limiter
 from website.config import Config
-from website.utils import admin_required
+from website.interface.middlewares import admin_required
 from website.interface.forms import CreatePostForm
 from website.application.services import PostService
 
