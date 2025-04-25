@@ -19,24 +19,21 @@
       x-on:submit="submitting = true"
       class="space-y-4"
       method="POST"
+      action="{{ url_for('auth.verify_code', token=token) }}"
     >
       <div x-data="app()">
         <div
           class="flex justify-between"
-          x-data="{ is_valid: {{ 'false' if is_valid is false else 'null' }} }"
+          x-data="{ is_valid: {{ 'false' if is_valid is defined and is_valid == False else 'null' }} }"
         >
-          <template x-for="(_,i) in pinLength" :key="`codefield_${i}`">
+          <template x-for="(_, i) in pinLength" :key="i">
             <input
               autofocus
-              :name="`codefield_${i}`"
+              name="codefield"
               :id="`codefield_${i}`"
-              class="flex items-center w-12 h-12 text-3xl text-center text-gray-900 rounded-lg border-2 border outline-none dark:text-white"
-              :class="{
-                   'border-red-600': is_valid === false
-                  }"
+              class="flex items-center w-12 h-12 text-3xl text-center text-gray-900 rounded-lg border-2 border outline-none"
+              :class="{ 'border-red-600': is_valid === false }"
               maxlength="1"
-              min="0"
-              max="9"
               x-model="code[i]"
               @keyup="stepForward(i)"
               @keydown.backspace="stepBack(i)"
@@ -57,7 +54,7 @@
       Remember your password?
       <a
         class="font-medium text-blue-500 hover:underline"
-        href="/auth/login/"
+        href="{{ url_for('auth.login') }}"
       >
         Login here
       </a>

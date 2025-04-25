@@ -10,7 +10,7 @@ class VerificationCodeRepository:
 
     @staticmethod
     def get_by_token(token: str) -> VerificationCode | None:
-        return VerificationCode.query.filter_by(token=token, is_valid=False).first()
+        return VerificationCode.query.filter_by(token=token).first()
 
     @staticmethod
     def invalidate(vc: VerificationCode) -> None:

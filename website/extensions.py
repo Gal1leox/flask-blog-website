@@ -142,7 +142,7 @@ def schedule_jobs(app):
             db.session.commit()
 
     if not scheduler.get_jobs():
-        scheduler.add_job(cleanup_expired_codes, "interval", minutes=5)
+        scheduler.add_job(cleanup_expired_codes, "interval", minutes=2)
         scheduler.start()
         atexit.register(lambda: scheduler.shutdown())
 

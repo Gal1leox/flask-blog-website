@@ -102,25 +102,24 @@ class AuthService:
         return True, vc.token
 
     def verify_code(self, token: str, code_input: str) -> bool:
-        vc = VerificationCodeRepository.get_by_token(token)
-
-        if vc and check_password_hash(vc.code_hash, code_input):
-            VerificationCodeRepository.invalidate(vc)
+        vc = VerificationCodeRepository.get_by_token(token)  # drop is_valid filter
+        if vc and not vc.is_expired() and check_password_hash(vc.code_hash, code_input):
             return True
-
         return False
 
     def reset_password(self, token: str, new_password: str) -> bool:
-        vc = VerificationCodeRepository.get_by_token(token)
-
-        if not vc or not vc.is_valid:
+        vc = VerificationCodeRepository.get_by_token(token)  # still ignore is_valid
+        if not vc or vc.is_expired():
             return False
 
+        # update password
         user = UserRepository.get_by_id(vc.user_id)
         user.password_hash = generate_password_hash(new_password)
-
-        VerificationCodeRepository.delete(vc)
         UserRepository.save(user)
+
+        # mark used (or delete outright)
+        VerificationCodeRepository.invalidate(vc)
+        # or VerificationCodeRepository.delete(vc)
 
         return True
 

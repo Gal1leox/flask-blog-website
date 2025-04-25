@@ -105,15 +105,21 @@ def verify_code():
         if _auth.verify_code(token, code):
             return redirect(url_for("auth.reset_password", token=token))
         return render_template(
-            "pages/auth/user/verify_code.html", is_valid=False, theme="system"
+            "pages/auth/user/verify_code.html",
+            is_valid=False,
+            token=token,
+            theme="system",
         )
 
     vc = get_verification_code(token)
     if not vc:
         flash("Invalid or expired token.", "danger")
         return redirect(url_for("auth.forgot_password"))
-
-    return render_template("pages/auth/user/verify_code.html", theme="system")
+    return render_template(
+        "pages/auth/user/verify_code.html",
+        token=token,
+        theme="system",
+    )
 
 
 @auth_bp.route("/reset-password", methods=["GET", "POST"])
@@ -130,7 +136,10 @@ def reset_password():
         return redirect(url_for("auth.forgot_password"))
 
     return render_template(
-        "pages/auth/user/reset_password.html", form=form, theme="system"
+        "pages/auth/user/reset_password.html",
+        form=form,
+        token=token,  # ← add this
+        theme="system",
     )
 
 
