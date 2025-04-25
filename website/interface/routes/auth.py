@@ -75,7 +75,7 @@ def login():
 @limiter.limit("20/hour")
 def logout():
     _auth.logout()
-    flash("Logged out successfully.", "success")
+    flash(" You have been logged out.", "success")
     return redirect(url_for("public.home"))
 
 
@@ -151,7 +151,7 @@ def admin_login():
     token = request.args.get("token")
     if form.validate_on_submit():
         if _auth.admin_login(form, _admin_email):
-            flash("Welcome, admin!", "success")
+            flash("Welcome back, boss!", "success")
             return redirect(url_for("public.home"))
         flash("Invalid admin credentials.", "danger")
         return redirect(url_for("auth.admin_login", token=token))

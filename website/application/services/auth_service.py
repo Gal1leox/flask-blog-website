@@ -18,7 +18,7 @@ from website.extensions import google, mail
 class AuthService:
     def register(self, form) -> tuple[bool, str]:
         if UserRepository.get_by_email(form.email.data):
-            return False, "Email already registered."
+            return False, "This email is already registered."
 
         user = User(
             username=f"usr.{int(time.time() * 1000)}",
@@ -43,7 +43,7 @@ class AuthService:
             login_user(user)
             return True, f"Welcome back, {user.username}!"
 
-        return False, "Invalid credentials."
+        return False, "Invalid credentials. Please try again."
 
     def logout(self) -> None:
         logout_user()
@@ -79,7 +79,7 @@ class AuthService:
         user = UserRepository.get_by_email(form.email.data)
 
         if not user or user.email == admin_email or not user.password_hash:
-            return False, "Invalid email for password reset."
+            return False, "Invalid credentials. Please try again."
 
         code = str(random.randint(1000, 9999))
         vc = VerificationCode(user.id, code)
