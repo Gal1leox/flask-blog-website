@@ -12,7 +12,6 @@ from flask import (
 )
 from flask_login import current_user
 
-from website import limiter
 from website.config import Config
 from website.application.services import AdminService
 from website.interface.middlewares import (
@@ -48,7 +47,6 @@ def base_ctx(user, active_page=""):
 @admin_bp.route("/database/", methods=["GET"])
 @token_required
 @admin_required
-@limiter.limit("20/hour")
 def database():
     user = get_current_user()
     table = request.args.get("table", "")
@@ -56,10 +54,12 @@ def database():
     records, columns = _service.get_records(table)
 
     ctx = base_ctx(user, active_page="Database")
+    token = ctx["token"]
     ctx.update(
         {
             "tabs": [
-                {"name": t, "link": url_for("admin.database", table=t)} for t in tables
+                {"name": t, "link": url_for("admin.database", table=t, token=token)}
+                for t in tables
             ],
             "table": table,
             "attributes": columns,
@@ -72,7 +72,6 @@ def database():
 @admin_bp.route("/database/<table>/<int:record_id>", methods=["DELETE"])
 @token_required
 @admin_required
-@limiter.limit("30/hour")
 def delete_record(table, record_id):
     ok, msg, code = _service.delete_one(table, record_id)
     flash(msg, "success" if ok else "danger")
@@ -82,7 +81,6 @@ def delete_record(table, record_id):
 @admin_bp.route("/database/<table>/all", methods=["DELETE"])
 @token_required
 @admin_required
-@limiter.limit("5/hour")
 def delete_records(table):
     ok, msg, code, deleted = _service.delete_all(table)
     flash(msg, "success" if ok else "danger")
@@ -92,7 +90,6 @@ def delete_records(table):
 @admin_bp.route("/database/download", methods=["GET"])
 @token_required
 @admin_required
-@limiter.limit("10/hour")
 def download_db():
     path = _service.download_database()
     if not os.path.exists(path):
@@ -103,7 +100,6 @@ def download_db():
 @admin_bp.route("/database/restore", methods=["POST"])
 @token_required
 @admin_required
-@limiter.limit("5/hour")
 def restore_db():
     file = request.files.get("db_file")
     ok, msg = _service.restore_database(file)
