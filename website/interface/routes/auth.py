@@ -29,7 +29,7 @@ _admin_email = Config.ADMIN_EMAIL
 _scheme = Config.PREFERRED_URL_SCHEME
 
 
-@auth_bp.route("/google/login")
+@auth_bp.route("/google")
 @anonymous_required
 @limiter.limit("10/hour")
 def google_login():
@@ -139,10 +139,11 @@ def reset_password():
 @limiter.limit("3/hour", methods=["POST"])
 def admin_login():
     form = LoginForm()
+    token = request.args.get("token")
     if form.validate_on_submit():
         if _auth.admin_login(form, _admin_email):
             flash("Welcome, admin!", "success")
             return redirect(url_for("public.home"))
         flash("Invalid admin credentials.", "danger")
-        return redirect(url_for("auth.admin_login"))
+        return redirect(url_for("auth.admin_login", token=token))
     return render_template("pages/auth/admin/login.html", form=form, theme="system")

@@ -1,5 +1,7 @@
 from wtforms import StringField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Length
+from werkzeug.datastructures import FileStorage
+from flask_wtf.file import FileField
 
 from .validators import gmail_validators, strip_filter
 
@@ -38,3 +40,12 @@ def textarea_field(label, placeholder=None, rows=4, extra_validators=None):
     return TextAreaField(
         label, validators=validators, filters=[strip_filter], render_kw=render_kw
     )
+
+
+class MultiFileField(FileField):
+    def process_formdata(self, valuelist):
+        self.data = [
+            f
+            for f in valuelist
+            if isinstance(f, FileStorage) and getattr(f, "filename", None)
+        ]

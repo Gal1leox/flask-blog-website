@@ -1,4 +1,5 @@
 import re
+from werkzeug.datastructures import FileStorage
 
 from wtforms import ValidationError
 from wtforms.validators import DataRequired, Email, Length, Regexp, StopValidation
@@ -19,8 +20,10 @@ gmail_validators = [
 ]
 
 
-def strip_filter(value: str) -> str:
-    return value.strip() if value else value
+def strip_filter(value):
+    if isinstance(value, str):
+        return value.strip()
+    return value
 
 
 def validate_username(_, field):
@@ -55,16 +58,22 @@ def calculate_word_count(_, field):
         raise ValidationError("Cannot exceed 300 words.")
 
 
-def validate_num_images(_, field):
-    files = getattr(field, "data", []) or []
-    count = len(files)
-    if count < 1 or count > 5:
-        raise ValidationError("Upload between 1 and 5 images.")
+def validate_num_images(form, field):
+    files = field.data or []
+    # server must see a list now
+    if not isinstance(files, (list, tuple)):
+        raise ValidationError("Invalid upload data.")
+
+    if not (1 <= len(files) <= 5):
+        raise ValidationError("Please upload between 1 and 5 images.")
+
     for f in files:
+        # enforce size ≤ 8 MB
         f.seek(0, 2)
-        if f.tell() > 8 * 1024 * 1024:
-            raise ValidationError(f"{f.filename} exceeds 8MB.")
+        size = f.tell()
         f.seek(0)
+        if size > 8 * 1024 * 1024:
+            raise ValidationError(f"'{f.filename}' exceeds 8 MB.")
 
 
 class OptionalImages:

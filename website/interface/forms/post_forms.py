@@ -1,9 +1,9 @@
 from wtforms import TextAreaField, SubmitField
-from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, Length
 
 from .base import BaseForm
 from .validators import calculate_word_count, validate_num_images, OptionalImages
+from .fields import MultiFileField
 
 
 class CreatePostForm(BaseForm):
@@ -12,9 +12,9 @@ class CreatePostForm(BaseForm):
         validators=[DataRequired(), calculate_word_count],
         render_kw={"rows": 10},
     )
-    images = FileField(
+    images = MultiFileField(
         "Images",
-        render_kw={"multiple": True},
+        render_kw={"multiple": True, "required": True},
         validators=[OptionalImages(), validate_num_images],
     )
     submit = SubmitField("Publish")

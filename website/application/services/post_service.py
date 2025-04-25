@@ -7,7 +7,7 @@ from website import db
 from website.domain.models.post import Post
 from website.domain.models.image import Image
 from website.domain.models import SavedPost
-from website.infrastructure.repositories.post_repository import (
+from website.infrastructure.repositories import (
     PostRepository,
     ImageRepository,
     SavedPostRepository,
@@ -27,13 +27,19 @@ class PostService:
             return False, "At least one image is required."
 
         post = Post(content=content, author_id=author_id)
+
         for img in images:
             res = cloudinary.uploader.upload(img, folder="posts", resource_type="image")
             url = res.get("secure_url")
-            if url:
-                image = Image(author_id=author_id, image_url=url)
-                post.images.append(image)
-                ImageRepository.add_image(image)
+            if not url:
+                continue
+
+            # create the ORM Image instance with the correct kwarg
+            new_img = Image(author_id=author_id, url=url)
+            post.images.append(new_img)
+
+            # persist it
+            ImageRepository.add_image(new_img)
 
         PostRepository.save_post(post)
         return True, "Post created successfully!"
@@ -46,28 +52,34 @@ class PostService:
         new_files: List[FileStorage],
         author_id: int,
     ) -> Tuple[bool, str]:
-        existing = post.images[:]
-        # delete images
-        for img in existing:
+        # remove any images the user asked to delete
+        for img in list(post.images):
             if img.id in delete_ids:
                 post.images.remove(img)
                 ImageRepository.delete_image(img)
 
+        # enforce at least one image
         if not post.images and not new_files:
             return False, "At least one image is required."
+
+        # enforce maximum
         if len(post.images) + len(new_files) > self.MAX_IMAGES:
             return False, f"Max {self.MAX_IMAGES} images allowed."
 
+        # update content if changed
         if content != post.content:
             post.content = content
 
+        # upload & add any new files
         for img in new_files:
             res = cloudinary.uploader.upload(img, folder="posts", resource_type="image")
             url = res.get("secure_url")
-            if url:
-                new_img = Image(author_id=author_id, image_url=url)
-                post.images.append(new_img)
-                ImageRepository.add_image(new_img)
+            if not url:
+                continue
+
+            new_img = Image(author_id=author_id, url=url)
+            post.images.append(new_img)
+            ImageRepository.add_image(new_img)
 
         PostRepository.save_post(post)
         return True, "Post updated successfully!"
