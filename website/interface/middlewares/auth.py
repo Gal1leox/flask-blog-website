@@ -17,7 +17,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if current_user.is_authenticated:
-            return redirect(url_for("home.home"))
+            return redirect(url_for("public.home"))
         return f(*args, **kwargs)
 
     return decorated

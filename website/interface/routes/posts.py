@@ -62,7 +62,7 @@ def new_post():
         images = [f for f in request.files.getlist("images") if f.filename]
         ok, msg = _service.create_post(form.content.data, images, user.id)
         flash(msg, "success" if ok else "danger")
-        return redirect(url_for("home.home"))
+        return redirect(url_for("public.home"))
 
     return render_template("pages/shared/posts/new_post.html", **context)
 
@@ -75,7 +75,7 @@ def edit_post(post_id):
     post = _service.get_post(post_id)
     if not post or (post.author_id != user.id and user.role.name != "ADMIN"):
         flash("Unauthorized to edit this post.", "danger")
-        return redirect(url_for("home.home"))
+        return redirect(url_for("public.home"))
 
     form = CreatePostForm(obj=post)
     context = base_context(user)
@@ -97,7 +97,7 @@ def edit_post(post_id):
             post, form.content.data, delete_ids, new_files, user.id
         )
         flash(msg, "success" if ok else "danger")
-        return redirect(url_for("home.home"))
+        return redirect(url_for("public.home"))
 
     return render_template("pages/shared/posts/new_post.html", **context)
 

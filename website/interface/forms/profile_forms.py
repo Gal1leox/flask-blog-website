@@ -1,9 +1,9 @@
 from wtforms import StringField, FileField, SubmitField
-from wtforms.validators import DataRequired, Length, EqualTo
+from wtforms.validators import DataRequired, Length, EqualTo, Optional
 from flask_wtf.file import FileAllowed
 
 from .base import BaseForm
-from .fields import password_field
+from .fields import password_field, gmail_email_field
 from .validators import validate_username, unique_username
 
 
@@ -16,6 +16,11 @@ class UpdateProfileForm(BaseForm):
         "Profile image",
         validators=[FileAllowed(["jpg", "png"], "JPG/PNG only")],
     )
+    email = StringField(
+        "Email address",
+        validators=[Optional()],
+        render_kw={"disabled": True},
+    )
     submit = SubmitField("Save")
 
 
@@ -26,7 +31,8 @@ class ChangePasswordForm(BaseForm):
     new_password = password_field(
         "New Password", extra_validators=[DataRequired(), Length(min=8)]
     )
-    confirm_new = password_field(
-        "Confirm New", extra_validators=[EqualTo("new_password", message="Must match.")]
+    confirm_new_password = password_field(
+        "Confirm New Password",
+        extra_validators=[EqualTo("new_password", message="Passwords must match.")],
     )
     submit = SubmitField("Change Password")

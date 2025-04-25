@@ -43,7 +43,7 @@ def google_login():
 def google_authorize():
     _, message = _auth.google_authorize(_scheme)
     flash(message, "success")
-    return redirect(url_for("home.home"))
+    return redirect(url_for("public.home"))
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -54,7 +54,7 @@ def register():
     if form.validate_on_submit():
         ok, msg = _auth.register(form)
         flash(msg, "success" if ok else "danger")
-        return redirect(url_for("home.home") if ok else url_for("auth.register"))
+        return redirect(url_for("public.home") if ok else url_for("auth.register"))
     return render_template("pages/auth/user/register.html", form=form, theme="system")
 
 
@@ -66,7 +66,7 @@ def login():
     if form.validate_on_submit():
         ok, msg = _auth.login(form, _admin_email)
         flash(msg, "success" if ok else "danger")
-        return redirect(url_for("home.home") if ok else url_for("auth.login"))
+        return redirect(url_for("public.home") if ok else url_for("auth.login"))
     return render_template("pages/auth/user/login.html", form=form, theme="system")
 
 
@@ -76,7 +76,7 @@ def login():
 def logout():
     _auth.logout()
     flash("Logged out successfully.", "success")
-    return redirect(url_for("home.home"))
+    return redirect(url_for("public.home"))
 
 
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
@@ -142,7 +142,7 @@ def admin_login():
     if form.validate_on_submit():
         if _auth.admin_login(form, _admin_email):
             flash("Welcome, admin!", "success")
-            return redirect(url_for("home.home"))
+            return redirect(url_for("public.home"))
         flash("Invalid admin credentials.", "danger")
         return redirect(url_for("auth.admin_login"))
     return render_template("pages/auth/admin/login.html", form=form, theme="system")

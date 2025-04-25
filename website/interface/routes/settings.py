@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from website import limiter
 from website.domain.models import UserRole
 from website.interface.forms import UpdateProfileForm, ChangePasswordForm
-from website.application.services.settings_service import SettingsService
+from website.application.services import SettingsService
 
 settings_bp = Blueprint(
     "settings", __name__, url_prefix="/settings", template_folder="../templates/shared"
@@ -112,5 +112,5 @@ def delete_account():
     user = _get_current_user()
     ok, msg = _service.delete_account(user, False)
     flash(msg, "success" if ok else "danger")
-    redirect_to = "home.home" if ok else "settings.profile_settings"
+    redirect_to = "public.home" if ok else "settings.profile_settings"
     return redirect(url_for(redirect_to))

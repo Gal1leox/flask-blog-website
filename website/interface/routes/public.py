@@ -34,7 +34,7 @@ def home():
     return render_template("pages/shared/home.html", **ctx)
 
 
-@public_bp.route("contact", methods=["GET", "POST"])
+@public_bp.route("contact-me", methods=["GET", "POST"])
 @login_required
 @limiter.limit("10/hour", methods=["POST"])
 def contact():

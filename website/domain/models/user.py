@@ -19,10 +19,11 @@ class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     username: Mapped[str] = mapped_column(String(15), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=True)
-    google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
+    avatar_url: Mapped[str] = mapped_column(String(255), nullable=True)
 
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole), nullable=False, default=UserRole.USER
@@ -84,22 +85,15 @@ class User(db.Model, UserMixin):
 def _cleanup_user_related(mapper, connection, target: User):
     sess: Session = Session.object_session(target)
 
-    sess.query(db.mapper_registry.classes.Comment).filter_by(
-        author_id=target.id
-    ).delete(synchronize_session=False)
+    from .comment import Comment
+    from .image import Image
+    from .post import Post, SavedPost
+    from .verification_code import VerificationCode
 
-    sess.query(db.mapper_registry.classes.Image).filter_by(author_id=target.id).delete(
+    sess.query(Comment).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(Image).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(Post).filter_by(author_id=target.id).delete(synchronize_session=False)
+    sess.query(SavedPost).filter_by(user_id=target.id).delete(synchronize_session=False)
+    sess.query(VerificationCode).filter_by(user_id=target.id).delete(
         synchronize_session=False
     )
-
-    sess.query(db.mapper_registry.classes.Post).filter_by(author_id=target.id).delete(
-        synchronize_session=False
-    )
-
-    sess.query(db.mapper_registry.classes.SavedPost).filter_by(
-        user_id=target.id
-    ).delete(synchronize_session=False)
-
-    sess.query(db.mapper_registry.classes.VerificationCode).filter_by(
-        user_id=target.id
-    ).delete(synchronize_session=False)
