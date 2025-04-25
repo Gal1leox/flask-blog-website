@@ -30,16 +30,18 @@ def password_field(label, placeholder="password", extra_validators=None):
     )
 
 
-def textarea_field(label, placeholder=None, rows=4, extra_validators=None):
-    from .validators import calculate_word_count
+def textarea_field(label, extra_validators=None, render_kw=None, **kwargs):
+    validators = []
+    if extra_validators:
+        validators.extend(extra_validators)
 
-    validators = extra_validators or [DataRequired(), calculate_word_count]
-    render_kw = {"rows": rows}
-    if placeholder:
-        render_kw["placeholder"] = placeholder
-    return TextAreaField(
-        label, validators=validators, filters=[strip_filter], render_kw=render_kw
-    )
+    options = {"validators": validators}
+    if render_kw is not None:
+        options["render_kw"] = render_kw
+    # include any other kwargs (e.g. filters, default, etc.)
+    options.update(kwargs)
+
+    return TextAreaField(label, **options)
 
 
 class MultiFileField(FileField):

@@ -4,9 +4,10 @@ import random
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, render_template
 from flask_login import login_user, logout_user
+from flask_mail import Message
 
-from website.infrastructure.repositories.user_repository import UserRepository
-from website.infrastructure.repositories.verification_code_repository import (
+from website.infrastructure.repositories import (
+    UserRepository,
     VerificationCodeRepository,
 )
 from website.domain.models.user import User
@@ -85,7 +86,7 @@ class AuthService:
         VerificationCodeRepository.create(vc)
 
         link = f"{request.host_url}auth/verify-code?token={vc.token}"
-        msg = mail.Message(
+        msg = Message(
             "Password Reset Code",
             sender=admin_email,
             recipients=[user.email],

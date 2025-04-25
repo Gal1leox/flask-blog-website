@@ -1,5 +1,4 @@
 import re
-from werkzeug.datastructures import FileStorage
 
 from wtforms import ValidationError
 from wtforms.validators import DataRequired, Email, Length, Regexp, StopValidation

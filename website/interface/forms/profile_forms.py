@@ -10,29 +10,49 @@ from .validators import validate_username, unique_username
 class UpdateProfileForm(BaseForm):
     username = StringField(
         "Username",
-        validators=[DataRequired(), Length(2, 20), validate_username, unique_username],
-    )
-    profile_image = FileField(
-        "Profile image",
-        validators=[FileAllowed(["jpg", "png"], "JPG/PNG only")],
+        validators=[
+            DataRequired(),
+            Length(min=2, max=20),
+            validate_username,
+            unique_username,
+        ],
+        render_kw={"placeholder": "username"},
     )
     email = StringField(
         "Email address",
-        validators=[Optional()],
-        render_kw={"disabled": True},
+        render_kw={"placeholder": "user@gmail.com", "disabled": True},
     )
-    submit = SubmitField("Save")
+    profile_image = FileField(
+        "Profile image",
+        validators=[FileAllowed(["jpg", "jpeg", "png"], "JPG/PNG only")],
+    )
+    submit = SubmitField(
+        "Save",
+        render_kw={
+            "class": "py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600"
+        },
+    )
 
 
 class ChangePasswordForm(BaseForm):
     current_password = password_field(
-        "Current Password", extra_validators=[DataRequired(), Length(min=8)]
+        "Current Password",
+        placeholder="Current password",
+        extra_validators=[DataRequired(), Length(min=8)],
     )
     new_password = password_field(
-        "New Password", extra_validators=[DataRequired(), Length(min=8)]
+        "New Password",
+        placeholder="New password",
+        extra_validators=[DataRequired(), Length(min=8)],
     )
     confirm_new_password = password_field(
         "Confirm New Password",
+        placeholder="Confirm new password",
         extra_validators=[EqualTo("new_password", message="Passwords must match.")],
     )
-    submit = SubmitField("Change Password")
+    submit = SubmitField(
+        "Change Password",
+        render_kw={
+            "class": "py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+        },
+    )
