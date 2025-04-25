@@ -5,9 +5,6 @@ from flask_login import current_user
 
 from website.config import Config
 from website.infrastructure.repositories import UserRepository
-from website.infrastructure.repositories import (
-    VerificationCodeRepository,
-)
 
 
 SECRET_KEY = Config.SECRET_KEY
@@ -47,13 +44,3 @@ def admin_required(f):
         return f(*args, **kwargs)
 
     return decorated
-
-
-def get_verification_code(token: str):
-    """
-    Retrieve a non-expired verification code by token, or return None.
-    """
-    vc = VerificationCodeRepository.get_by_token(token)
-    if not vc or vc.is_valid:
-        return None
-    return vc

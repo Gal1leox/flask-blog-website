@@ -16,3 +16,14 @@ def timesince(dt, default="just now"):
         if amount:
             return f"{amount} {name}{'s ago' if amount > 1 else ''}"
     return default
+
+
+def get_verification_code(token: str):
+    from website.infrastructure.repositories import (
+        VerificationCodeRepository,
+    )
+
+    vc = VerificationCodeRepository.get_by_token(token)
+    if not vc or vc.is_valid:
+        return None
+    return vc

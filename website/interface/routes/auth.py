@@ -12,9 +12,9 @@ from website.interface.forms import (
 from website.application.services import AuthService
 from ..middlewares.auth import (
     anonymous_required,
-    get_verification_code,
     token_required,
 )
+from website.utils import get_verification_code
 from website import limiter
 
 auth_bp = Blueprint(
