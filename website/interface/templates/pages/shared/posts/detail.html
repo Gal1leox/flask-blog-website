@@ -97,16 +97,9 @@
     </form>
     {% endif %}
 
-    <div class="mt-6 space-y-10">
+    <div class="mt-12 space-y-8">
       {% for comment in comments if not comment.parent_comment_id %}
-      {{ render_comment(
-      comment,
-      is_admin,
-      is_authorized,
-      post,
-      form
-      )
-      }}
+      {{ render_comment( comment, is_admin, is_authorized, post, form ) }}
       {% endfor %}
     </div>
   </section>
