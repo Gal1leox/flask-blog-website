@@ -130,8 +130,10 @@ def view_post(post_id):
         flash("Post not found.", "danger")
         return redirect(url_for("posts.list_posts"))
 
-    # always GET here; comments now handled by /comments blueprint
-    form = CreatePostForm()  # placeholder if you still render the form
+    # prepare a CommentForm for the “add comment” box
+    from website.interface.forms import CommentForm
+
+    form = CommentForm()
 
     # load comments via your CommentService
     from website.application.services import CommentService

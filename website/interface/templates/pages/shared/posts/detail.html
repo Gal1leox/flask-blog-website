@@ -1,7 +1,7 @@
 {% extends "pages/shared/base.html" %}
 
 {% from "components/ui/alert.html" import alert %}
-{% from "components/ui/comment.html" import render_comment %}
+{% from "components/ui/comment.html" import render_comment with context %}
 {% from "components/ui/field.html" import render_textarea_field %}
 {% from "components/ui/post/post.html" import render_post with context %}
 
@@ -70,7 +70,7 @@
     <form
       x-data="{ submitting: false }" @submit.prevent="submitting = true; $el.submit()"
       class="mt-6" method="POST"
-      action="{{ url_for('posts.view_post', post_id=post.id) }}"
+      action="{{ url_for('comments.add_comment', post_id=post.id) }}"
     >
       {{ form.hidden_tag() }}
       <div class="flex gap-4 items-start mb-4">
@@ -99,7 +99,14 @@
 
     <div class="mt-6 space-y-10">
       {% for comment in comments if not comment.parent_comment_id %}
-      {{ render_comment(comment, is_admin) }}
+      {{ render_comment(
+      comment,
+      is_admin,
+      is_authorized,
+      post,
+      form
+      )
+      }}
       {% endfor %}
     </div>
   </section>

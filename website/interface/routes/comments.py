@@ -59,16 +59,15 @@ def edit_comment(comment_id):
 @login_required
 @limiter.limit("30/minute")
 def delete_comment(comment_id):
+    # load the comment first so we still know its post_id after deletion
+    comment = CommentRepository.get(comment_id)
+    post_id = comment.post_id if comment else request.args.get("post_id", type=int) or 0
+
     ok, msg = _comment_svc.delete_comment(
         comment_id=comment_id,
         user_id=current_user.id,
         user_role=current_user.role,
     )
     flash(msg, "success" if ok else "danger")
-
-    if ok:
-        post_id = CommentRepository.get(comment_id).post_id
-    else:
-        post_id = request.args.get("post_id", type=int) or 0
 
     return _redirect_to_post(post_id)
