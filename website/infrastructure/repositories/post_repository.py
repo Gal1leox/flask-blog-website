@@ -59,6 +59,11 @@ class SavedPostRepository:
         db.session.commit()
 
     @staticmethod
+    def remove_by_post(post_id: int) -> None:
+        SavedPost.query.filter_by(post_id=post_id).delete()
+        db.session.commit()
+
+    @staticmethod
     def list_by_user(user_id: int) -> List[Post]:
         items = (
             SavedPost.query.filter_by(user_id=user_id)

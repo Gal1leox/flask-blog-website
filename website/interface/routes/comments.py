@@ -30,10 +30,10 @@ def add_comment(post_id):
 
     parent_id = request.form.get("parent_comment_id", type=int)
     ok, msg = _comment_svc.add_comment(
-        post_id,
-        form.content.data,
-        current_user.id,
-        parent_id,
+        post_id=post_id,
+        content=form.content.data,
+        author_id=current_user.id,
+        parent_id=parent_id,
     )
     flash(msg, "success" if ok else "danger")
     return _redirect_to_post(post_id)
@@ -45,13 +45,12 @@ def add_comment(post_id):
 def edit_comment(comment_id):
     new_content = request.form.get("content", "")
     ok, msg = _comment_svc.edit_comment(
-        comment_id,
-        current_user.id,
-        new_content,
+        comment_id=comment_id,
+        user_id=current_user.id,
+        new_content=new_content,
     )
     flash(msg, "success" if ok else "danger")
 
-    # grab post_id so we can bounce back
     post_id = CommentRepository.get(comment_id).post_id
     return _redirect_to_post(post_id)
 
@@ -61,13 +60,12 @@ def edit_comment(comment_id):
 @limiter.limit("30/minute")
 def delete_comment(comment_id):
     ok, msg = _comment_svc.delete_comment(
-        comment_id,
-        current_user.id,
-        current_user.role,
+        comment_id=comment_id,
+        user_id=current_user.id,
+        user_role=current_user.role,
     )
     flash(msg, "success" if ok else "danger")
 
-    # if delete succeeded, get post_id, else fallback to query string
     if ok:
         post_id = CommentRepository.get(comment_id).post_id
     else:

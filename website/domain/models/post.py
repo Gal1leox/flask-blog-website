@@ -5,10 +5,8 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     Text,
-    event,
-    inspect,
 )
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from website import db
 
@@ -142,27 +140,3 @@ class PostImage(db.Model):
 
     def __repr__(self) -> str:
         return f"PostImage: post_id={self.post_id}, image_id={self.image_id}"
-
-
-@event.listens_for(Post, "before_delete")
-def _delete_post_comments(mapper, connection, target: Post):
-    sess: Session = Session.object_session(target)
-
-    sess.query(db.mapper_registry.classes.SavedPost).filter_by(
-        post_id=target.id
-    ).delete(synchronize_session=False)
-
-    sess.query(db.mapper_registry.classes.Comment).filter_by(post_id=target.id).delete(
-        synchronize_session=False
-    )
-
-
-@event.listens_for(Session, "after_flush_postexec")
-def _delete_orphan_posts(session: Session, _):
-    orphaned = (
-        session.query(Post).outerjoin(PostImage).filter(PostImage.post_id.is_(None))
-    )
-
-    for p in orphaned:
-        if not inspect(p).deleted:
-            session.delete(p)

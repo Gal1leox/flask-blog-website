@@ -1,19 +1,19 @@
 from flask import (
     Blueprint,
     render_template,
-    request,
     redirect,
     url_for,
     flash,
+    request,
     jsonify,
 )
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
 
 from website import limiter
 from website.config import Config
 from website.interface.middlewares import admin_required
-from website.interface.forms import CreatePostForm, CommentForm
-from website.application.services import PostService, CommentService
+from website.interface.forms import CreatePostForm
+from website.application.services import PostService
 
 posts_bp = Blueprint(
     "posts",
@@ -23,18 +23,22 @@ posts_bp = Blueprint(
 )
 
 _post_svc = PostService()
-_comment_svc = CommentService()
 
 
 def _get_current_user():
     return current_user if current_user.is_authenticated else None
 
 
-def _base_context(user, active_page="Posts"):
+def _base_context(user, active_page=""):
+    """
+    Build the same context you had before: avatar_url, is_admin,
+    token, theme, active_page.
+    """
+    is_admin = bool(user and user.role.name == "ADMIN")
     return {
-        "is_admin": bool(user and user.role.name == "ADMIN"),
+        "is_admin": is_admin,
         "avatar_url": user.avatar_url if user else "",
-        "token": Config.SECRET_KEY if user and user.role.name == "ADMIN" else "",
+        "token": Config.SECRET_KEY if is_admin else "",
         "theme": user.theme.value if user else "system",
         "active_page": active_page,
     }
@@ -45,8 +49,10 @@ def _base_context(user, active_page="Posts"):
 def list_posts():
     user = _get_current_user()
     posts = _post_svc.list_posts()
-    ctx = _base_context(user)
+
+    ctx = _base_context(user, active_page="Posts")
     ctx["posts"] = posts
+
     return render_template("pages/shared/posts/list.html", **ctx)
 
 
@@ -54,14 +60,19 @@ def list_posts():
 @login_required
 @limiter.limit("10/hour", methods=["POST"])
 def new_post():
-    form = CreatePostForm()
     user = _get_current_user()
-    ctx = _base_context(user)
+    form = CreatePostForm()
+
+    ctx = _base_context(user, active_page="")
     ctx["form"] = form
 
     if form.validate_on_submit():
-        images = [f for f in request.files.getlist("images") if f.filename]
-        ok, msg = _post_svc.create_post(form.content.data, images, user.id)
+        image_files = [f for f in request.files.getlist("images") if f.filename]
+        ok, msg = _post_svc.create_post(
+            content=form.content.data,
+            images=image_files,
+            author_id=user.id,
+        )
         flash(msg, "success" if ok else "danger")
         return redirect(url_for("public.home"))
 
@@ -75,16 +86,18 @@ def edit_post(post_id):
     user = _get_current_user()
     post = _post_svc.get_post(post_id)
     if not post or (post.author_id != user.id and user.role.name != "ADMIN"):
-        flash("Unauthorized to edit this post.", "danger")
+        flash("You are not authorized to edit this post.", "danger")
         return redirect(url_for("public.home"))
 
     form = CreatePostForm(obj=post)
-    ctx = _base_context(user)
+    form.editing = True
+    ctx = _base_context(user, active_page="")
     ctx.update(
         {
             "form": form,
             "editing": True,
             "post": post,
+            "post_images": post.images,
             "max_images": PostService.MAX_IMAGES,
         }
     )
@@ -94,8 +107,13 @@ def edit_post(post_id):
             int(i) for i in request.form.getlist("delete_images") if i.isdigit()
         ]
         new_files = [f for f in request.files.getlist("images") if f.filename]
+
         ok, msg = _post_svc.edit_post(
-            post, form.content.data, delete_ids, new_files, user.id
+            post=post,
+            content=form.content.data,
+            delete_ids=delete_ids,
+            new_files=new_files,
+            author_id=user.id,
         )
         flash(msg, "success" if ok else "danger")
         return redirect(url_for("public.home"))
@@ -112,9 +130,13 @@ def view_post(post_id):
         flash("Post not found.", "danger")
         return redirect(url_for("posts.list_posts"))
 
-    # prepare comment form + load comments
-    form = CommentForm()
-    comments = _comment_svc.list_comments(
+    # always GET here; comments now handled by /comments blueprint
+    form = CreatePostForm()  # placeholder if you still render the form
+
+    # load comments via your CommentService
+    from website.application.services import CommentService
+
+    comments = CommentService().list_comments(
         post_id, sort=request.args.get("sort", "oldest")
     )
 
@@ -127,6 +149,7 @@ def view_post(post_id):
             "is_authorized": bool(user),
         }
     )
+
     return render_template("pages/shared/posts/detail.html", **ctx)
 
 
@@ -144,9 +167,11 @@ def toggle_save(post_id):
 @limiter.limit("20/minute")
 def saved_posts():
     user = _get_current_user()
-    posts = _post_svc.list_saved(user.id)
-    ctx = _base_context(user)
-    ctx["saved_posts"] = posts
+    saved_posts = _post_svc.list_saved(user.id)
+
+    ctx = _base_context(user, active_page="")
+    ctx["saved_posts"] = saved_posts
+
     return render_template("pages/shared/posts/saved.html", **ctx)
 
 

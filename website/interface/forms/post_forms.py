@@ -10,7 +10,7 @@ class CreatePostForm(BaseForm):
     content = TextAreaField(
         "Content",
         validators=[DataRequired(), calculate_word_count],
-        render_kw={"rows": 10},
+        render_kw={"rows": 4},
     )
     images = MultiFileField(
         "Images",

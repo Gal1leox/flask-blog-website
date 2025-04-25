@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from website.domain.models.comment import Comment
 from website.domain.models.user import UserRole
@@ -27,7 +27,7 @@ class CommentService:
             reply_to = parent_id
 
         comment = Comment(
-            content=content,
+            content=content.strip(),
             author_id=author_id,
             post_id=post_id,
             parent_comment_id=thread_parent,
@@ -62,3 +62,12 @@ class CommentService:
 
         CommentRepository.delete(comment)
         return True, "Comment deleted."
+
+    def list_comments(self, post_id: int, sort: str = "oldest") -> List[Comment]:
+        """
+        Fetch all comments for a post, optionally sorted by 'oldest' or 'newest'.
+        """
+        # Determine ordering key in the repository
+        if sort == "newest":
+            return CommentRepository.list_by_post(post_id, order="desc")
+        return CommentRepository.list_by_post(post_id, order="asc")
