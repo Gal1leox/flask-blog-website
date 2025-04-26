@@ -11,7 +11,7 @@ from flask_login import current_user, login_required
 
 from website import limiter
 from website.config import Config
-from website.interface.middlewares import admin_required
+from website.interface.middlewares import admin_required, token_required
 from website.interface.forms import CreatePostForm
 from website.application.services import PostService
 
@@ -45,6 +45,7 @@ def _base_context(user, active_page=""):
 
 
 @posts_bp.route("/", methods=["GET"])
+@token_required
 @limiter.limit("60/minute")
 def list_posts():
     user = _get_current_user()
@@ -187,6 +188,9 @@ def delete_post(post_id):
         flash("Post not found.", "danger")
         return redirect(url_for("posts.list_posts"))
 
+    user = _get_current_user()
+    ctx = _base_context(user, active_page="Posts")
+
     ok, msg = _post_svc.delete_post(post)
     flash(msg, "success" if ok else "danger")
-    return redirect(url_for("posts.list_posts"))
+    return redirect(url_for("posts.list_posts", **ctx))

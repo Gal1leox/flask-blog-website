@@ -84,7 +84,7 @@ class PostService:
             ImageRepository.add_image(new_img)
 
         PostRepository.save_post(post)
-        return True, "Post updated successfully!"
+        return True, "Post edited successfully!"
 
     def toggle_save(self, post_id: int, user_id: int) -> bool:
         """Return True if newly saved, False if unsaved."""
