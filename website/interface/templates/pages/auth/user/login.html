@@ -53,7 +53,7 @@
         @click="clicked = true"
         class="flex gap-2 justify-center items-center py-2.5 px-5 w-full text-sm text-gray-900 bg-transparent rounded-md ring-2 ring-blue-400 dark:text-white focus:ring-blue-600"
         :class="clicked ? 'opacity-50 cursor-not-allowed' : ''"
-        href="/auth/google/"
+        href="/auth/google"
       >
         <svg
           x-show="!clicked"
@@ -111,6 +111,6 @@
 </div>
 <p class="text-sm font-light text-gray-500 dark:text-gray-400">
   Don't have an account?
-  <a class="font-medium hover:underline" href="/auth/register/">Sign up here</a>
+  <a class="font-medium hover:underline" href="/auth/register">Sign up here</a>
 </p>
 {% endblock %}
