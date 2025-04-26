@@ -5,16 +5,16 @@ def timesince(dt, default="just now"):
     now = datetime.utcnow()
     diff = now - dt
     periods = [
-        (diff.days // 365, "year"),
-        ((diff.days % 365) // 30, "month"),
-        (diff.days % 30, "day"),
-        (diff.seconds // 3600, "hour"),
-        ((diff.seconds % 3600) // 60, "minute"),
-        (diff.seconds % 60, "second"),
+        (diff.days // 365, "y"),
+        ((diff.days % 365) // 30, "mo"),
+        (diff.days % 30, "d"),
+        (diff.seconds // 3600, "h"),
+        ((diff.seconds % 3600) // 60, "min"),
+        (diff.seconds % 60, "s"),
     ]
     for amount, name in periods:
         if amount:
-            return f"{amount} {name}{'s ago' if amount > 1 else ''}"
+            return f"{amount} {name}"
     return default
 
 

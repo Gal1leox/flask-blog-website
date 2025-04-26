@@ -34,7 +34,11 @@ class CommentService:
             reply_to_comment_id=reply_to,
         )
         CommentRepository.add(comment)
-        return True, "Reply posted." if parent_id else "Comment posted successfully."
+        return True, (
+            "Reply posted successfully."
+            if parent_id
+            else "Comment posted successfully."
+        )
 
     def edit_comment(
         self, comment_id: int, user_id: int, new_content: str
