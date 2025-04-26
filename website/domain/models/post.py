@@ -1,11 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import (
-    DateTime,
-    ForeignKey,
-    Integer,
-    Text,
-)
+from sqlalchemy import DateTime, ForeignKey, Integer, Text, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from website import db
@@ -140,3 +135,10 @@ class PostImage(db.Model):
 
     def __repr__(self) -> str:
         return f"PostImage: post_id={self.post_id}, image_id={self.image_id}"
+
+
+@event.listens_for(Post, "before_delete")
+def _cleanup_comments(mapper, connection, target: Post):
+    from .comment import Comment
+
+    connection.execute(Comment.__table__.delete().where(Comment.post_id == target.id))
