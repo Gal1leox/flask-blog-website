@@ -87,11 +87,11 @@
         </button>
         <button
           :disabled="submitting"
-          :class="submitting ? 'bg-blue-600 opacity-50' : 'bg-blue-500 hover:bg-blue-600'"
+          :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'"
           type="submit"
           class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          <span x-text="submitting ? 'Saving…' : 'Save'"></span>
+          <span>Save</span>
         </button>
       </div>
     </form>
@@ -127,7 +127,7 @@
           type="submit"
           class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          <span x-text="submitting ? 'Posting…' : 'Post'"></span>
+          <span>Post</span>
         </button>
       </div>
     </form>

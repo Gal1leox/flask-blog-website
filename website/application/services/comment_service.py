@@ -34,7 +34,7 @@ class CommentService:
             reply_to_comment_id=reply_to,
         )
         CommentRepository.add(comment)
-        return True, "Reply posted." if parent_id else "Comment posted."
+        return True, "Reply posted." if parent_id else "Comment posted successfully."
 
     def edit_comment(
         self, comment_id: int, user_id: int, new_content: str
@@ -61,7 +61,7 @@ class CommentService:
             return False, "Not authorized to delete."
 
         CommentRepository.delete(comment)
-        return True, "Comment deleted."
+        return True, "Comment deleted successfully."
 
     def list_comments(self, post_id: int, sort: str = "oldest") -> List[Comment]:
         """
