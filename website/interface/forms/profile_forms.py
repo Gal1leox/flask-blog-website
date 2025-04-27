@@ -12,7 +12,7 @@ class UpdateProfileForm(BaseForm):
         "Username",
         validators=[
             DataRequired(),
-            Length(min=2, max=20),
+            Length(min=2, max=15),
             validate_username,
             unique_username,
         ],

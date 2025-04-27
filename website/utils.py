@@ -14,7 +14,7 @@ def timesince(dt, default="just now"):
     ]
     for amount, name in periods:
         if amount:
-            return f"{amount} {name}"
+            return f"{amount}{name} ago"
     return default
 
 
