@@ -46,9 +46,12 @@ class TableRepository:
 
     @staticmethod
     def bulk_delete(query: Query) -> int:
-        deleted = query.delete(synchronize_session=False)
+        objs = query.all()
+        count = len(objs)
+        for obj in objs:
+            db.session.delete(obj)
         db.session.commit()
-        return deleted
+        return count
 
     @staticmethod
     def get_columns(table_name: str) -> List[str]:
