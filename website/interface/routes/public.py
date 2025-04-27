@@ -8,16 +8,20 @@ from website.interface.forms import ContactForm
 from website.application.services import PublicService
 
 public_bp = Blueprint(
-    "public", __name__, url_prefix="/", template_folder="../templates"
+    "public",
+    __name__,
+    url_prefix="/",
+    template_folder="../templates",
 )
-_service = PublicService()
+
+public_service = PublicService()
 
 
-def _get_current_user():
+def get_current_user():
     return current_user if current_user.is_authenticated else None
 
 
-def _base_context(user, active_page=""):
+def build_context(user, active_page=""):
     is_admin = bool(user and user.role == UserRole.ADMIN)
     return {
         "is_admin": is_admin,
@@ -28,31 +32,31 @@ def _base_context(user, active_page=""):
     }
 
 
-@public_bp.route("", methods=["GET"])
+@public_bp.route("/", methods=["GET"])
 @limiter.limit("60/minute")
 def home():
-    user = _get_current_user()
+    user = get_current_user()
     selected_tags = request.args.getlist("tag")
 
-    ctx = _base_context(user, active_page="Home")
-    ctx.update(_service.get_home_context(selected_tags))
+    context = build_context(user, active_page="Home")
+    context.update(public_service.get_home_context(selected_tags))
 
-    return render_template("pages/shared/home.html", **ctx)
+    return render_template("pages/shared/home.html", **context)
 
 
-@public_bp.route("contact-me", methods=["GET", "POST"])
+@public_bp.route("/contact-me", methods=["GET", "POST"])
 @login_required
 @limiter.limit("10/hour", methods=["POST"])
 def contact():
-    user = _get_current_user()
+    user = get_current_user()
     form = ContactForm()
 
     if form.validate_on_submit():
-        ok, msg = _service.send_contact(user, form)
-        flash(msg, "success" if ok else "danger")
+        success, message = public_service.send_contact(user, form)
+        flash(message, "success" if success else "danger")
         return redirect(url_for("public.home"))
 
-    ctx = _base_context(user, active_page="Contact Me")
-    ctx["form"] = form
+    context = build_context(user, active_page="Contact Me")
+    context["form"] = form
 
-    return render_template("pages/shared/user/contact.html", **ctx)
+    return render_template("pages/shared/user/contact.html", **context)

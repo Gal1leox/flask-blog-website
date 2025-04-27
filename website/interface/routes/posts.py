@@ -1,19 +1,11 @@
-from flask import (
-    Blueprint,
-    render_template,
-    redirect,
-    url_for,
-    flash,
-    request,
-    jsonify,
-)
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import current_user, login_required
 
 from website import limiter
 from website.config import Config
+from website.interface.forms import CreatePostForm, CommentForm
+from website.application.services import PostService, CommentService
 from website.interface.middlewares import admin_required, token_required
-from website.interface.forms import CreatePostForm
-from website.application.services import PostService
 
 posts_bp = Blueprint(
     "posts",
@@ -22,18 +14,14 @@ posts_bp = Blueprint(
     template_folder="../templates",
 )
 
-_post_svc = PostService()
+post_service = PostService()
 
 
-def _get_current_user():
+def get_current_user():
     return current_user if current_user.is_authenticated else None
 
 
-def _base_context(user, active_page=""):
-    """
-    Build the same context you had before: avatar_url, is_admin,
-    token, theme, active_page.
-    """
+def build_context(user, active_page=""):
     is_admin = bool(user and user.role.name == "ADMIN")
     return {
         "is_admin": is_admin,
@@ -48,52 +36,52 @@ def _base_context(user, active_page=""):
 @token_required
 @limiter.limit("60/minute")
 def list_posts():
-    user = _get_current_user()
-    posts = _post_svc.list_posts()
+    user = get_current_user()
+    posts = post_service.list_posts()
 
-    ctx = _base_context(user, active_page="Posts")
-    ctx["posts"] = posts
+    context = build_context(user, active_page="Posts")
+    context["posts"] = posts
 
-    return render_template("pages/shared/posts/list.html", **ctx)
+    return render_template("pages/shared/posts/list.html", **context)
 
 
 @posts_bp.route("/new", methods=["GET", "POST"])
 @login_required
 @limiter.limit("10/hour", methods=["POST"])
-def new_post():
-    user = _get_current_user()
+def add_post():
+    user = get_current_user()
     form = CreatePostForm()
-
-    ctx = _base_context(user, active_page="")
-    ctx["form"] = form
+    context = build_context(user)
+    context["form"] = form
 
     if form.validate_on_submit():
-        image_files = [f for f in request.files.getlist("images") if f.filename]
-        ok, msg = _post_svc.create_post(
+        images = [f for f in request.files.getlist("images") if f.filename]
+        success, message = post_service.create_post(
             content=form.content.data,
-            images=image_files,
+            images=images,
             author_id=user.id,
         )
-        flash(msg, "success" if ok else "danger")
+        flash(message, "success" if success else "danger")
         return redirect(url_for("public.home"))
 
-    return render_template("pages/shared/admin/new_post.html", **ctx)
+    return render_template("pages/shared/admin/new_post.html", **context)
 
 
 @posts_bp.route("/edit/<int:post_id>", methods=["GET", "POST"])
 @login_required
 @limiter.limit("10/hour", methods=["POST"])
 def edit_post(post_id):
-    user = _get_current_user()
-    post = _post_svc.get_post(post_id)
+    user = get_current_user()
+    post, _ = post_service.get_post(post_id)
     if not post or (post.author_id != user.id and user.role.name != "ADMIN"):
         flash("You are not authorized to edit this post.", "danger")
         return redirect(url_for("public.home"))
 
     form = CreatePostForm(obj=post)
     form.editing = True
-    ctx = _base_context(user, active_page="")
-    ctx.update(
+
+    context = build_context(user)
+    context.update(
         {
             "form": form,
             "editing": True,
@@ -107,44 +95,37 @@ def edit_post(post_id):
         delete_ids = [
             int(i) for i in request.form.getlist("delete_images") if i.isdigit()
         ]
-        new_files = [f for f in request.files.getlist("images") if f.filename]
-
-        ok, msg = _post_svc.edit_post(
+        new_images = [f for f in request.files.getlist("images") if f.filename]
+        success, message = post_service.edit_post(
             post=post,
             content=form.content.data,
             delete_ids=delete_ids,
-            new_files=new_files,
+            new_files=new_images,
             author_id=user.id,
         )
-        flash(msg, "success" if ok else "danger")
+        flash(message, "success" if success else "danger")
         return redirect(url_for("public.home"))
 
-    return render_template("pages/shared/admin/new_post.html", **ctx)
+    return render_template("pages/shared/admin/new_post.html", **context)
 
 
 @posts_bp.route("/<int:post_id>", methods=["GET"])
 @limiter.limit("60/minute")
 def view_post(post_id):
-    user = _get_current_user()
-    post = _post_svc.get_post(post_id)
+    user = get_current_user()
+    post, error = post_service.get_post(post_id)
     if not post:
-        flash("Post not found.", "danger")
-        return redirect(url_for("posts.list_posts"))
-
-    # prepare a CommentForm for the “add comment” box
-    from website.interface.forms import CommentForm
+        flash(error, "danger")
+        return redirect(url_for("public.home"))
 
     form = CommentForm()
-
-    # load comments via your CommentService
-    from website.application.services import CommentService
-
     comments = CommentService().list_comments(
-        post_id, sort=request.args.get("sort", "oldest")
+        post_id=post_id,
+        sort=request.args.get("sort", "oldest"),
     )
 
-    ctx = _base_context(user, active_page="")
-    ctx.update(
+    context = build_context(user)
+    context.update(
         {
             "post": post,
             "comments": comments,
@@ -153,29 +134,29 @@ def view_post(post_id):
         }
     )
 
-    return render_template("pages/shared/posts/detail.html", **ctx)
+    return render_template("pages/shared/posts/detail.html", **context)
 
 
 @posts_bp.route("/toggle-save/<int:post_id>", methods=["POST"])
 @login_required
 @limiter.limit("30/minute")
 def toggle_save(post_id):
-    user = _get_current_user()
-    saved_flag = _post_svc.toggle_save(post_id, user.id)
-    return jsonify({"saved": saved_flag}), 200
+    user = get_current_user()
+    saved = post_service.toggle_save(post_id, user.id)
+    return jsonify({"saved": saved}), 200
 
 
 @posts_bp.route("/saved", methods=["GET"])
 @login_required
 @limiter.limit("20/minute")
-def saved_posts():
-    user = _get_current_user()
-    saved_posts = _post_svc.list_saved(user.id)
+def list_saved_posts():
+    user = get_current_user()
+    saved_posts = post_service.list_saved(user.id)
 
-    ctx = _base_context(user, active_page="")
-    ctx["saved_posts"] = saved_posts
+    context = build_context(user)
+    context["saved_posts"] = saved_posts
 
-    return render_template("pages/shared/posts/saved.html", **ctx)
+    return render_template("pages/shared/posts/saved.html", **context)
 
 
 @posts_bp.route("/delete/<int:post_id>", methods=["POST"])
@@ -183,14 +164,14 @@ def saved_posts():
 @limiter.limit("5/hour")
 @admin_required
 def delete_post(post_id):
-    post = _post_svc.get_post(post_id)
+    post, error = post_service.get_post(post_id)
     if not post:
-        flash("Post not found.", "danger")
+        flash(error, "danger")
         return redirect(url_for("posts.list_posts"))
 
-    user = _get_current_user()
-    ctx = _base_context(user, active_page="Posts")
+    user = get_current_user()
+    context = build_context(user)
 
-    ok, msg = _post_svc.delete_post(post)
-    flash(msg, "success" if ok else "danger")
-    return redirect(url_for("posts.list_posts", **ctx))
+    success, message = post_service.delete_post(post)
+    flash(message, "success" if success else "danger")
+    return redirect(url_for("posts.list_posts", **context))

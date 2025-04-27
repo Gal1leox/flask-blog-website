@@ -99,38 +99,46 @@ MD_EXTENSIONS = ["fenced_code", "tables", "codehilite", "attr_list"]
 
 def init_markdown(app):
     @app.template_filter("markdown")
-    def render_md(text: str):
-        raw_html = _md.markdown(
-            text or "", extensions=MD_EXTENSIONS, output_format="html5"
+    def render_markdown(markdown_text: str):
+        html_output = _md.markdown(
+            markdown_text or "", extensions=MD_EXTENSIONS, output_format="html5"
         )
-        clean_html = bleach.clean(
-            raw_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True
+        sanitized_output = bleach.clean(
+            html_output, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True
         )
-        return Markup(clean_html)
+        return Markup(sanitized_output)
 
     @app.template_filter("link_hashtags")
     def link_hashtags(text: str):
-        path = request.path
-        current_tags = request.args.getlist("tag")
+        current_path = request.path
+        selected_tags = request.args.getlist("tag")
 
-        def _replace(match):
-            hashtag = match.group(1)
-            tag = hashtag.lstrip("#")
-            tags = current_tags.copy()
+        def replace_hashtag(match_obj):
+            hashtag_text = match_obj.group(1)
+            tag_text = hashtag_text.lstrip("#")
+            updated_tags = selected_tags.copy()
 
-            if tag in tags:
-                tags.remove(tag)
+            if tag_text in updated_tags:
+                updated_tags.remove(tag_text)
             else:
-                tags.append(tag)
+                updated_tags.append(tag_text)
 
-            qs = urllib.parse.urlencode([("tag", t) for t in tags], doseq=True)
-            href = f"{path}?{qs}" if qs else path
-            css = "underline" if tag in current_tags else ""
+            query_string = urllib.parse.urlencode(
+                [("tag", t) for t in updated_tags], doseq=True
+            )
+            link_url = (
+                f"{current_path}?{query_string}" if query_string else current_path
+            )
+            active_css = "underline" if tag_text in selected_tags else ""
 
-            return f'<a href="{href}" class="text-blue-500 hover:underline {css}">{hashtag}</a>'
+            return (
+                f'<a href="{link_url}" '
+                f'class="text-blue-500 hover:underline {active_css}">'
+                f"{hashtag_text}</a>"
+            )
 
-        linked = re.sub(r"(#\w+)", _replace, text)
-        return Markup(linked)
+        linked_text = re.sub(r"(#\w+)", replace_hashtag, text)
+        return Markup(linked_text)
 
 
 def schedule_jobs(app):

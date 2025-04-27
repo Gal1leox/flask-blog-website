@@ -48,16 +48,19 @@ class TableRepository:
     def bulk_delete(query: Query) -> int:
         objs = query.all()
         count = len(objs)
+
         for obj in objs:
             db.session.delete(obj)
         db.session.commit()
+
         return count
 
     @staticmethod
     def get_columns(table_name: str) -> List[str]:
-        """Reflectively pull column names from the model’s __table__."""
         info = TABLES.get(table_name)
         model = info and info["table"]
+
         if model and hasattr(model, "__table__"):
             return [c.name for c in model.__table__.columns]
+
         return []

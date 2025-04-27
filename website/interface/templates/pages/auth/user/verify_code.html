@@ -31,8 +31,7 @@
               autofocus
               name="codefield"
               :id="`codefield_${i}`"
-              class="flex bg-transparent border-gray-800 dark:border-white items-center w-12 h-12 text-3xl text-center text-gray-800 rounded-lg border-2 border outline-none dark:text-white"
-              :class="{ 'border-red-600': is_valid === false }"
+              class="flex bg-transparent {% if is_valid is defined and not is_valid %}!border-red-600{% endif %} border-gray-800 dark:border-white items-center w-12 h-12 text-3xl text-center text-gray-800 rounded-lg border-2 border outline-none dark:text-white"
               maxlength="1"
               x-model="code[i]"
               @keyup="stepForward(i)"

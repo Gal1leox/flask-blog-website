@@ -6,4 +6,4 @@ from .auth_forms import (
 )
 from .contact_forms import ContactForm
 from .post_forms import CreatePostForm, CommentForm
-from .profile_forms import UpdateProfileForm, ChangePasswordForm
+from .settings_forms import UpdateProfileForm, ChangePasswordForm

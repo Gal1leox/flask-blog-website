@@ -21,12 +21,11 @@ class CommentRepository:
 
     @staticmethod
     def list_by_post(post_id: int, order: str = "asc") -> List[Comment]:
-        """
-        Return all comments for `post_id`, sorted by created_at ascending or descending.
-        """
-        q = Comment.query.filter_by(post_id=post_id)
+        query = Comment.query.filter_by(post_id=post_id)
+
         if order == "desc":
-            q = q.order_by(Comment.created_at.desc())
+            query = query.order_by(Comment.created_at.desc())
         else:
-            q = q.order_by(Comment.created_at.asc())
-        return q.all()
+            query = query.order_by(Comment.created_at.asc())
+
+        return query.all()

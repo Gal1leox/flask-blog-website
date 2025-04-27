@@ -21,13 +21,14 @@ class PublicService:
             form=form,
             sender_email=user.email,
         )
-        msg = Message(
+        message = Message(
             subject, sender=user.email, recipients=[Config.ADMIN_EMAIL], html=html
         )
+
         from website import mail
 
         try:
-            mail.send(msg)
+            mail.send(message)
             return True, "Your message has been sent successfully!"
         except Exception as e:
             return False, str(e)

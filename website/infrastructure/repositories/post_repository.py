@@ -12,8 +12,10 @@ class PostRepository:
     @staticmethod
     def get_posts_by_tags(tags: List[str]) -> List[Post]:
         query = Post.query
+
         for tag in tags:
             query = query.filter(Post.content.ilike(f"%#{tag}%"))
+
         return query.order_by(Post.created_at.desc()).all()
 
     @staticmethod

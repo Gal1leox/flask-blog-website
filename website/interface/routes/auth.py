@@ -1,4 +1,11 @@
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import (
+    Blueprint,
+    request,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+)
 from flask_login import login_required
 
 from website.config import Config
@@ -9,12 +16,9 @@ from website.interface.forms import (
     ForgotPasswordForm,
     ResetPasswordForm,
 )
+from website.infrastructure.repositories import VerificationCodeRepository
 from website.application.services import AuthService
-from ..middlewares.auth import (
-    anonymous_required,
-    token_required,
-)
-from website.utils import get_verification_code
+from website.interface.middlewares import anonymous_required, token_required
 from website import limiter
 
 auth_bp = Blueprint(
@@ -24,25 +28,29 @@ auth_bp = Blueprint(
     template_folder="../templates/auth",
 )
 
-_auth = AuthService()
-_admin_email = Config.ADMIN_EMAIL
-_scheme = Config.PREFERRED_URL_SCHEME
+auth_service = AuthService()
+admin_email = Config.ADMIN_EMAIL
+url_scheme = Config.PREFERRED_URL_SCHEME
 
 
 @auth_bp.route("/google")
 @anonymous_required
 @limiter.limit("10/hour")
-def google_login():
-    redirect_uri = url_for("auth.google_authorize", _external=True, _scheme=_scheme)
+def initiate_google_login():
+    redirect_uri = url_for(
+        "auth.handle_google_authorize",
+        _external=True,
+        _scheme=url_scheme,
+    )
     return google.authorize_redirect(redirect_uri)
 
 
 @auth_bp.route("/google/authorize")
 @anonymous_required
 @limiter.limit("10/hour")
-def google_authorize():
-    _, message = _auth.google_authorize(_scheme)
-    flash(message, "success")
+def handle_google_authorize():
+    success, message = auth_service.google_authorize(url_scheme)
+    flash(message, "success" if success else "danger")
     return redirect(url_for("public.home"))
 
 
@@ -51,11 +59,18 @@ def google_authorize():
 @limiter.limit("5/day", methods=["POST"])
 def register():
     form = RegisterForm()
+
     if form.validate_on_submit():
-        ok, msg = _auth.register(form)
-        flash(msg, "success" if ok else "danger")
-        return redirect(url_for("public.home") if ok else url_for("auth.register"))
-    return render_template("pages/auth/user/register.html", form=form, theme="system")
+        success, message = auth_service.register(form)
+        flash(message, "success" if success else "danger")
+        target = "public.home" if success else "auth.register_user"
+        return redirect(url_for(target))
+
+    return render_template(
+        "pages/auth/user/register.html",
+        form=form,
+        theme="system",
+    )
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -63,19 +78,26 @@ def register():
 @limiter.limit("5/minute", methods=["POST"])
 def login():
     form = LoginForm()
+
     if form.validate_on_submit():
-        ok, msg = _auth.login(form, _admin_email)
-        flash(msg, "success" if ok else "danger")
-        return redirect(url_for("public.home") if ok else url_for("auth.login"))
-    return render_template("pages/auth/user/login.html", form=form, theme="system")
+        success, message = auth_service.login(form, admin_email)
+        flash(message, "success" if success else "danger")
+        target = "public.home" if success else "auth.login"
+        return redirect(url_for(target))
+
+    return render_template(
+        "pages/auth/user/login.html",
+        form=form,
+        theme="system",
+    )
 
 
 @auth_bp.route("/logout")
 @login_required
 @limiter.limit("20/hour")
 def logout():
-    _auth.logout()
-    flash(" You have been logged out.", "success")
+    message = auth_service.logout()
+    flash(message, "success")
     return redirect(url_for("public.home"))
 
 
@@ -84,14 +106,19 @@ def logout():
 @limiter.limit("5/minute", methods=["POST"])
 def forgot_password():
     form = ForgotPasswordForm()
+
     if form.validate_on_submit():
-        ok, token = _auth.send_reset_code(form, _admin_email)
-        if ok:
-            return redirect(url_for("auth.verify_code", token=token))
-        flash(token, "danger")
+        success, token_or_error = auth_service.send_reset_code(form, admin_email)
+        if success:
+            return redirect(url_for("auth.verify_code", token=token_or_error))
+
+        flash(token_or_error, "danger")
         return redirect(url_for("auth.forgot_password"))
+
     return render_template(
-        "pages/auth/user/forgot_password.html", form=form, theme="system"
+        "pages/auth/user/forgot_password.html",
+        form=form,
+        theme="system",
     )
 
 
@@ -100,10 +127,21 @@ def forgot_password():
 @limiter.limit("5/minute", methods=["POST"])
 def verify_code():
     token = request.args.get("token")
+    if not token:
+        flash("Invalid token. Please fill in your email.", "danger")
+        return redirect(url_for("auth.forgot_password"))
+
+    verification_code = VerificationCodeRepository.get_by_token(token)
+    if not verification_code:
+        flash("Invalid or expired token.", "danger")
+        return redirect(url_for("auth.forgot_password"))
+
     if request.method == "POST":
-        code = "".join(request.form.getlist("codefield"))
-        if _auth.verify_code(token, code):
+        digits = request.form.getlist("codefield")
+        code = "".join(digits)
+        if auth_service.verify_code(token, code):
             return redirect(url_for("auth.reset_password", token=token))
+
         return render_template(
             "pages/auth/user/verify_code.html",
             is_valid=False,
@@ -111,34 +149,46 @@ def verify_code():
             theme="system",
         )
 
-    vc = get_verification_code(token)
-    if not vc:
-        flash("Invalid or expired token.", "danger")
-        return redirect(url_for("auth.forgot_password"))
     return render_template(
-        "pages/auth/user/verify_code.html",
-        token=token,
-        theme="system",
+        "pages/auth/user/verify_code.html", token=token, theme="system"
     )
 
 
 @auth_bp.route("/reset-password", methods=["GET", "POST"])
+@anonymous_required
 @limiter.limit("5/minute")
 def reset_password():
     token = request.args.get("token")
-    form = ResetPasswordForm()
-
-    if form.validate_on_submit():
-        if _auth.reset_password(token, form.password.data):
-            flash("Password reset successfully.", "success")
-            return redirect(url_for("auth.login"))
-        flash("Invalid or expired token.", "danger")
+    if not token:
+        flash("Invalid token. Please fill in your email.", "danger")
         return redirect(url_for("auth.forgot_password"))
+
+    verification_code = VerificationCodeRepository.get_by_token(token)
+    if not verification_code or verification_code.is_expired():
+        flash(
+            f"The verification link is invalid or expired.",
+            "danger",
+        )
+        return redirect(url_for("auth.forgot_password"))
+
+    if not verification_code.is_valid:
+        flash("You must confirm verification code first.", "danger")
+        return redirect(url_for("auth.verify_code", token=token))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        success, message = auth_service.reset_password(token, form.password.data)
+        flash(message, "success" if success else "danger")
+
+        if success:
+            return redirect(url_for("auth.login"))
+
+        return redirect(url_for("auth.reset_password", token=token))
 
     return render_template(
         "pages/auth/user/reset_password.html",
         form=form,
-        token=token,  # ← add this
+        token=token,
         theme="system",
     )
 
@@ -149,10 +199,18 @@ def reset_password():
 def admin_login():
     form = LoginForm()
     token = request.args.get("token")
+
     if form.validate_on_submit():
-        if _auth.admin_login(form, _admin_email):
-            flash("Welcome back, boss!", "success")
+        success, message = auth_service.admin_login(form, admin_email)
+        flash(message, "success" if success else "danger")
+
+        if success:
             return redirect(url_for("public.home"))
-        flash("Invalid admin credentials.", "danger")
+
         return redirect(url_for("auth.admin_login", token=token))
-    return render_template("pages/auth/admin/login.html", form=form, theme="system")
+
+    return render_template(
+        "pages/auth/admin/login.html",
+        form=form,
+        theme="system",
+    )

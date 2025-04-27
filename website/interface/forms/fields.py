@@ -1,6 +1,7 @@
+from werkzeug.datastructures import FileStorage
+
 from wtforms import StringField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Length
-from werkzeug.datastructures import FileStorage
 from flask_wtf.file import FileField
 
 from .validators import gmail_validators, strip_filter
@@ -38,7 +39,6 @@ def textarea_field(label, extra_validators=None, render_kw=None, **kwargs):
     options = {"validators": validators}
     if render_kw is not None:
         options["render_kw"] = render_kw
-    # include any other kwargs (e.g. filters, default, etc.)
     options.update(kwargs)
 
     return TextAreaField(label, **options)
@@ -47,7 +47,7 @@ def textarea_field(label, extra_validators=None, render_kw=None, **kwargs):
 class MultiFileField(FileField):
     def process_formdata(self, valuelist):
         self.data = [
-            f
-            for f in valuelist
-            if isinstance(f, FileStorage) and getattr(f, "filename", None)
+            file
+            for file in valuelist
+            if isinstance(file, FileStorage) and getattr(file, "filename", None)
         ]

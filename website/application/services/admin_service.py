@@ -12,84 +12,81 @@ from website.infrastructure.repositories.table_repository import TableRepository
 
 
 class AdminService:
-    """
-    Service layer for admin operations on database tables and backups.
-    """
 
     def __init__(self) -> None:
-        self._repo = TableRepository()
+        self._table_repository = TableRepository()
 
     def list_tables(self) -> List[str]:
-        return self._repo.all_tables()
+        return self._table_repository.all_tables()
 
     def get_records(self, table_name: str) -> Tuple[List[Dict[str, Any]], List[str]]:
         if not table_name:
             return [], []
 
-        # 1) grab all rows as dicts
-        sql = text(f"SELECT * FROM {table_name}")
-        result = db.session.execute(sql).mappings().all()
+        select_statement = text(f"SELECT * FROM {table_name}")
+        result_set = db.session.execute(select_statement).mappings().all()
 
-        # 2) if no rows, still need column names
-        if not result:
-            pragma = db.session.execute(text(f"PRAGMA table_info({table_name})")).all()
-            cols = [col_row[1] for col_row in pragma]  # PRAGMA returns (cid, name, ...)
-            return [], cols
+        if not result_set:
+            table_info_rows = db.session.execute(
+                text(f"PRAGMA table_info({table_name})")
+            ).all()
+            column_names = [column_info[1] for column_info in table_info_rows]
+            return [], column_names
 
-        # 3) otherwise, keys() are your column names
-        cols = list(result[0].keys())
-        records = [dict(r) for r in result]
-        return records, cols
+        column_names = list(result_set[0].keys())
+        record_list = [dict(row) for row in result_set]
+        return record_list, column_names
 
-    def delete_one(self, table: str, record_id: int) -> Tuple[bool, str, int]:
-        if table in ("post_images", "post_tags", "saved_posts"):
+    def delete_one(self, table_name: str, record_id: int) -> Tuple[bool, str, int]:
+        protected_tables = ("post_images", "post_tags", "saved_posts")
+        if table_name in protected_tables:
             return False, "Deletion forbidden for this table.", 403
 
-        query = self._repo.query_for(table)
-        if not query:
-            return False, f"Table '{table}' not found.", 404
+        table_query = self._table_repository.query_for(table_name)
+        if not table_query:
+            return False, f"Table '{table_name}' not found.", 404
 
-        record = query.get(record_id)
-        if not record:
+        entity = table_query.get(record_id)
+        if not entity:
             return False, f"Record {record_id} not found.", 404
 
-        if table == "users" and getattr(record, "role", None) == UserRole.ADMIN:
+        if table_name == "users" and getattr(entity, "role", None) == UserRole.ADMIN:
             return False, "Cannot delete admin user.", 403
 
-        self._repo.delete(record)
-        return True, f"Record {record_id} deleted from {table}.", 200
+        self._table_repository.delete(entity)
+        return True, f"Record {record_id} deleted from {table_name}.", 200
 
-    def delete_all(self, table: str) -> Tuple[bool, str, int, int]:
-        query = self._repo.query_for(table)
-        if not query:
-            return False, f"Table '{table}' not found.", 404, 0
+    def delete_all(self, table_name: str) -> Tuple[bool, str, int, int]:
+        table_query = self._table_repository.query_for(table_name)
+        if not table_query:
+            return False, f"Table '{table_name}' not found.", 404, 0
 
-        if table == "users":
+        if table_name == "users":
             from website.domain.models.user import User
 
-            query = query.filter(User.role != UserRole.ADMIN)
+            table_query = table_query.filter(User.role != UserRole.ADMIN)
 
-        count = self._repo.bulk_delete(query)
-        return True, f"Deleted {count} records.", 200, count
+        deleted_count = self._table_repository.bulk_delete(table_query)
+        return True, f"Deleted {deleted_count} records.", 200, deleted_count
 
     def download_database(self) -> str:
-        db_path = os.path.join(
+        database_file_path = os.path.join(
             current_app.root_path,
             "..",
             "instance",
             Config.DB_NAME,
         )
-        return os.path.abspath(db_path)
+        return os.path.abspath(database_file_path)
 
-    def restore_database(self, file: FileStorage) -> Tuple[bool, str]:
-        if not file or not file.filename.endswith(".db"):
+    def restore_database(self, backup_file: FileStorage) -> Tuple[bool, str]:
+        if not backup_file or not backup_file.filename.endswith(".db"):
             return False, "Invalid file. Must be .db"
 
-        target = os.path.join(
+        target_file_path = os.path.join(
             current_app.root_path,
             "..",
             "instance",
             Config.DB_NAME,
         )
-        file.save(target)
+        backup_file.save(target_file_path)
         return True, "Database restored."

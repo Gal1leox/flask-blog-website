@@ -83,17 +83,23 @@ class User(db.Model, UserMixin):
 
 @event.listens_for(User, "before_delete")
 def _cleanup_user_related(mapper, connection, target: User):
-    sess: Session = Session.object_session(target)
+    session: Session = Session.object_session(target)
 
     from .comment import Comment
     from .image import Image
     from .post import Post, SavedPost
     from .verification_code import VerificationCode
 
-    sess.query(Comment).filter_by(author_id=target.id).delete(synchronize_session=False)
-    sess.query(Image).filter_by(author_id=target.id).delete(synchronize_session=False)
-    sess.query(Post).filter_by(author_id=target.id).delete(synchronize_session=False)
-    sess.query(SavedPost).filter_by(user_id=target.id).delete(synchronize_session=False)
-    sess.query(VerificationCode).filter_by(user_id=target.id).delete(
+    session.query(Comment).filter_by(author_id=target.id).delete(
+        synchronize_session=False
+    )
+    session.query(Image).filter_by(author_id=target.id).delete(
+        synchronize_session=False
+    )
+    session.query(Post).filter_by(author_id=target.id).delete(synchronize_session=False)
+    session.query(SavedPost).filter_by(user_id=target.id).delete(
+        synchronize_session=False
+    )
+    session.query(VerificationCode).filter_by(user_id=target.id).delete(
         synchronize_session=False
     )

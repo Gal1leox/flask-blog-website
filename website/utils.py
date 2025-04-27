@@ -19,17 +19,6 @@ def timesince(dt, default="just now"):
     return default
 
 
-def get_verification_code(token: str):
-    from website.infrastructure.repositories import (
-        VerificationCodeRepository,
-    )
-
-    vc = VerificationCodeRepository.get_by_token(token)
-    if not vc or vc.is_valid:
-        return None
-    return vc
-
-
 def generate_username(max_length: int = 15) -> str:
     prefix = "usr."
     suffix_len = max_length - len(prefix)

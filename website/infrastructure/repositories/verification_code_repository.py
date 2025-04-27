@@ -4,8 +4,8 @@ from website.domain.models import VerificationCode
 
 class VerificationCodeRepository:
     @staticmethod
-    def create(vc: VerificationCode) -> None:
-        db.session.add(vc)
+    def create(verification_code: VerificationCode) -> None:
+        db.session.add(verification_code)
         db.session.commit()
 
     @staticmethod
@@ -13,6 +13,6 @@ class VerificationCodeRepository:
         return VerificationCode.query.filter_by(token=token).first()
 
     @staticmethod
-    def invalidate(vc: VerificationCode) -> None:
-        vc.is_valid = True
+    def invalidate(verification_code: VerificationCode) -> None:
+        verification_code.is_valid = True
         db.session.commit()

@@ -14,10 +14,7 @@ from flask_login import current_user
 
 from website.config import Config
 from website.application.services import AdminService
-from website.interface.middlewares import (
-    token_required,
-    admin_required,
-)
+from website.interface.middlewares import token_required, admin_required
 
 admin_bp = Blueprint(
     "admin",
@@ -26,18 +23,20 @@ admin_bp = Blueprint(
     template_folder="../templates/shared/admin",
 )
 
-_service = AdminService()
+admin_service = AdminService()
 
 
-def get_current_user():
+def get_authenticated_user():
     return current_user if current_user.is_authenticated else None
 
 
-def base_ctx(user, active_page=""):
+def build_context(user, active_page=""):
+    is_admin = bool(user and user.role.name == "ADMIN")
+
     return {
-        "is_admin": user and user.role.name == "ADMIN",
+        "is_admin": is_admin,
         "avatar_url": user.avatar_url if user else "",
-        "token": Config.SECRET_KEY if user and user.role.name == "ADMIN" else "",
+        "token": Config.SECRET_KEY if is_admin else "",
         "db_name": Config.DB_NAME,
         "active_page": active_page,
         "theme": user.theme.value if user else "system",
@@ -47,62 +46,76 @@ def base_ctx(user, active_page=""):
 @admin_bp.route("/database/", methods=["GET"])
 @token_required
 @admin_required
-def database():
-    user = get_current_user()
+def view_database():
+    user = get_authenticated_user()
     table = request.args.get("table", "")
-    tables = _service.list_tables()
-    records, columns = _service.get_records(table)
 
-    ctx = base_ctx(user, active_page="Database")
-    token = ctx["token"]
-    ctx.update(
+    table_names = admin_service.list_tables()
+    records, attributes = admin_service.get_records(table)
+
+    context = build_context(user, active_page="Database")
+    context.update(
         {
             "tabs": [
-                {"name": t, "link": url_for("admin.database", table=t, token=token)}
-                for t in tables
+                {
+                    "name": table,
+                    "link": url_for(
+                        "admin.view_database", table=table, token=context["token"]
+                    ),
+                }
+                for table in table_names
             ],
             "table": table,
-            "attributes": columns,
+            "attributes": attributes,
             "records": records,
         }
     )
-    return render_template("pages/shared/admin/database.html", **ctx)
+
+    return render_template("pages/shared/admin/database.html", **context)
 
 
-@admin_bp.route("/database/<table>/<int:record_id>", methods=["DELETE"])
+@admin_bp.route("/database/<table>/<int:entry_id>", methods=["DELETE"])
 @token_required
 @admin_required
-def delete_record(table, record_id):
-    ok, msg, code = _service.delete_one(table, record_id)
-    flash(msg, "success" if ok else "danger")
-    return (jsonify(success=ok), code) if not ok else (jsonify(success=True), 200)
+def delete_single_record(table, entry_id):
+    success, message, status_code = admin_service.delete_one(table, entry_id)
+    flash(message, "success" if success else "danger")
+    return jsonify(success=success), status_code
 
 
 @admin_bp.route("/database/<table>/all", methods=["DELETE"])
 @token_required
 @admin_required
-def delete_records(table):
-    ok, msg, code, deleted = _service.delete_all(table)
-    flash(msg, "success" if ok else "danger")
-    return jsonify(success=ok, deleted=deleted), code
+def delete_all_records(table):
+    success, message, status_code, deleted_count = admin_service.delete_all(table)
+    flash(message, "success" if success else "danger")
+    return jsonify(success=success, deleted=deleted_count), status_code
 
 
 @admin_bp.route("/database/download", methods=["GET"])
 @token_required
 @admin_required
-def download_db():
-    path = _service.download_database()
-    if not os.path.exists(path):
+def download_database_file():
+    db_path = admin_service.download_database()
+
+    if not os.path.exists(db_path):
         abort(404)
-    return send_file(path, as_attachment=True, download_name=Config.DB_NAME)
+
+    return send_file(
+        db_path,
+        as_attachment=True,
+        download_name=Config.DB_NAME,
+    )
 
 
 @admin_bp.route("/database/restore", methods=["POST"])
 @token_required
 @admin_required
-def restore_db():
-    file = request.files.get("db_file")
-    ok, msg = _service.restore_database(file)
-    flash(msg, "success" if ok else "danger")
-    status = 200 if ok else 400
-    return jsonify(success=ok, error=None if ok else msg), status
+def restore_database():
+    upload = request.files.get("db_file")
+    success, message = admin_service.restore_database(upload)
+
+    flash(message, "success" if success else "danger")
+    status_code = 200 if success else 400
+
+    return jsonify(success=success, error=None if success else message), status_code

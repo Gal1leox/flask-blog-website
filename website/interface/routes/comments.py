@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from website import limiter
 from website.interface.forms import CommentForm
 from website.application.services import CommentService
-from website.infrastructure.repositories.comment_repository import CommentRepository
+from website.infrastructure.repositories import CommentRepository
 
 comments_bp = Blueprint(
     "comments",
@@ -12,10 +12,10 @@ comments_bp = Blueprint(
     url_prefix="/comments",
 )
 
-_comment_svc = CommentService()
+comment_service = CommentService()
 
 
-def _redirect_to_post(post_id: int):
+def redirect_to_post(post_id: int):
     return redirect(url_for("posts.view_post", post_id=post_id))
 
 
@@ -24,50 +24,51 @@ def _redirect_to_post(post_id: int):
 @limiter.limit("20/minute")
 def add_comment(post_id):
     form = CommentForm()
+
     if not form.validate_on_submit():
         flash("Comment cannot be empty.", "danger")
-        return _redirect_to_post(post_id)
+        return redirect_to_post(post_id)
 
-    parent_id = request.form.get("parent_comment_id", type=int)
-    ok, msg = _comment_svc.add_comment(
+    parent_comment_id = request.form.get("parent_comment_id", type=int)
+    success, message = comment_service.add_comment(
         post_id=post_id,
         content=form.content.data,
         author_id=current_user.id,
-        parent_id=parent_id,
+        parent_id=parent_comment_id,
     )
-    flash(msg, "success" if ok else "danger")
-    return _redirect_to_post(post_id)
+    flash(message, "success" if success else "danger")
+    return redirect_to_post(post_id)
 
 
 @comments_bp.route("/<int:comment_id>/edit", methods=["POST"])
 @login_required
 @limiter.limit("30/minute")
 def edit_comment(comment_id):
-    new_content = request.form.get("content", "")
-    ok, msg = _comment_svc.edit_comment(
+    updated_text = request.form.get("content", "")
+    success, message = comment_service.edit_comment(
         comment_id=comment_id,
         user_id=current_user.id,
-        new_content=new_content,
+        new_content=updated_text,
     )
-    flash(msg, "success" if ok else "danger")
+
+    flash(message, "success" if success else "danger")
 
     post_id = CommentRepository.get(comment_id).post_id
-    return _redirect_to_post(post_id)
+    return redirect_to_post(post_id)
 
 
 @comments_bp.route("/<int:comment_id>/delete", methods=["POST"])
 @login_required
 @limiter.limit("30/minute")
 def delete_comment(comment_id):
-    # load the comment first so we still know its post_id after deletion
     comment = CommentRepository.get(comment_id)
     post_id = comment.post_id if comment else request.args.get("post_id", type=int) or 0
 
-    ok, msg = _comment_svc.delete_comment(
+    success, message = comment_service.delete_comment(
         comment_id=comment_id,
         user_id=current_user.id,
         user_role=current_user.role,
     )
-    flash(msg, "success" if ok else "danger")
+    flash(message, "success" if success else "danger")
 
-    return _redirect_to_post(post_id)
+    return redirect_to_post(post_id)

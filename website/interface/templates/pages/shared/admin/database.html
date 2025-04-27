@@ -26,7 +26,7 @@
       }
       const formData = new FormData();
       formData.append('db_file', file);
-      fetch('{{ url_for('admin.restore_db', token=token) }}', {
+      fetch('{{ url_for('admin.restore_database', token=token) }}', {
         method: 'POST',
         body: formData
       })
@@ -205,7 +205,7 @@
       </button>
       <a
         class="flex flex-1 gap-1 justify-center items-center py-2 px-4 w-1/2 text-sm text-center text-white text-green-800 whitespace-nowrap bg-green-400 rounded-lg cursor-pointer sm:w-auto dark:text-green-400 dark:bg-gray-800 hover:bg-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none dark:hover:bg-gray-700"
-        href="{{ url_for('admin.download_db', token=token) }}"
+        href="{{ url_for('admin.download_database_file', token=token) }}"
         title="Download a backup of the database"
       >
         Backup Database

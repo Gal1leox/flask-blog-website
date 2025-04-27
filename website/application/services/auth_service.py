@@ -10,8 +10,7 @@ from website.infrastructure.repositories import (
     UserRepository,
     VerificationCodeRepository,
 )
-from website.domain.models.user import User
-from website.domain.models.verification_code import VerificationCode
+from website.domain.models import User, VerificationCode
 from website.extensions import google, mail
 from website.utils import generate_username
 
@@ -46,8 +45,9 @@ class AuthService:
 
         return False, "Invalid credentials. Please try again."
 
-    def logout(self) -> None:
+    def logout(self) -> str:
         logout_user()
+        return "You have been logged out."
 
     def google_authorize(self, preferred_url_scheme: str) -> tuple[None, str]:
         token = google.authorize_access_token()
@@ -74,7 +74,7 @@ class AuthService:
 
         login_user(user)
 
-        return None, message
+        return True, message
 
     def send_reset_code(self, form, admin_email: str) -> tuple[bool, str]:
         user = UserRepository.get_by_email(form.email.data)
@@ -83,11 +83,11 @@ class AuthService:
             return False, "Invalid credentials. Please try again."
 
         code = str(random.randint(1000, 9999))
-        vc = VerificationCode(user.id, code)
-        VerificationCodeRepository.create(vc)
+        verification_code = VerificationCode(user.id, code)
+        VerificationCodeRepository.create(verification_code)
 
-        link = f"{request.host_url}auth/verify-code?token={vc.token}"
-        msg = Message(
+        link = f"{request.host_url}auth/verify-code?token={verification_code.token}"
+        message = Message(
             "Password Reset Code",
             sender=admin_email,
             recipients=[user.email],
@@ -98,37 +98,40 @@ class AuthService:
                 theme="system",
             ),
         )
-        mail.send(msg)
+        mail.send(message)
 
-        return True, vc.token
+        return True, verification_code.token
 
-    def verify_code(self, token: str, code_input: str) -> bool:
-        vc = VerificationCodeRepository.get_by_token(token)  # drop is_valid filter
-        if vc and not vc.is_expired() and check_password_hash(vc.code_hash, code_input):
+    def verify_code(self, token: str, code: str) -> bool:
+        verification_code = VerificationCodeRepository.get_by_token(token)
+        if (
+            verification_code
+            and not verification_code.is_expired()
+            and check_password_hash(verification_code.code_hash, code)
+        ):
+            VerificationCodeRepository.invalidate(verification_code)
             return True
+
         return False
 
-    def reset_password(self, token: str, new_password: str) -> bool:
-        vc = VerificationCodeRepository.get_by_token(token)  # still ignore is_valid
-        if not vc or vc.is_expired():
-            return False
+    def reset_password(self, token: str, new_password: str) -> tuple[bool, str]:
+        verification_code = VerificationCodeRepository.get_by_token(token)
+        if not verification_code or verification_code.is_expired():
+            return False, "The verification link is invalid or expired."
 
-        # update password
-        user = UserRepository.get_by_id(vc.user_id)
+        user = UserRepository.get_by_id(verification_code.user_id)
         user.password_hash = generate_password_hash(new_password)
         UserRepository.save(user)
 
-        # mark used (or delete outright)
-        VerificationCodeRepository.invalidate(vc)
-        # or VerificationCodeRepository.delete(vc)
+        VerificationCodeRepository.invalidate(verification_code)
 
-        return True
+        return True, "Password reset successfully."
 
-    def admin_login(self, form, admin_email: str) -> bool:
+    def admin_login(self, form, admin_email: str) -> tuple[bool, str]:
         admin = UserRepository.get_by_email(admin_email)
 
         if admin and check_password_hash(admin.password_hash, form.password.data):
             login_user(admin)
-            return True
+            return True, "Welcome back, boss!"
 
-        return False
+        return False, "Invalid admin credentials."
