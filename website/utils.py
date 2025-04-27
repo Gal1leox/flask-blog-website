@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 
@@ -27,3 +28,10 @@ def get_verification_code(token: str):
     if not vc or vc.is_valid:
         return None
     return vc
+
+
+def generate_username(max_length: int = 15) -> str:
+    prefix = "usr."
+    suffix_len = max_length - len(prefix)
+
+    return f"{prefix}{uuid.uuid4().hex[:suffix_len]}"

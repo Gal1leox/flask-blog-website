@@ -13,6 +13,7 @@ from website.infrastructure.repositories import (
 from website.domain.models.user import User
 from website.domain.models.verification_code import VerificationCode
 from website.extensions import google, mail
+from website.utils import generate_username
 
 
 class AuthService:
@@ -21,7 +22,7 @@ class AuthService:
             return False, "This email is already registered."
 
         user = User(
-            username=f"usr.{int(time.time() * 1000)}",
+            username=generate_username(),
             email=form.email.data,
             password_hash=generate_password_hash(form.password.data),
         )
