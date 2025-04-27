@@ -4,7 +4,6 @@ from flask_wtf.file import FileAllowed, FileRequired
 
 from .base import BaseForm
 from .validators import (
-    calculate_word_count,
     validate_num_images,
     OptionalImages,
     Length,
@@ -15,7 +14,7 @@ from .fields import MultiFileField
 class CreatePostForm(BaseForm):
     content = TextAreaField(
         "Content",
-        validators=[DataRequired(), calculate_word_count],
+        validators=[DataRequired(), Length(4, 2000)],
         render_kw={
             "placeholder": "Content of a new post",
             "rows": 10,
@@ -43,7 +42,7 @@ class CreatePostForm(BaseForm):
 class CommentForm(BaseForm):
     content = TextAreaField(
         "Your Comment",
-        validators=[DataRequired(), calculate_word_count, Length(min=4, max=200)],
+        validators=[DataRequired("Please write something."), Length(4, 1500)],
         render_kw={
             "placeholder": "What do you think…",
             "rows": 3,

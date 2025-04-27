@@ -52,11 +52,6 @@ def validate_phone(_, field):
         raise ValidationError("Invalid phone number format.")
 
 
-def calculate_word_count(_, field):
-    if len((field.data or "").split()) > 300:
-        raise ValidationError("Cannot exceed 300 words.")
-
-
 def validate_num_images(form, field):
     files = field.data or []
     # server must see a list now

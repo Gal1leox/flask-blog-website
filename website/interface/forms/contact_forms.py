@@ -39,13 +39,14 @@ class ContactForm(BaseForm):
         validators=[
             Optional(),
             Regexp(r"^[+0-9 ()-]+$", message="Invalid phone format"),
+            Length(10, 20),
         ],
         render_kw={"placeholder": "+7 475 638 8929"},
     )
     message = textarea_field(
         "Message",
-        extra_validators=[DataRequired(), Length(max=300)],
-        render_kw={"placeholder": "Your message (max 300 words)", "rows": 4},
+        extra_validators=[DataRequired(), Length(min=10, max=1000)],
+        render_kw={"placeholder": "Your message", "rows": 4},
     )
     recaptcha = RecaptchaField()
     submit = SubmitField(
