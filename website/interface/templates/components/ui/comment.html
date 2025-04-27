@@ -3,10 +3,7 @@
 {% from "components/ui/field.html" import render_textarea_field %}
 
 {% macro render_comment(comment, is_admin, is_authorized, post, form) %}
-<article
-  x-data="{ open: false, editing: false, replying: false }"
-  class="mt-5 relative flex space-x-3 rounded-lg"
->
+<article x-data="{ open: false, editing: false, replying: false }" class="mt-5 relative flex space-x-3 rounded-lg">
   <img
     class="w-9 h-9 object-cover rounded-full"
     src="{{ comment.author.avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
@@ -22,35 +19,22 @@
           {{ comment.created_at|timesince }}
         </span>
       </div>
-
       {% if is_authorized and (comment.author.id == current_user.id or is_admin) %}
       <button @click="open = !open" class="p-1">
-        <svg
-          class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-          fill="currentColor" viewBox="0 0 24 24"
-        >
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" fill="currentColor" viewBox="0 0 24 24">
           <circle cx="5" cy="12" r="1.5" />
           <circle cx="12" cy="12" r="1.5" />
           <circle cx="19" cy="12" r="1.5" />
         </svg>
       </button>
-      <div
-        x-show="open" x-cloak @click.outside="open = false"
-        class="absolute top-5 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50"
-      >
+      <div x-show="open" x-cloak @click.outside="open = false" class="absolute top-5 right-0 w-20 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-50">
         {% if comment.author.id == current_user.id %}
-        <button
-          @click.prevent="editing = true; open = false"
-          class="text-left block w-full px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-        >
+        <button @click.prevent="editing = true; open = false" class="text-left block w-full px-3 py-2 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
           Edit
         </button>
         {% endif %}
         <form method="POST" action="{{ url_for('comments.delete_comment', comment_id=comment.id) }}">
-          <button
-            type="submit"
-            class="text-left block w-full px-3 py-2 text-xs text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
+          <button type="submit" class="text-left block w-full px-3 py-2 text-xs text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
             Delete
           </button>
         </form>
@@ -59,38 +43,42 @@
     </div>
 
     <div x-show="!editing" class="text-gray-800 dark:text-gray-100 text-sm">
+      {% set words = comment.content.split(' ') %}
+      {% if words|length > 50 %}
+      <div x-data="{ expanded: false }">
+        <p x-show="!expanded">
+          {% if comment.reply_to %}
+          <span class="font-semibold text-blue-500">@{{ comment.reply_to.author.username }}</span>
+          {% endif %}
+          {{ words[:50] | join(' ') | e }}
+          <button @click="expanded = true" class="inline text-sm text-blue-600 dark:text-blue-500 hover:underline">more</button>
+        </p>
+        <div x-show="expanded" class="space-y-1">
+          {% if comment.reply_to %}
+          <span class="font-semibold text-blue-500">@{{ comment.reply_to.author.username }}</span>
+          {% endif %}
+          {{ comment.content }}
+        </div>
+      </div>
+      {% else %}
       {% if comment.reply_to %}
-      <span class="font-semibold text-blue-500">
-        @{{ comment.reply_to.author.username }}
-      </span>
+      <span class="font-semibold text-blue-500">@{{ comment.reply_to.author.username }}</span>
       {% endif %}
       {{ comment.content }}
+      {% endif %}
     </div>
 
-    <form
-      x-show="editing" x-data="{ submitting: false }"
-      @submit.prevent="submitting = true; $el.submit()"
-      method="POST"
-      action="{{ url_for('comments.edit_comment', comment_id=comment.id) }}"
-    >
+    <form x-show="editing" x-data="{ submitting: false }" @submit.prevent="submitting = true; $el.submit()" method="POST" action="{{ url_for('comments.edit_comment', comment_id=comment.id) }}">
       <textarea
         name="content"
         class="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
         rows="4"
       >{{ comment.content }}</textarea>
       <div class="mt-3 flex justify-end space-x-2">
-        <button
-          @click="editing = false" type="button"
-          class="px-3 py-2 text-xs font-medium rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
-        >
+        <button @click="editing = false" type="button" class="px-3 py-2 text-xs font-medium rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700 transition">
           Cancel
         </button>
-        <button
-          :disabled="submitting"
-          :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'"
-          type="submit"
-          class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
+        <button :disabled="submitting" :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'" type="submit" class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span>Save</span>
         </button>
       </div>
@@ -98,35 +86,15 @@
 
     {% if is_authorized and comment.author.id != current_user.id %}
     <div>
-      <button
-        @click="replying = !replying"
-        class="text-[13px] text-blue-500 hover:underline"
-      >
-        Reply
-      </button>
+      <button @click="replying = !replying" class="text-sm text-blue-500 hover:underline">Reply</button>
     </div>
-    <form
-      x-show="replying" x-cloak x-data="{ submitting: false }"
-      @submit.prevent="submitting = true; $el.submit()"
-      class="mt-2 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
-      method="POST" action="{{ url_for('comments.add_comment', post_id=post.id) }}"
-    >
+    <form x-show="replying" x-cloak x-data="{ submitting: false }" @submit.prevent="submitting = true; $el.submit()" class="mt-2 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg p-4" method="POST" action="{{ url_for('comments.add_comment', post_id=post.id) }}">
       {{ form.hidden_tag() }}
       <input name="parent_comment_id" type="hidden" value="{{ comment.id }}">
       {{ render_textarea_field(form.content) }}
       <div class="mt-3 flex justify-end space-x-2">
-        <button
-          @click="replying = false" type="button"
-          class="px-3 py-2 text-xs font-medium rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700 transition"
-        >
-          Cancel
-        </button>
-        <button
-          :disabled="submitting"
-          :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'"
-          type="submit"
-          class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
+        <button @click="replying = false" type="button" class="px-3 py-2 text-xs font-medium rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700 transition">Cancel</button>
+        <button :disabled="submitting" :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'" type="submit" class="px-3 py-2 text-xs font-medium rounded-md bg-blue-500 hover:bg-blue-600 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-400">
           <span>Post</span>
         </button>
       </div>
@@ -140,6 +108,7 @@
       {% endfor %}
     </div>
     {% endif %}
+
   </div>
 </article>
 {% endmacro %}

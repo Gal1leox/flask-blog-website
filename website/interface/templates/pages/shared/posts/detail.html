@@ -73,7 +73,7 @@
       action="{{ url_for('comments.add_comment', post_id=post.id) }}"
     >
       {{ form.hidden_tag() }}
-      <div class="flex gap-4 items-start mb-4">
+      <div class="flex gap-4 items-start mb-3">
         <img
           class="object-cover w-10 h-10 rounded-full"
           src="{{ avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
