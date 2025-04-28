@@ -102,7 +102,7 @@ class PostService:
             SavedPostRepository.remove_by_post(post.id)
 
             PostRepository.delete_post(post)
-            return True, f"Post {post.id} deleted."
+            return True, f"Post {post.id} deleted successfully."
         except Exception as e:
             db.session.rollback()
             return False, str(e)

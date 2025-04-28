@@ -8,18 +8,18 @@ from flask import (
 )
 from flask_login import login_required
 
+from website import limiter
 from website.config import Config
 from website.extensions import google
-from website.interface.forms import (
+from website.presentation.forms import (
     RegisterForm,
     LoginForm,
     ForgotPasswordForm,
     ResetPasswordForm,
 )
 from website.infrastructure.repositories import VerificationCodeRepository
+from website.presentation.middlewares import anonymous_required, token_required
 from website.application.services import AuthService
-from website.interface.middlewares import anonymous_required, token_required
-from website import limiter
 
 auth_bp = Blueprint(
     "auth",

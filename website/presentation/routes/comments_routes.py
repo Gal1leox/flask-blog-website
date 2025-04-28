@@ -2,9 +2,9 @@ from flask import Blueprint, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
 from website import limiter
-from website.interface.forms import CommentForm
-from website.application.services import CommentService
 from website.infrastructure.repositories import CommentRepository
+from website.presentation.forms import CommentForm
+from website.application.services import CommentService
 
 comments_bp = Blueprint(
     "comments",

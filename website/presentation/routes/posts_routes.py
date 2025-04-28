@@ -3,9 +3,9 @@ from flask_login import current_user, login_required
 
 from website import limiter
 from website.config import Config
-from website.interface.forms import CreatePostForm, CommentForm
+from website.presentation.forms import CreatePostForm, CommentForm
+from website.presentation.middlewares import admin_required, token_required
 from website.application.services import PostService, CommentService
-from website.interface.middlewares import admin_required, token_required
 
 posts_bp = Blueprint(
     "posts",

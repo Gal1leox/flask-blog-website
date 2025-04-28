@@ -1,5 +1,5 @@
 def register_blueprints(app):
-    from website.interface.routes import (
+    from website.presentation.routes import (
         auth_bp,
         admin_bp,
         public_bp,

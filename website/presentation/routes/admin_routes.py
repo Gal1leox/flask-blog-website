@@ -13,8 +13,8 @@ from flask import (
 from flask_login import current_user
 
 from website.config import Config
+from website.presentation.middlewares import token_required, admin_required
 from website.application.services import AdminService
-from website.interface.middlewares import token_required, admin_required
 
 admin_bp = Blueprint(
     "admin",

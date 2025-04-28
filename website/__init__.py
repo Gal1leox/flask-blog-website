@@ -27,8 +27,8 @@ load_dotenv()
 def create_app():
     app = Flask(
         __name__,
-        static_folder="interface/static",
-        template_folder="interface/templates",
+        static_folder="presentation/static",
+        template_folder="presentation/templates",
     )
     app.url_map.strict_slashes = False
     app.jinja_env.filters["timesince"] = timesince

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from website import limiter
 from website.config import Config
 from website.domain.models import UserRole
-from website.interface.forms import ContactForm
+from website.presentation.forms import ContactForm
 from website.application.services import PublicService
 
 public_bp = Blueprint(

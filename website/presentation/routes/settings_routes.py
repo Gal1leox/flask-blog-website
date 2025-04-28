@@ -5,7 +5,7 @@ from website import limiter
 from website.config import Config
 from website.domain.models import UserRole
 from website.application.services import SettingsService
-from website.interface.forms import UpdateProfileForm, ChangePasswordForm
+from website.presentation.forms import UpdateProfileForm, ChangePasswordForm
 
 settings_bp = Blueprint(
     "settings",
