@@ -86,7 +86,9 @@ class AuthService:
         verification_code = VerificationCode(user.id, code)
         VerificationCodeRepository.create(verification_code)
 
-        link = f"{request.host_url}auth/verify-code?token={verification_code.token}"
+        verification_link = (
+            f"{request.host_url}auth/verify-code?token={verification_code.token}"
+        )
         message = Message(
             "Password Reset Code",
             sender=admin_email,
@@ -94,7 +96,7 @@ class AuthService:
             html=render_template(
                 "pages/auth/user/email_message.html",
                 code=code,
-                link=link,
+                verification_link=verification_link,
                 theme="system",
             ),
         )
