@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
+from flask_login import login_required
 
 from website import limiter
-from website.config import Config
-from website.domain.models import UserRole
+from website.utils import get_current_user, build_context
 from website.application.services import SettingsService
 from website.presentation.forms import UpdateProfileForm, ChangePasswordForm
 
@@ -15,21 +14,6 @@ settings_bp = Blueprint(
 )
 
 settings_service = SettingsService()
-
-
-def get_current_user():
-    return current_user if current_user.is_authenticated else None
-
-
-def build_context(user):
-    is_admin = bool(user and user.role == UserRole.ADMIN)
-    return {
-        "is_admin": is_admin,
-        "avatar_url": user.avatar_url if user else "",
-        "token": Config.SECRET_KEY if is_admin else "",
-        "active_page": "Settings",
-        "theme": user.theme.value if user else "system",
-    }
 
 
 @settings_bp.route("/", methods=["GET", "POST"])

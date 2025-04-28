@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user
+from flask_login import login_required
 
 from website import limiter
-from website.config import Config
-from website.domain.models import UserRole
+from website.utils import get_current_user, build_context
 from website.presentation.forms import ContactForm
 from website.application.services import PublicService
 
@@ -15,21 +14,6 @@ public_bp = Blueprint(
 )
 
 public_service = PublicService()
-
-
-def get_current_user():
-    return current_user if current_user.is_authenticated else None
-
-
-def build_context(user, active_page=""):
-    is_admin = bool(user and user.role == UserRole.ADMIN)
-    return {
-        "is_admin": is_admin,
-        "avatar_url": user.avatar_url if user else "",
-        "token": Config.SECRET_KEY if is_admin else "",
-        "theme": user.theme.value if user else "system",
-        "active_page": active_page,
-    }
 
 
 @public_bp.route("/", methods=["GET"])

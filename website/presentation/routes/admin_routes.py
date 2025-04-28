@@ -10,8 +10,8 @@ from flask import (
     abort,
     jsonify,
 )
-from flask_login import current_user
 
+from website.utils import get_current_user, build_context
 from website.config import Config
 from website.presentation.middlewares import token_required, admin_required
 from website.application.services import AdminService
@@ -26,28 +26,11 @@ admin_bp = Blueprint(
 admin_service = AdminService()
 
 
-def get_authenticated_user():
-    return current_user if current_user.is_authenticated else None
-
-
-def build_context(user, active_page=""):
-    is_admin = bool(user and user.role.name == "ADMIN")
-
-    return {
-        "is_admin": is_admin,
-        "avatar_url": user.avatar_url if user else "",
-        "token": Config.SECRET_KEY if is_admin else "",
-        "db_name": Config.DB_NAME,
-        "active_page": active_page,
-        "theme": user.theme.value if user else "system",
-    }
-
-
 @admin_bp.route("/database/", methods=["GET"])
 @token_required
 @admin_required
 def view_database():
-    user = get_authenticated_user()
+    user = get_current_user()
     table = request.args.get("table", "")
 
     table_names = admin_service.list_tables()
