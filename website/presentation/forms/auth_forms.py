@@ -11,7 +11,7 @@ class RegisterForm(BaseForm):
     confirm_password = password_field(
         "Confirm password",
         placeholder="Confirm password",
-        extra_validators=[EqualTo("password", message="Must match.")],
+        extra_validators=[EqualTo("password", message="Passwords must match")],
     )
     submit = SubmitField(
         "Sign up",
@@ -47,7 +47,7 @@ class ResetPasswordForm(BaseForm):
     confirm_password = password_field(
         "Confirm New Password",
         placeholder="Confirm new password",
-        extra_validators=[EqualTo("password", message="Must match.")],
+        extra_validators=[EqualTo("password", message="Passwords must match")],
     )
     submit = SubmitField(
         "Reset",

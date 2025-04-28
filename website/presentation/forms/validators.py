@@ -28,13 +28,13 @@ def strip_filter(value):
 def validate_username(_, field):
     name = (field.data or "").strip()
     if not name:
-        raise ValidationError("Username is required.")
+        raise ValidationError("Username is required")
     if not name[0].isalpha() or not name[-1].isalnum():
         raise ValidationError(
-            "Username must start with a letter and end with a letter or digit."
+            "Username must start with a letter and end with a letter or digit"
         )
     if not re.fullmatch(r"[a-z0-9._]+", name):
-        raise ValidationError("Use only lowercase letters, digits, '.' or '_'.")
+        raise ValidationError("Use only lowercase letters, digits, '.' or '_'")
 
 
 def unique_username(_, field):

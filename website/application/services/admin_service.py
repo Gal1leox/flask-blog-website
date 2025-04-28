@@ -89,4 +89,4 @@ class AdminService:
             Config.DB_NAME,
         )
         backup_file.save(target_file_path)
-        return True, "Database restored."
+        return True, "Database restored successfully."

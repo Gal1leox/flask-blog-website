@@ -48,7 +48,7 @@ class ChangePasswordForm(BaseForm):
     confirm_new_password = password_field(
         "Confirm New Password",
         placeholder="Confirm new password",
-        extra_validators=[EqualTo("new_password", message="Passwords must match.")],
+        extra_validators=[EqualTo("new_password", message="Passwords must match")],
     )
     submit = SubmitField(
         "Change Password",

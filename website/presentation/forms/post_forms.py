@@ -25,7 +25,7 @@ class CreatePostForm(BaseForm):
         "Upload Images",
         validators=[
             OptionalImages(),
-            FileRequired(message="At least one image is required."),
+            FileRequired(message="At least one image is required"),
             validate_num_images,
             FileAllowed(["jpg", "jpeg", "png"], "Only JPG and PNG allowed."),
         ],

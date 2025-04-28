@@ -12,7 +12,7 @@ class ContactForm(BaseForm):
         validators=[
             DataRequired(),
             Length(min=2, max=50),
-            Regexp(r"^[A-Za-z]+$", message="Letters only"),
+            Regexp(r"^[A-Za-z]+$", message="First name must contain only letters"),
         ],
         render_kw={"placeholder": "First name"},
     )
@@ -21,7 +21,7 @@ class ContactForm(BaseForm):
         validators=[
             DataRequired(),
             Length(min=2, max=50),
-            Regexp(r"^[A-Za-z]+$", message="Letters only"),
+            Regexp(r"^[A-Za-z]+$", message="Last name must contain only letters"),
         ],
         render_kw={"placeholder": "Last name"},
     )
@@ -38,7 +38,7 @@ class ContactForm(BaseForm):
         "Phone Number (optional)",
         validators=[
             Optional(),
-            Regexp(r"^[+0-9 ()-]+$", message="Invalid phone format"),
+            Regexp(r"^[+0-9 ()-]+$", message="Invalid phone number format"),
             Length(10, 20),
         ],
         render_kw={"placeholder": "+7 475 638 8929"},
