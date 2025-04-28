@@ -105,7 +105,7 @@ def edit_post(post_id):
         )
         flash(message, "success" if success else "danger")
         if success:
-            return redirect(url_for("public.home"))
+            return redirect(url_for("posts.view_post", post_id=post_id))
         else:
             return redirect(url_for("posts.edit_post"))
 
@@ -177,4 +177,4 @@ def delete_post(post_id):
 
     success, message = post_service.delete_post(post)
     flash(message, "success" if success else "danger")
-    return redirect(url_for("posts.list_posts", **context))
+    return redirect(url_for("posts.list_posts", token=context["token"]))
