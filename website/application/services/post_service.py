@@ -66,7 +66,7 @@ class PostService:
             return False, "At least one image is required."
 
         if len(post.images) + len(new_files) > self.MAX_IMAGES:
-            return False, f"Max {self.MAX_IMAGES} images allowed."
+            return False, f"At most {self.MAX_IMAGES} images are allowed."
 
         if content != post.content:
             post.content = content

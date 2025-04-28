@@ -20,7 +20,11 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
   {% endif %}
   {% endwith %}
 
-  <div x-data="filePreviewAndSubmit()" class="p-6 mx-auto max-w-lg bg-white rounded-2xl shadow dark:bg-gray-800">
+  <div x-data='filePreviewAndSubmit(
+        {{ post_images|map(attribute="id")|list|default([])|tojson }},
+        {{ post_images|map(attribute="url")|list|default([])|tojson }}
+      )'
+       class="p-6 mx-auto max-w-lg bg-white rounded-2xl shadow dark:bg-gray-800">
     <form x-on:submit="submitting = true"
           method="POST"
           action=""
@@ -28,10 +32,15 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
           novalidate>
       {{ form.hidden_tag() }}
 
-      <!-- upload dropzone -->
       <div class="flex justify-center items-center mb-6">
         <label for="dropzone-file"
-               class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer dark:bg-gray-700 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-800 dark:hover:border-gray-500">
+               class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer dark:bg-gray-700 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-800 dark:hover:border-gray-500"
+               @dragover.prevent="isDragging = true"
+               @dragleave.prevent="isDragging = false"
+               @drop.prevent="handleDrop($event)"
+                :class="{
+                  '!border-blue-500': isDragging
+                }">
           <div class="flex flex-col justify-center items-center pt-5 pb-6">
             <svg class="mb-4 w-8 h-8 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -54,22 +63,16 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
         </label>
       </div>
 
-      <!-- existing images (edit mode) -->
-      <template x-if="existingFiles.length > 0">
+      <template x-if="existingFiles.length">
         <div class="mb-6 space-y-2">
           <template x-for="(img, idx) in existingFiles" :key="img.id">
             <div class="flex items-center p-2 pr-5 mb-2 bg-gray-100 rounded dark:bg-gray-700">
-              <img :src="img.image_url"
-                   class="object-cover mr-2 w-10 h-10 rounded"
-                   alt="">
-              <span class="text-sm text-gray-700 dark:text-gray-200 truncate"
-                    x-text="img.image_url.split('/').pop()"></span>
-              <button @click="removeExisting(idx)"
+              <img :src="img.url" class="object-cover mr-2 w-10 h-10 rounded" alt="">
+              <span class="text-sm text-gray-700 dark:text-gray-200 truncate" x-text="img.url.split('/').pop()"></span>
+              <button @click.prevent="removeExisting(idx)"
                       type="button"
                       :disabled="existingFiles.length + previewFiles.length <= 1"
-                      :class="existingFiles.length + previewFiles.length <= 1
-                        ? 'opacity-60 cursor-not-allowed'
-                        : 'hover:text-red-600'"
+                      :class="existingFiles.length + previewFiles.length <= 1 ? 'opacity-60 cursor-not-allowed' : 'hover:text-red-600'"
                       class="ml-auto text-sm text-red-500"
                       title="Remove this image">
                 Remove
@@ -79,23 +82,18 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
         </div>
       </template>
 
-      <!-- hidden inputs for deleted images (always present) -->
       <template x-for="id in deleteIds" :key="id">
         <input type="hidden" name="delete_images" :value="id">
       </template>
 
-      <!-- new-file previews -->
-      <div x-show="previewFiles.length > 0" class="mb-6">
+      <div x-show="previewFiles.length" class="mb-6">
         <template x-for="(file, index) in previewFiles" :key="index">
           <div class="flex justify-between items-center p-2 pr-5 mb-2 bg-gray-100 rounded dark:bg-gray-700">
             <div class="flex flex-grow items-center mr-2 max-w-3/4">
-              <img :src="file.preview"
-                   class="object-cover mr-2 w-10 h-10 rounded"
-                   alt="preview">
-              <span x-text="file.name"
-                    class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
+              <img :src="file.preview" class="object-cover mr-2 w-10 h-10 rounded" alt="preview">
+              <span x-text="file.name" class="text-sm text-gray-700 dark:text-gray-200 truncate"></span>
             </div>
-            <button @click="removeFile(index)"
+            <button @click.prevent="removeFile(index)"
                     type="button"
                     class="text-sm text-red-500 hover:text-red-600"
                     title="Remove file">
@@ -105,7 +103,6 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
         </template>
       </div>
 
-      <!-- validation errors -->
       {% if form.images.errors %}
       <div class="mb-4 -mt-5 text-sm text-red-500">
         {% for error in form.images.errors %}
@@ -114,12 +111,10 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
       </div>
       {% endif %}
 
-      <!-- content textarea -->
       <div class="mb-6">
         {{ render_textarea_field(form.content) }}
       </div>
 
-      <!-- submit -->
       <div>
         <input type="submit"
                :value="submitting ? 'Publishing...' : submitText"
@@ -132,76 +127,60 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
 </div>
 
 <script>
-  function filePreviewAndSubmit() {
+  function filePreviewAndSubmit(initialIds, initialUrls) {
     return {
       maxFiles: 5,
       submitText: '{{ form.submit.label.text }}',
       submitting: false,
+      isDragging: false,
       previewFiles: [],
       acceptedFiles: [],
       maxFileSize: 8 * 1024 * 1024,
-
-      // always define existingFiles (empty unless in edit-mode with images)
-      existingFiles: [
-        {% if editing and post_images %}
-    {% for img in post_images %}
-    { id: {{ img.id }}, image_url: '{{ img.url }}' }{% if not loop.last %},{% endif %}
-    {% endfor %}
-    {% endif %}
-  ],
-
-    deleteIds: [],
+      existingFiles: initialIds.map((id, i) => ({ id, url: initialUrls[i] })),
+      deleteIds: [],
 
       updatePreview(event) {
-      this.previewFiles = []
-      this.acceptedFiles = []
-      const files = Array.from(event.target.files)
-      if (files.length > this.maxFiles) {
-        alert(`You can only upload up to ${this.maxFiles} images.`)
-      }
-      const fileArray = files.slice(0, this.maxFiles)
-      const allowedTypes = ['image/png', 'image/jpeg']
-      for (let file of fileArray) {
-        if (!allowedTypes.includes(file.type)) {
-          alert(`Invalid file type: ${file.name}`)
-          continue
+        this.previewFiles = [];
+        this.acceptedFiles = [];
+        const files = Array.from(event.target.files);
+        if (files.length > this.maxFiles) alert(`You can only upload up to ${this.maxFiles} images.`);
+        files.slice(0, this.maxFiles).forEach(file => {
+          const allowed = ['image/png', 'image/jpeg'];
+          if (!allowed.includes(file.type)) return alert(`Invalid file type: ${file.name}`);
+          if (file.size > this.maxFileSize) return alert(`File too large (max 8MB): ${file.name}`);
+          this.previewFiles.push({ name: file.name, preview: URL.createObjectURL(file) });
+          this.acceptedFiles.push(file);
+        });
+        this.syncFiles();
+      },
+
+      handleDrop(event) {
+        this.isDragging = false;
+        this.updatePreview({ target: { files: event.dataTransfer.files } });
+      },
+
+      removeFile(index) {
+        URL.revokeObjectURL(this.previewFiles[index].preview);
+        this.previewFiles.splice(index, 1);
+        this.acceptedFiles.splice(index, 1);
+        this.syncFiles();
+      },
+
+      removeExisting(index) {
+        if (this.existingFiles.length + this.previewFiles.length <= 1) {
+          return alert('You must have at least one image.');
         }
-        if (file.size > this.maxFileSize) {
-          alert(`File too large (max 8MB): ${file.name}`)
-          continue
-        }
-        this.previewFiles.push({
-          name: file.name,
-          preview: URL.createObjectURL(file)
-        })
-        this.acceptedFiles.push(file)
+        this.deleteIds.push(this.existingFiles[index].id);
+        this.existingFiles.splice(index, 1);
+      },
+
+      syncFiles() {
+        const dt = new DataTransfer();
+        this.acceptedFiles.forEach(file => dt.items.add(file));
+        document.getElementById('dropzone-file').files = dt.files;
       }
-      this.syncFiles()
-    },
-
-    removeFile(index) {
-      URL.revokeObjectURL(this.previewFiles[index].preview)
-      this.previewFiles.splice(index, 1)
-      this.acceptedFiles.splice(index, 1)
-      this.syncFiles()
-    },
-
-    removeExisting(index) {
-      // enforce at least one image total
-      if (this.existingFiles.length + this.previewFiles.length <= 1) {
-        alert('You must have at least one image.')
-        return
-      }
-      this.deleteIds.push(this.existingFiles[index].id)
-      this.existingFiles.splice(index, 1)
-    },
-
-    syncFiles() {
-      const dt = new DataTransfer()
-      this.acceptedFiles.forEach(file => dt.items.add(file))
-      document.getElementById('dropzone-file').files = dt.files
-    }
-  }
+    };
   }
 </script>
+
 {% endblock %}

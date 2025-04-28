@@ -104,7 +104,10 @@ def edit_post(post_id):
             author_id=user.id,
         )
         flash(message, "success" if success else "danger")
-        return redirect(url_for("public.home"))
+        if success:
+            return redirect(url_for("public.home"))
+        else:
+            return redirect(url_for("posts.edit_post"))
 
     return render_template("pages/shared/admin/new_post.html", **context)
 
