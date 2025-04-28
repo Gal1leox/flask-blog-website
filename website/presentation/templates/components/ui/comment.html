@@ -4,11 +4,25 @@
 
 {% macro render_comment(comment, is_admin, is_authorized, post, form) %}
 <article x-data="{ open: false, editing: false, replying: false }" class="flex relative mt-5 space-x-3 rounded-lg">
-  <img
-    class="object-cover w-9 h-9 rounded-full"
-    src="{{ comment.author.avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
-    alt="{{ comment.author.username }}"
-  />
+  <div
+    x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+    :style="{
+      backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+      backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+    }"
+    class="overflow-hidden relative w-9 h-9 bg-center bg-cover rounded-full"
+    aria-label="profile picture"
+    role="img"
+  >
+    {% if comment.author.avatar_url %}
+    <img
+      @load="loaded = true"
+      class="object-cover absolute inset-0 w-full h-full"
+      loading="lazy"
+      src="{{ comment.author.avatar_url }}"
+    />
+    {% endif %}
+  </div>
   <div class="relative flex-1">
     <div class="flex justify-between items-center">
       <div class="flex flex-wrap gap-x-2 items-center">

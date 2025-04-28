@@ -74,10 +74,25 @@
     >
       {{ form.hidden_tag() }}
       <div class="flex gap-4 items-start mb-3">
-        <img
-          class="object-cover w-10 h-10 rounded-full"
-          src="{{ avatar_url or url_for('static', filename='images/no-avatar.jpg') }}"
-        />
+        <div
+          x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+          :style="{
+            backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+            backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+          }"
+          class="overflow-hidden relative w-10 h-10 bg-center bg-cover rounded-full"
+          aria-label="profile picture"
+          role="img"
+        >
+          {% if avatar_url %}
+          <img
+            @load="loaded = true"
+            class="object-cover absolute inset-0 w-full h-full"
+            loading="lazy"
+            src="{{ avatar_url }}"
+          />
+          {% endif %}
+        </div>
         <div class="flex-1">
           {{ render_textarea_field(form.content) }}
         </div>
