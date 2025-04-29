@@ -24,6 +24,11 @@ class Image(db.Model):
         String(255),
         nullable=False,
     )
+    public_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        unique=True,
+    )
     author_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,

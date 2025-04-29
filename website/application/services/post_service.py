@@ -39,10 +39,11 @@ class PostService:
                 img, folder="posts", resource_type="image"
             )
             url = response.get("secure_url")
+            public_id = response.get("public_id")
             if not url:
                 continue
 
-            new_img = Image(author_id=author_id, url=url)
+            new_img = Image(author_id=author_id, url=url, public_id=public_id)
             post.images.append(new_img)
             ImageRepository.add_image(new_img)
 
@@ -59,6 +60,10 @@ class PostService:
     ) -> Tuple[bool, str]:
         for img in list(post.images):
             if img.id in delete_ids:
+                try:
+                    cloudinary.uploader.destroy(img.public_id, invalidate=True)
+                except Exception:
+                    pass
                 post.images.remove(img)
                 ImageRepository.delete_image(img)
 
@@ -76,10 +81,11 @@ class PostService:
                 img, folder="posts", resource_type="image"
             )
             url = response.get("secure_url")
+            public_id = response.get("public_id")
             if not url:
                 continue
 
-            new_img = Image(author_id=author_id, url=url)
+            new_img = Image(author_id=author_id, url=url, public_id=public_id)
             post.images.append(new_img)
             ImageRepository.add_image(new_img)
 
@@ -100,6 +106,10 @@ class PostService:
     def delete_post(self, post: Post) -> Tuple[bool, str]:
         try:
             SavedPostRepository.remove_by_post(post.id)
+
+            for img in list(post.images):
+                cloudinary.uploader.destroy(img.public_id, invalidate=True)
+                ImageRepository.delete_image(img)
 
             PostRepository.delete_post(post)
             return True, f"Post {post.id} deleted successfully."
