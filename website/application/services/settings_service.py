@@ -89,6 +89,12 @@ class SettingsService:
         if is_admin or user.role == UserRole.ADMIN:
             return False, "Cannot delete an admin user."
 
+        if user.avatar_public_id:
+            try:
+                cloudinary.uploader.destroy(user.avatar_public_id, invalidate=True)
+            except Exception:
+                return False, "Failed to remove avatar image.", 500
+
         UserRepository.delete(user)
         logout_user()
         return True, "Your account has been deleted."
