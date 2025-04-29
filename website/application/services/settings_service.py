@@ -1,6 +1,6 @@
-import cloudinary.uploader
 from typing import Tuple, Any
 
+import cloudinary.uploader
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import logout_user
 
@@ -19,10 +19,18 @@ class SettingsService:
         changes_made = False
 
         if avatar and avatar.filename:
+            if user.avatar_public_id:
+                try:
+                    cloudinary.uploader.destroy(user.avatar_public_id, invalidate=True)
+                except Exception:
+                    pass
+
             upload_result = cloudinary.uploader.upload(avatar, resource_type="image")
             secure_url = upload_result.get("secure_url")
-            if secure_url:
+            public_id = upload_result.get("public_id")
+            if secure_url and public_id:
                 user.avatar_url = secure_url
+                user.avatar_public_id = public_id
                 changes_made = True
 
         if username and username != user.username:
@@ -39,7 +47,15 @@ class SettingsService:
         if not user.avatar_url:
             return False, "No avatar to delete."
 
+        if user.avatar_public_id:
+            try:
+                cloudinary.uploader.destroy(user.avatar_public_id, invalidate=True)
+            except Exception:
+                pass
+
         user.avatar_url = None
+        user.avatar_public_id = None
+
         UserRepository.save(user)
         return True, "Avatar deleted successfully."
 

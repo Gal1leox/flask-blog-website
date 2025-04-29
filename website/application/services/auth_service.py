@@ -73,7 +73,6 @@ class AuthService:
             message = "Account created successfully!"
 
         login_user(user)
-
         return True, message
 
     def send_reset_code(self, form, admin_email: str) -> tuple[bool, str]:

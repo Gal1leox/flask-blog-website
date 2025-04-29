@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    avatar_public_id: Mapped[str] = mapped_column(String(255), nullable=True)
     google_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     username: Mapped[str] = mapped_column(String(15), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
