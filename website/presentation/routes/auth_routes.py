@@ -156,7 +156,7 @@ def verify_code():
 
 @auth_bp.route("/reset-password", methods=["GET", "POST"])
 @anonymous_required
-@limiter.limit("5/minute")
+@limiter.limit("5/minute", methods=["POST"])
 def reset_password():
     token = request.args.get("token")
     if not token:

@@ -19,7 +19,6 @@ post_service = PostService()
 
 @posts_bp.route("/", methods=["GET"])
 @token_required
-@limiter.limit("60/minute")
 def list_posts():
     user = get_current_user()
     posts = post_service.list_posts()
@@ -98,7 +97,6 @@ def edit_post(post_id):
 
 
 @posts_bp.route("/<int:post_id>", methods=["GET"])
-@limiter.limit("60/minute")
 def view_post(post_id):
     user = get_current_user()
     post, error = post_service.get_post(post_id)
@@ -136,7 +134,6 @@ def toggle_save(post_id):
 
 @posts_bp.route("/saved", methods=["GET"])
 @login_required
-@limiter.limit("20/minute")
 def list_saved_posts():
     user = get_current_user()
     saved_posts = post_service.list_saved(user.id)

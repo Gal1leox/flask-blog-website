@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import request, abort, render_template, redirect, url_for
+from flask import flash, request, abort, render_template, redirect, url_for
 from flask_login import current_user
 
 from website.config import Config
@@ -14,6 +14,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if current_user.is_authenticated:
+            flash("You need to logout to access this page.", "danger")
             return redirect(url_for("public.home"))
         return f(*args, **kwargs)
 

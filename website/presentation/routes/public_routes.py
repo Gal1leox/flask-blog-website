@@ -17,7 +17,6 @@ public_service = PublicService()
 
 
 @public_bp.route("/", methods=["GET"])
-@limiter.limit("60/minute")
 def home():
     user = get_current_user()
     selected_tags = request.args.getlist("tag")
