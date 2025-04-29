@@ -14,7 +14,7 @@ from website.extensions import (
     oauth,
     init_markdown,
 )
-from website.blueprints import (
+from website.presentation.routes import (
     register_blueprints,
 )
 from website.errors import (

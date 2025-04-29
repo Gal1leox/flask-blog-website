@@ -1,12 +1,10 @@
 def register_blueprints(app):
-    from website.presentation.routes import (
-        auth_bp,
-        admin_bp,
-        public_bp,
-        settings_bp,
-        posts_bp,
-        comments_bp,
-    )
+    from .auth_routes import auth_bp
+    from .admin_routes import admin_bp
+    from .public_routes import public_bp
+    from .settings_routes import settings_bp
+    from .posts_routes import posts_bp
+    from .comments_routes import comments_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
