@@ -10,7 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 
 from website import db
-from .post import PostImage
+from .post import Post, PostImage
 
 
 class Image(db.Model):
@@ -68,10 +68,21 @@ class Image(db.Model):
 
 
 @event.listens_for(Session, "after_flush_postexec")
-def delete_orphan_images(session: Session, _):
-    orphaned = (
-        session.query(Image).outerjoin(PostImage).filter(PostImage.image_id.is_(None))
+def cleanup_orphaned(session: Session, _):
+    orphaned_images = (
+        session.query(Image)
+        .outerjoin(PostImage)
+        .filter(PostImage.image_id.is_(None))
+        .all()
     )
+    for image in orphaned_images:
+        session.delete(image)
 
-    for img in orphaned:
-        session.delete(img)
+    orphaned_posts = (
+        session.query(Post)
+        .outerjoin(PostImage)
+        .filter(PostImage.post_id.is_(None))
+        .all()
+    )
+    for post in orphaned_posts:
+        session.delete(post)
