@@ -1,0 +1,114 @@
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+
+{% from "components/ui/field.html" import
+  render_text_field,
+  render_select_field,
+  render_textarea_field
+%}
+
+{% block title %}Kalts Daniil - Contact Me{% endblock %}
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div x-data="{ count: {{ messages|length }} }" x-show="count > 0" class="mb-6">
+  {% for category, message in messages %}
+    {{ alert(category, message) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="w-full md:mx-auto md:max-w-3xl">
+  <div
+    class="flex overflow-hidden flex-col bg-white rounded-2xl shadow md:flex-row dark:bg-gray-800"
+  >
+    <div class="hidden md:flex relative w-[45%] items-stretch overflow-hidden">
+      <div class="overflow-hidden relative flex-1 w-full">
+        <img
+          class="object-cover object-top w-full h-full scale-110"
+          src="{{ url_for('static', filename='images/covers/blog_author.jpg') }}"
+          alt="Contact Cover"
+        />
+      </div>
+    </div>
+    <div class="w-full p-6 md:w-[55%]">
+      <form
+        x-data="contactForm()"
+        x-on:submit.prevent="submitForm"
+        id="contactForm"
+        class="mx-auto"
+        method="POST"
+        action="{{ url_for('public.contact') }}"
+      >
+        {{ form.hidden_tag() }}
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div>{{ render_text_field(form.first_name) }}</div>
+          <div>{{ render_text_field(form.last_name) }}</div>
+          <div class="sm:col-span-2">
+            {{ render_select_field(form.inquiry_type) }}
+          </div>
+          <div class="sm:col-span-2">{{ render_text_field(form.phone) }}</div>
+          <div class="sm:col-span-2">
+            {{ render_textarea_field(form.message) }}
+          </div>
+        </div>
+        <div id="recaptchaContainer" class="mt-6"></div>
+        <div class="mt-6">
+          <input
+            :value="submitting ? 'Checking...' : submit_text"
+            :disabled="submitting"
+            :class="['bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-2',
+         submitting ? 'opacity-50 cursor-not-allowed' : ''
+       ]"
+            type="submit"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script
+  src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+  async
+  defer
+></script>
+<script>
+  function onloadCallback() {
+    // This callback runs when the reCAPTCHA API is ready.
+  }
+
+  function contactForm() {
+    return {
+      submitting: false,
+      submit_text: "{{ form.submit.label.text }}",
+      recaptchaWidgetId: null,
+      submitForm() {
+        this.submitting = true;
+        if (typeof grecaptcha !== "undefined") {
+          if (!this.recaptchaWidgetId) {
+            this.recaptchaWidgetId = grecaptcha.render("recaptchaContainer", {
+              sitekey: "{{ config.RECAPTCHA_PUBLIC_KEY }}",
+              size: "invisible",
+              callback: (token) => {
+                this.onRecaptchaSuccess(token);
+              },
+              "expired-callback": () => {
+                this.recaptchaWidgetId = null;
+              },
+            });
+          }
+          grecaptcha.execute(this.recaptchaWidgetId);
+        } else {
+          console.error("grecaptcha is not defined");
+        }
+      },
+      onRecaptchaSuccess(token) {
+        document.getElementById("contactForm").submit();
+      },
+    };
+  }
+</script>
+{% endblock %}

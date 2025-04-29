@@ -1,0 +1,129 @@
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/comment.html" import render_comment with context %}
+{% from "components/ui/field.html" import render_textarea_field %}
+{% from "components/ui/post/post.html" import render_post with context %}
+
+{% block title %}Kalts Daniil - Personal Blog{% endblock %}
+
+{% block content %}
+<div class="container mx-auto max-w-lg">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div
+    x-data="{ count: {{ messages|length }} }"
+    x-show="count > 0" class="mb-6 w-full"
+  >
+    {% for category, message in messages %}
+    {{ alert(category, message) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  {% if post %}
+  <div class="grid grid-cols-1 gap-8">
+    {{ render_post(post) }}
+  </div>
+
+  <hr class="my-8 border-gray-200 dark:border-gray-700" />
+
+  <section class="mt-8 mb-2 antialiased">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+        {{ comments|length }} Comments
+      </h2>
+      <div
+        x-show="{{ comments|length }} > 0"
+        x-data="{ openSort: false }"
+        class="relative"
+      >
+        <button
+          @click="openSort = !openSort"
+          class="flex items-center space-x-1 text-gray-700 dark:text-gray-300 focus:outline-none text-[15px]"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 6H3V5h18v1zm-6 5H3v1h12v-1zm-6 6H3v1h6v-1z" />
+          </svg>
+          <span>Sort by</span>
+        </button>
+        <div
+          x-show="openSort" x-cloak @click.outside="openSort = false"
+          class="absolute right-0 z-50 mt-2 w-32 bg-white rounded border border-gray-200 shadow-lg dark:bg-gray-800 dark:border-gray-700"
+        >
+          <a
+            class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 text-[13px] dark:hover:bg-gray-700"
+            href="{{ url_for('posts.view_post', post_id=post.id, sort='oldest') }}"
+          >Oldest</a
+          >
+          <a
+            class="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 text-[13px] dark:hover:bg-gray-700"
+            href="{{ url_for('posts.view_post', post_id=post.id, sort='newest') }}"
+          >Newest</a
+          >
+        </div>
+      </div>
+    </div>
+
+    {% if is_authorized %}
+    <form
+      x-data="{ submitting: false }" @submit.prevent="submitting = true; $el.submit()"
+      class="mt-6" method="POST"
+      action="{{ url_for('comments.add_comment', post_id=post.id) }}"
+    >
+      {{ form.hidden_tag() }}
+      <div class="flex gap-4 items-start mb-3">
+        <div
+          x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+          :style="{
+            backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+            backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+          }"
+          class="overflow-hidden relative w-10 h-10 bg-center bg-cover rounded-full"
+          aria-label="profile picture"
+          role="img"
+        >
+          {% if avatar_url %}
+          <img
+            @load="loaded = true"
+            class="object-cover absolute inset-0 w-full h-full"
+            loading="lazy"
+            src="{{ avatar_url }}"
+          />
+          {% endif %}
+        </div>
+        <div class="flex-1">
+          {{ render_textarea_field(form.content) }}
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button
+          :disabled="submitting"
+          :class="submitting
+            ? 'bg-blue-600 opacity-50 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600'"
+          type="submit"
+          class="py-2 px-3 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-[13px]"
+        >
+          <span>Comment</span>
+        </button>
+      </div>
+    </form>
+    {% endif %}
+
+    <div class="mt-12 space-y-8">
+      {% for comment in comments if not comment.parent_comment_id %}
+      {{ render_comment( comment, is_admin, is_authorized, post, form ) }}
+      {% endfor %}
+    </div>
+  </section>
+  {% else %}
+  <div class="flex justify-center items-center py-16">
+    <h4 class="text-center text-gray-800 dark:text-gray-300">
+      No post found..
+    </h4>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

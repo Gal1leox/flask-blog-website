@@ -1,0 +1,231 @@
+{# templates/pages/shared/settings.html #}
+
+{% extends "pages/shared/base.html" %}
+
+{% from "components/ui/alert.html" import alert %}
+{% from "components/ui/modal.html" import modal %}
+{% from "components/ui/field.html" import render_username_field, render_email_field, render_password_field %}
+
+{% block title %}Kalts Daniil - Settings{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="mb-6" x-data="{ count: {{ messages|length }} }" x-show="count > 0">
+  {% for category, message in messages %}
+    {{ alert(category, message) }}
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="{% if messages|length > 0 %}mt-6{% endif %} w-full bg-white dark:bg-gray-800 rounded-2xl shadow p-6">
+  <div class="grid grid-cols-1 gap-y-8 gap-x-10 sm:grid-cols-[250px_1fr]">
+    <aside>
+      <h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Personal Information
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Manage your personal details here.
+      </p>
+    </aside>
+
+    <form
+      class="flex flex-col gap-6"
+      method="POST"
+      action="/settings"
+      enctype="multipart/form-data"
+      x-data
+    >
+      {{ form.hidden_tag() }}
+      <input
+        type="file"
+        id="avatarInput"
+        name="avatar"
+        accept="image/png, image/jpeg"
+        class="hidden"
+        @change="$el.closest('form').submit()"
+      />
+
+      <div class="flex items-center">
+        <div
+          x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+          :style="{
+            backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+            backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+          }"
+          class="overflow-hidden relative mr-4 w-20 h-20 bg-center bg-cover rounded-tr-none rounded-tl-lg rounded-br-lg rounded-bl-lg"
+          aria-label="profile picture"
+          role="img"
+        >
+          {% if avatar_url %}
+          <img
+            @load="loaded = true"
+            class="object-cover absolute inset-0 w-full h-full"
+            loading="lazy"
+            src="{{ avatar_url }}"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('deleteAvatarForm').submit()"
+            title="Delete Avatar"
+            class="flex absolute top-0 right-0 justify-center items-center w-4 h-4 text-white bg-red-500 cursor-pointer hover:bg-red-600"
+          >
+            &times;
+          </button>
+          {% endif %}
+        </div>
+        <div>
+          <button
+            type="button"
+            @click="document.getElementById('avatarInput').click()"
+            class="py-2 px-4 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          >
+            Change avatar
+          </button>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">JPG or PNG.</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 max-w-sm">
+        {{ render_username_field(form.username) }}
+        {{ render_email_field(form.email, disabled=True) }}
+      </div>
+
+      <button
+        type="submit"
+        class="self-start py-2 px-4 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      >
+        Save
+      </button>
+    </form>
+  </div>
+
+  {% if show_change_password %}
+  <hr class="my-8 border-gray-300 dark:border-gray-700">
+
+  <div class="grid grid-cols-1 gap-y-8 gap-x-10 sm:grid-cols-[250px_1fr]">
+    <aside>
+      <h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Change password
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Update your password associated with your account.
+      </p>
+    </aside>
+
+    <form
+      class="flex flex-col gap-6"
+      method="POST"
+      action="/settings/change-password"
+      x-data
+    >
+      {{ change_password_form.hidden_tag() }}
+
+      <div class="flex flex-col gap-4 max-w-sm">
+        {{ render_password_field(change_password_form.current_password) }}
+        {{ render_password_field(change_password_form.new_password) }}
+        {{ render_password_field(change_password_form.confirm_new_password) }}
+      </div>
+
+      <button
+        type="submit"
+        class="self-start py-2 px-4 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+      >
+        Change Password
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  <hr class="my-8 border-gray-300 dark:border-gray-700">
+
+  <div
+    x-data="{
+      theme: '{{ theme }}',
+      effective: null,
+      init() {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+        this.effective = (this.theme === 'system')
+          ? (mq.matches ? 'dark' : 'light')
+          : this.theme;
+
+        this.$refs.toggle.checked = (this.effective === 'dark');
+
+        mq.addEventListener('change', e => {
+          if (this.theme === 'system') {
+            this.effective = e.matches ? 'dark' : 'light';
+            this.$refs.toggle.checked = (this.effective === 'dark');
+          }
+        });
+      },
+
+      async change() {
+        this.effective = this.$refs.toggle.checked ? 'dark' : 'light';
+        this.theme = this.effective;
+
+        document.documentElement.classList.toggle('dark', this.effective === 'dark');
+        document.documentElement.classList.toggle('light', this.effective === 'light');
+
+        await fetch('/settings/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme: this.theme })
+        });
+      }
+    }"
+    x-init="init()"
+    class="grid grid-cols-1 gap-y-4 gap-x-10 sm:grid-cols-[250px_1fr]"
+  >
+    <aside>
+      <h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Appearance
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Toggle between light and dark mode.
+      </p>
+    </aside>
+
+    <label class="inline-flex items-center cursor-pointer w-fit">
+      <input
+        x-ref="toggle"
+        type="checkbox"
+        class="sr-only peer"
+        @change="change()"
+      />
+      <div
+        class="relative w-11 h-6 bg-gray-200 rounded-full dark:bg-gray-700 peer peer-checked:bg-blue-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px]
+             after:bg-white after:border-gray-300 after:border
+             after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600"
+      ></div>
+      <span
+        class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+        x-text="effective === 'dark' ? 'Dark Mode' : 'Light Mode'"
+      ></span>
+    </label>
+  </div>
+
+  {% if not is_admin %}
+  <hr class="my-8 border-gray-300 dark:border-gray-700">
+  <div class="grid grid-cols-1 gap-y-4 gap-x-10 sm:grid-cols-[250px_1fr]">
+    <aside>
+      <h2 class="mb-1 text-xl font-semibold text-gray-900 dark:text-gray-100">Delete Account</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">No longer using my blog? Delete your account and all associated data will be permanently removed.</p>
+    </aside>
+    {{ modal(
+      "Delete Account",
+      "All data will be permanently removed.",
+      "/settings/delete-account"
+    ) }}
+  </div>
+  {% endif %}
+</div>
+
+<form
+  id="deleteAvatarForm"
+  method="POST"
+  action="/settings/delete-avatar"
+  class="hidden"
+></form>
+{% endblock %}

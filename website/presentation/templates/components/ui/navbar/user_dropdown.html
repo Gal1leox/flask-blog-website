@@ -1,0 +1,93 @@
+{# templates/components/ui/navbar/user_dropdown.html #}
+
+<div x-data="{ profileMenuOpen: false }" class="relative">
+  <div>
+    <button
+      @click="profileMenuOpen = !profileMenuOpen"
+      :aria-expanded="profileMenuOpen.toString()"
+      id="user-menu-button"
+      type="button"
+      class="flex relative text-sm rounded-full dark:bg-gray-800 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-none bg-[#DBDBDB]"
+      aria-haspopup="true"
+    >
+      <span class="absolute -inset-1.5"></span>
+      <span class="sr-only">Open user menu</span>
+      <div
+        x-data="{ loaded: false, bg: '{{ url_for('static', filename='images/no-avatar.jpg') }}' }"
+        :style="{
+          backgroundImage: loaded ? 'none' : 'url(' + bg + ')',
+          backgroundColor: loaded ? 'transparent' : '#DBDBDB'
+        }"
+        class="overflow-hidden relative w-12 h-12 bg-center bg-cover rounded-full"
+        aria-label="profile picture"
+        role="img"
+      >
+        {% if avatar_url %}
+        <img
+          @load="loaded = true"
+          class="object-cover absolute inset-0 w-full h-full"
+          loading="lazy"
+          src="{{ avatar_url }}"
+          alt=""
+        />
+        {% endif %}
+      </div>
+    </button>
+  </div>
+  <div
+    x-show="profileMenuOpen"
+    x-cloak
+    x-init="$el.style.display=''"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 scale-100"
+    x-transition:leave-end="opacity-0 scale-95"
+    @click.away="profileMenuOpen = false"
+    class="absolute right-0 z-10 mt-2 w-48 bg-gray-800 rounded-md ring-1 origin-top-right dark:bg-white focus:outline-none ring-black/5"
+    style="display: none"
+    aria-orientation="vertical"
+    aria-labelledby="user-menu-button"
+    role="menu"
+  >
+    <div class="py-3 px-4 mb-2 border-white dark:border-gray-500 border-b-[1px]">
+      <span
+        class="block overflow-hidden w-40 text-sm text-white whitespace-nowrap dark:text-gray-700 truncate"
+        >{{ current_user.username }}</span
+      >
+      <span
+        class="block overflow-hidden w-40 text-sm text-white whitespace-nowrap dark:text-gray-500 truncate"
+        >{{ current_user.email }}</span
+      >
+    </div>
+    <a
+      class="block py-2 px-4 text-sm text-white dark:text-gray-700 hover:bg-gray-700 dark:hover:bg-gray-100"
+      href="/settings"
+      role="menuitem"
+    >Settings</a
+    >
+    <a
+      class="block py-2 px-4 text-sm text-white dark:text-gray-700 hover:bg-gray-700 dark:hover:bg-gray-100"
+      href="/posts/saved"
+      role="menuitem"
+      >Saved</a
+    >
+    {% if is_admin %}
+    <a
+      class="block py-2 px-4 text-sm text-white dark:text-gray-700 hover:bg-gray-700 dark:hover:bg-gray-100"
+      href="/posts?token={{ token }}"
+      role="menuitem"
+    >Posts</a
+    >
+    {% endif %}
+    <div class="mt-2 border-white dark:border-gray-500 border-t-[1px]">
+      <a
+        class="block py-2 px-4 text-sm text-red-500 rounded-b-md dark:text-red-700 hover:bg-gray-700 dark:hover:bg-gray-100"
+        href="/auth/logout"
+        role="menuitem"
+        >Sign Out</a
+      >
+    </div>
+  </div>
+</div>

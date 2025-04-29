@@ -1,0 +1,56 @@
+{# templates/components/ui/alert.html #}
+
+{% macro alert(type, message) %}
+<div
+  x-data="{ show: true, type: '{{ type }}' }"
+  x-show="show"
+  :class="{
+    'bg-green-100 text-green-800 dark:bg-gray-800 dark:text-green-400': type == 'success',
+    'bg-red-50 text-red-800 dark:bg-gray-800 dark:text-red-400': type == 'danger' || !type,
+    'bg-blue-50 text-blue-800 dark:bg-gray-800 dark:text-blue-400': type == 'info'
+  }"
+  class="flex items-center p-4 rounded-lg dark:border dark:border-gray-700"
+  role="alert"
+>
+  <svg
+    class="w-4 h-4 shrink-0"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="currentColor"
+    viewBox="0 0 20 20"
+  >
+    <path
+      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 1 1 1 1v4h1a1 1 0 0 1 0 2Z"
+    />
+  </svg>
+  <span class="sr-only">Info</span>
+  <div class="text-sm font-medium ms-3">{{ message }}</div>
+  <button
+    @click="show = false; count--"
+    :class="{
+        'bg-green-100 text-green-500 hover:bg-green-200 focus:ring-green-400 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700': type == 'success',
+        'bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-400 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700': type == 'danger',
+        'bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-blue-400 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700': type == 'info'
+      }"
+    class="inline-flex justify-center items-center p-1.5 -my-1.5 -mx-1.5 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:text-green-400 dark:bg-gray-800 hover:bg-green-200 focus:ring-2 focus:ring-green-400 ms-auto dark:hover:bg-gray-700"
+    aria-label="Close"
+  >
+    <span class="sr-only">Close</span>
+    <svg
+      class="w-3 h-3"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 14 14"
+    >
+      <path
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+      />
+    </svg>
+  </button>
+</div>
+{% endmacro %}

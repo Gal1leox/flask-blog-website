@@ -1,0 +1,63 @@
+{# templates/pages/auth/user/verify_code.html #}
+
+{% extends "pages/auth/base.html" %}
+
+{% block title %}Kalts Daniil - Verify Code{% endblock %}
+
+{% block content %}
+<div
+  class="bg-white rounded-lg shadow dark:bg-gray-800 dark:border dark:border-gray-700"
+>
+  <div class="p-6 space-y-6 sm:p-8">
+    <h1
+      class="text-xl font-bold tracking-tight leading-tight text-gray-900 dark:text-white"
+    >
+      Enter the verification code
+    </h1>
+    <form
+      x-data="{ submitting: false }"
+      x-on:submit="submitting = true"
+      class="space-y-4"
+      method="POST"
+      action="{{ url_for('auth.verify_code', token=token) }}"
+    >
+      <div x-data="app()">
+        <div
+          class="flex justify-between"
+          x-data="{ is_valid: {{ 'false' if is_valid is defined and is_valid == False else 'null' }} }"
+        >
+          <template x-for="(_, i) in pinLength" :key="i">
+            <input
+              autofocus
+              name="codefield"
+              :id="`codefield_${i}`"
+              class="flex bg-transparent {% if is_valid is defined and not is_valid %}!border-red-600{% endif %} border-gray-800 dark:border-white items-center w-12 h-12 text-3xl text-center text-gray-800 rounded-lg border-2 border outline-none dark:text-white"
+              maxlength="1"
+              x-model="code[i]"
+              @keyup="stepForward(i)"
+              @keydown.backspace="stepBack(i)"
+              @focus="resetValue(i)"
+            />
+          </template>
+        </div>
+      </div>
+      <button
+        x-text="submitting ? 'Verifying...' : 'Verify'"
+        type="submit"
+        class="py-2.5 px-5 w-full text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        :class="submitting ? 'bg-blue-600 opacity-50 cursor-not-allowed' : ''"
+      >
+      </button>
+    </form>
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      Remember your password?
+      <a
+        class="font-medium text-blue-500 hover:underline"
+        href="{{ url_for('auth.login') }}"
+      >
+        Login here
+      </a>
+    </p>
+  </div>
+</div>
+{% endblock %}
