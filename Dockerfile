@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "python3 -m website.scripts.create_admin && python3 main.py"]
+CMD ["sh", "-c", "python3 -m scripts.create_admin && python3 main.py"]
