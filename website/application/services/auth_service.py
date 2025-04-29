@@ -29,7 +29,7 @@ class AuthService:
         UserRepository.save(user)
         login_user(user)
 
-        return True, "Account created!"
+        return True, "Your account has been created!"
 
     def login(self, form, admin_email: str) -> tuple[bool, str]:
         user = UserRepository.get_by_email(form.email.data)
@@ -61,6 +61,11 @@ class AuthService:
         if user:
             user.google_id = info["sub"]
             user.avatar_url = user.avatar_url or info.get("picture")
+
+            if not user.avatar_url and info.get("picture"):
+                user.avatar_url = info["picture"]
+
+            UserRepository.save(user)
             message = f"Welcome back, {user.username}!"
         else:
             user = User(
