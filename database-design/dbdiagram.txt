@@ -10,146 +10,86 @@ Enum user_theme {
 }
 
 Table users {
-  id integer [primary key]
-  username varchar(50) [unique, not null]
-  email varchar(100) [unique, not null]
-  password_hash text
-  google_id varchar(255) [unique]
-  role user_role [not null, default: 'user']
-  avatar varchar(255) [note: 'The profile picture']
-  theme user_theme [not null, default: 'system']
-  is_banned bool [not null, default: false]
+  id                 integer       [primary key]
+  username           varchar(15)   [unique, not null]
+  email              varchar(100)  [unique, not null]
+  password_hash      text          [null]
+  google_id          varchar(255)  [unique, null]
+  avatar_url         varchar(255)  [null]
+  avatar_public_id   varchar(255)  [unique, null]
 
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
+  role               user_role     [not null, default: 'user']
+  theme              user_theme    [not null, default: 'system']
 
-  Note: 'Stores user data'
+  created_at         timestamp     [not null, default: `now()`]
+  updated_at         timestamp     [not null, default: `now()`]
+
+  Note: 'Stores user accounts'
 }
 
 Table verification_codes {
-    id integer [primary key]
-    code_hash text [not null]
-    token varchar(16) [unique, not null]
-    is_valid bool [not null, default: false]
-    expires_at timestamp [default: `now()`, not null]
+  id            integer      [primary key]
+  user_id       integer      [ref: > users.id]
+  code_hash     text         [not null]
+  token         varchar(16)  [unique, not null]
+  is_valid      boolean      [not null, default: false]
+  expires_at    timestamp    [not null, default: `now()`]
 
-    user_id integer [ref: > users.id]
+  Note: 'One-time codes for account verification'
 }
 
 Table posts {
-  id integer [primary key]
-  title varchar(40) [unique, not null]
-  content text [not null]
+  id            integer      [primary key]
+  author_id     integer      [ref: > users.id]
+  content       text         [not null]
 
-  author_id integer [ref: > users.id]
+  created_at    timestamp    [not null, default: `now()`]
+  updated_at    timestamp    [not null, default: `now()`]
 
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
-
-  Note: 'Stores posts data'
+  Note: 'User-authored posts'
 }
 
 Table images {
-  id integer [primary key]
-  url varchar(255) [unique, not null]
+  id            integer      [primary key]
+  url           varchar(255) [not null]
+  public_id     varchar(255) [unique, not null]
+  author_id     integer      [ref: > users.id]
+  created_at    timestamp    [not null, default: `now()`]
 
-  author_id integer [ref: > users.id]
-
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
-
-  Note: 'Stores images data'
+  Note: 'Uploaded images'
 }
 
 Table post_images {
-  post_id integer [ref: > posts.id]
-  image_id integer [ref: > images.id]
+  post_id       integer      [ref: > posts.id]
+  image_id      integer      [ref: > images.id]
 
   primary key (post_id, image_id)
 
-  Note: 'Stores a many-to-many relationship between posts and images'
-}
-
-Table tags {
-  id integer [primary key]
-  name varchar(20) [unique, not null]
-  description varchar(40) [unique, not null]
-  color varchar(7) [not null]
-
-  author_id integer [ref: > users.id]
-
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
-
-  Note: 'Stores tags data'
-}
-
-Table post_tags {
-  post_id integer [ref: > posts.id]
-  tag_id integer [ref: > tags.id]
-
-  primary key (post_id, tag_id)
-
-  Note: 'Stores a many-to-many relationship between posts and tags'
-}
-
-Table comments {
-  id integer [primary key]
-  content varchar(500) [not null]
-
-  author_id integer [ref: > users.id]
-  parent_comment_id integer [ref: > comments.id, default: null]
-  post_id integer [ref: > posts.id]
-
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
-
-  Note: 'Stores comments data'
+  Note: 'Joins posts to images'
 }
 
 Table saved_posts {
-  post_id integer [ref: > posts.id]
-  user_id integer [ref: > users.id]
-  saved_at timestamp [default: `now()`, not null]
+  user_id       integer      [ref: > users.id]
+  post_id       integer      [ref: > posts.id]
+  saved_at      timestamp    [not null, default: `now()`]
 
-  primary key (post_id, user_id)
+  primary key (user_id, post_id)
 
-  Note: 'Stores a many-to-many relationship between saved posts and users'
+  Note: 'Users’ saved posts'
 }
 
+Table comments {
+  id                   integer     [primary key]
+  content              text        [not null]
+  author_id            integer     [ref: > users.id]
+  post_id              integer     [ref: > posts.id]
+  parent_comment_id    integer     [ref: > comments.id, null]
+  reply_to_comment_id  integer     [ref: > comments.id, null]
 
-Enum notification_type {
-  comment
-  mention
-  release
-}
+  created_at           timestamp   [not null, default: `now()`]
+  updated_at           timestamp   [not null, default: `now()`]
 
-Table notifications {
-  id integer [primary key]
-  name varchar(20) [not null]
-  description varchar(40) [not null]
-  type notification_type [not null]
-
-  created_at timestamp [default: `now()`, not null]
-  updated_at timestamp [default: `now()`, not null]
-
-  Note: 'Stores notifications data'
-}
-
-Enum notification_status {
-  unread
-  read
-}
-
-Table user_notifications {
-  user_id integer [ref: > users.id]
-  notification_id integer [ref: > notifications.id]
-  status notification_status [not null, default: 'unread']
-  read_at timestamp [null]
-
-  primary key (user_id, notification_id)
-
-  Note: 'Stores a many-to-many relationships between users and notifications'
+  Note: 'Nested and threaded comments'
 }
 
 // VISIT THIS LINK TO VIEW THE ER-DIAGRAM ON THE WEBSITE:
