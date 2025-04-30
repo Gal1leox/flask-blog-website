@@ -3,8 +3,8 @@ def register_blueprints(app):
     from .admin_routes import admin_bp
     from .public_routes import public_bp
     from .settings_routes import settings_bp
-    from .posts_routes import posts_bp
-    from .comments_routes import comments_bp
+    from .post_routes import posts_bp
+    from .comment_routes import comments_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
