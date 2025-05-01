@@ -1,16 +1,19 @@
 services:
   flask:
     build: .
-    ports:
-      - "5000:5000"
     volumes:
       - "./instance:/app/instance"
     env_file:
       - .env
-  sql_lite:
-    image: coleifer/sqlite-web
+    expose:
+      - "5000"
+
+  nginx:
+    image: nginx:stable-alpine
     ports:
-      - "8080:8080"
+      - "80:80"
     volumes:
-      - "./instance:/data"
-    command: ["sqlite_web", "--host=0.0.0.0", "/data/${DB_NAME}"]
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./website/presentation/static:/app/website/presentation/static:ro
+    depends_on:
+      - flask
