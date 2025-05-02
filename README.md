@@ -379,7 +379,7 @@ This is not entertaining place. This is the place where you get familiar with wh
               ```  
             - **Linux/macOS:**
               ```
-              python3 -m venv .venv
+              python -m venv .venv
               source .venv/bin/activate
               ```
         2. **Install dependencies:**
@@ -392,3 +392,43 @@ This is not entertaining place. This is the place where you get familiar with wh
            ```
         4. **Open in your browser:**  
            Navigate to: `http://127.0.0.1:5000`
+
+- - -
+
+### 🚀 Demonstration
+
+#### Sign In Page
+
+![Sign In Page](./demonstration/dark/dark_sign_in.png)
+
+#### Sign Up Page
+
+![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+
+#### Sign Up Page
+
+![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+
+#### Home Page (no posts)
+
+![No Posts Home Page](./demonstration/dark/dark_account_created.png)
+
+#### User Dropdown
+
+![User Dropdown](./demonstration/dark/dark_user_dropdown.png)
+
+#### Settings Page (part 1)
+
+![Settings Page (part 1)](./demonstration/dark/dark_settings_1.png)
+
+#### Settings Page (part 2)
+
+![Settings Page (part 2)](./demonstration/dark/dark_settings_2.png)
+
+#### Settings Page: Delete Account Modal
+
+![Settings Page: Delete Account Modal](./demonstration/dark/dark_delete_account_modal.png)
+
+#### Settings Page: Update Account
+
+![Settings Page: Update Account](./demonstration/dark/dark_settings_update_account.png)
