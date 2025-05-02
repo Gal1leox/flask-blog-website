@@ -79,9 +79,211 @@ This is not entertaining place. This is the place where you get familiar with wh
     - Backup Database
     - Restore Database from Backup  
 
+- - -
+
 ### 🛠 Tech Stack
 - **Frontend:** HTML, Tailwind CSS, JavaScript (Alpine.js)
 - **Backend:** Python, Flask, SQLAlchemy
 - **Database:** SQLite
 - **Containerization:** Docker
 - **Web Server & Reverse Proxy:** Nginx  
+
+- - -
+
+### 📂 Project Structure:
+```
+.
+├── database-design
+│   ├── assets
+│   │   ├── dark-entity-relationship-diagram-highlighted.png
+│   │   ├── dark-entity-relationship-diagram.png
+│   │   ├── light-entity-relationship-diagram-highlighted.png
+│   │   └── light-entity-relationship-diagram.png
+│   └── dbdiagram.txt
+├── instructions
+│   ├── cloudinary
+│   │   ├── screenshots
+│   │   │   ├── 01_search_cloudinary.png
+│   │   │   ├── 02_cloudinary_website.png
+│   │   │   ├── 03_cloudinary_signup.png
+│   │   │   ├── 04_cloudinary_settings.png
+│   │   │   ├── 05_cloudinary_api_keys.png
+│   │   │   └── 06_cloudinary_credentials.png
+│   │   └── README.md
+│   ├── gmail-app-password
+│   │   ├── screenshots
+│   │   │   ├── 01_search_google_account_security.png
+│   │   │   ├── 02_google_account_website.png
+│   │   │   ├── 03_google_account_app_passwords.png
+│   │   │   ├── 04_google_account_app_passwords_app_name.png
+│   │   │   └── 05_google_account_app_passwords_app_password.png
+│   │   └── README.md
+│   ├── google-authentication
+│   │   ├── screenshots
+│   │   │   ├── 01_google_developer_console.png
+│   │   │   ├── 02_google_developer_console_api_and_services.png
+│   │   │   ├── 03_google_developer_console_oauth_consent_screen.png
+│   │   │   ├── 04_google_developer_console_app_information.png
+│   │   │   ├── 05_google_developer_console_app_create.png
+│   │   │   ├── 06_google_developer_console_create_oauth_client.png
+│   │   │   ├── 07_google_developer_console_oauth_client_name_authorized_js_origins.png
+│   │   │   ├── 08_google_developer_console_oauth_client_name_authorized_redirect_uris.png
+│   │   │   └── 09_google_developer_console_oauth_credentials.png
+│   │   └── README.md
+│   ├── google-console
+│   │   ├── screenshots
+│   │   │   ├── 01_google_developer_console.png
+│   │   │   ├── 02_google_developer_console_website.png
+│   │   │   ├── 03_google_developer_console_create_project.png
+│   │   │   ├── 04_google_developer_console_project_details.png
+│   │   │   └── 05_google_developer_console_select_project.png
+│   │   └── README.md
+│   └── google-recaptcha
+│       ├── screenshots
+│       │   ├── 01_search_create_google_recaptcha.png
+│       │   ├── 02_create_google_recaptcha_website.png
+│       │   ├── 03_go_to_recaptcha_admin_console.png
+│       │   ├── 04_set_label_and_recaptcha_type.png
+│       │   ├── 05_add_domain_names_and_select_the_project.png
+│       │   └── 06_recaptcha_credentials.png
+│       └── README.md
+├── nginx
+│   └── default.conf
+├── scripts
+│   ├── create_admin.py
+│   ├── drop_database.py
+│   └── generate_token.py
+├── use-case-diagram
+│   └── blog-website-diagram.png
+├── website
+│   ├── __init__.py
+│   ├── config.py
+│   ├── errors.py
+│   ├── extensions.py
+│   ├── utils.py
+│   ├── application
+│   │   └── services
+│   │       ├── __init__.py
+│   │       ├── admin_service.py
+│   │       ├── auth_service.py
+│   │       ├── comment_service.py
+│   │       ├── post_service.py
+│   │       ├── public_service.py
+│   │       └── settings_service.py
+│   ├── domain
+│   │   └── models
+│   │       ├── __init__.py
+│   │       ├── comment.py
+│   │       ├── enums.py
+│   │       ├── image.py
+│   │       ├── post.py
+│   │       ├── user.py
+│   │       └── verification_code.py
+│   ├── infrastructure
+│   │   └── repositories
+│   │       ├── __init__.py
+│   │       ├── comment_repository.py
+│   │       ├── post_repository.py
+│   │       ├── table_repository.py
+│   │       ├── user_repository.py
+│   │       └── verification_code_repository.py
+│   └── presentation
+│       ├── forms
+│       │   ├── __init__.py
+│       │   ├── auth_forms.py
+│       │   ├── base.py
+│       │   ├── contact_forms.py
+│       │   ├── fields.py
+│       │   ├── post_forms.py
+│       │   ├── settings_forms.py
+│       │   └── validators.py
+│       ├── middlewares
+│       │   ├── __init__.py
+│       │   └── auth_middleware.py
+│       ├── routes
+│       │   ├── __init__.py
+│       │   ├── admin_routes.py
+│       │   ├── auth_routes.py
+│       │   ├── blueprints.py
+│       │   ├── comment_routes.py
+│       │   ├── post_routes.py
+│       │   ├── public_routes.py
+│       │   └── settings_routes.py
+│       ├── static
+│       │   ├── css
+│       │   │   ├── globals.css
+│       │   │   ├── shake-hand.css
+│       │   │   └── swiper.css
+│       │   ├── images
+│       │   │   ├── covers
+│       │   │   │   └── blog_author.jpg
+│       │   │   ├── icons
+│       │   │   │   └── spinner.svg
+│       │   │   ├── favicon.ico
+│       │   │   ├── no-avatar.jpg
+│       │   │   └── post-loading.svg
+│       │   └── js
+│       │       ├── alpine.min.js
+│       │       ├── pin-code.js
+│       │       ├── swiper.js
+│       │       └── tailwind-browser.js
+│       └── templates
+│           ├── components
+│           │   ├── layout
+│           │   │   └── navbar.html
+│           │   └── ui
+│           │       ├── navbar
+│           │       │   ├── burger_button.html
+│           │       │   ├── desktop_menu.html
+│           │       │   ├── mobile_menu.html
+│           │       │   └── user_dropdown.html
+│           │       ├── post
+│           │       │   ├── post.html
+│           │       │   └── preview_post.html
+│           │       ├── alert.html
+│           │       ├── comment.html
+│           │       ├── field.html
+│           │       └── modal.html
+│           └── pages
+│               ├── auth
+│               │   ├── admin
+│               │   │   └── login.html
+│               │   ├── user
+│               │   │   ├── email_message.html
+│               │   │   ├── forgot_password.html
+│               │   │   ├── login.html
+│               │   │   ├── register.html
+│               │   │   ├── reset_password.html
+│               │   │   └── verify_code.html
+│               │   └── base.html
+│               ├── errors
+│               │   ├── 403.html
+│               │   ├── 404.html
+│               │   ├── 429.html
+│               │   ├── 500.html
+│               │   └── base.html
+│               └── shared
+│                   ├── admin
+│                   │   ├── database.html
+│                   │   └── new_post.html
+│                   ├── posts
+│                   │   ├── detail.html
+│                   │   ├── list.html
+│                   │   └── saved.html
+│                   ├── user
+│                   │   ├── contact.html
+│                   │   └── email_message.html
+│                   ├── base.html
+│                   ├── home.html
+│                   └── settings.html
+├── instance
+│   └── blog_website.db
+├── .env
+├── .env.example
+├── .gitignore
+├── README.md
+├── Dockerfile
+├── docker-compose.yml
+├── main.py
+└── requirements.txt
+```
