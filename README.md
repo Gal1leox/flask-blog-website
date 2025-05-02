@@ -397,6 +397,10 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 ### 🚀 Demonstration
 
+#### Sign In Page _(Admin Only)_
+
+![Sign In Page](./demonstration/dark/dark_sign_in_admin.png)
+
 #### Sign In Page
 
 ![Sign In Page](./demonstration/dark/dark_sign_in.png)
