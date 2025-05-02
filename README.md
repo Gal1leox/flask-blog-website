@@ -21,7 +21,7 @@ They don’t give a damn about users’ mental health or their time.
 - No ADS
 - No user profiles
 - No views, likes and subscriptions
- 
+
 **The main feature:** only the blog owner can manage new posts.
 
 Sounds unfair and boring, isn't it?)
@@ -77,7 +77,7 @@ This is not entertaining place. This is the place where you get familiar with wh
     - View Table Records
     - Delete Records
     - Backup Database
-    - Restore Database from Backup  
+    - Restore Database from Backup
 
 - - -
 
@@ -86,7 +86,7 @@ This is not entertaining place. This is the place where you get familiar with wh
 - **Backend:** Python, Flask, SQLAlchemy
 - **Database:** SQLite
 - **Containerization:** Docker
-- **Web Server & Reverse Proxy:** Nginx  
+- **Web Server & Reverse Proxy:** Nginx
 
 - - -
 
@@ -287,3 +287,108 @@ This is not entertaining place. This is the place where you get familiar with wh
 ├── main.py
 └── requirements.txt
 ```
+
+- - -
+
+### 🏗 Setup & Installation:
+
+#### Prerequisites:
+- [Python 3.8+](https://www.python.org/downloads/)
+- [Docker](https://docs.docker.com/engine/install/)
+
+#### Steps:
+
+1. **Clone the Repository:**
+   ##### Using the web URL - HTTPS:
+   ```
+   git clone https://github.com/DaniilKalts/flask-blog-website.git
+   cd flask-blog-website
+   ```
+   ##### Using a password-protected SSH key - SSH:
+   ```
+   git clone git@github.com:DaniilKalts/flask-blog-website.git
+   cd flask-blog-website
+   ```
+2. **Setup External Services**
+    - **Google Cloud Project:**  
+      [Create a new Google Cloud project](./instructions/google-console)
+    - **Gmail App Password:**  
+      [Generate a Gmail app password](./instructions/gmail-app-password)
+    - **Google OAuth Client:**  
+      [Set up OAuth credentials](./instructions/google-authentication)
+    - **Cloudinary API Credentials:**  
+      [Obtain your Cloudinary keys](./instructions/cloudinary)
+    - **Google reCAPTCHA:**  
+      [Configure your reCAPTCHA project](./instructions/google-recaptcha)  
+3. **Create and configure your `.env` file:**
+    ```
+    # Database Configuration
+    DB_NAME=blog_website.db  # ← Replace with your database filename
+
+    # Flask Configuration
+    # SECRET_KEY: generate a secure random string from generate_token.py.
+    # PREFERRED_URL_SCHEME: “http” for local dev, “https” for production.
+    # FLASK_ENV: “development” or “production”.
+    SECRET_KEY=REPLACE_WITH_SECURE_RANDOM_KEY    # ← Replace with your generated secret
+    PREFERRED_URL_SCHEME=http                    # ← http or https
+    FLASK_ENV=development                        # ← development or production
+
+    # Admin Credentials
+    # Set these to the admin account you will create.
+    ADMIN_USERNAME=admin.user        # ← Replace with your desired admin username
+    ADMIN_EMAIL=admin@example.com    # ← Replace with your admin gmail address
+    ADMIN_PASSWORD=ChangeMe123!      # ← Replace with a strong admin password
+
+    # Mail Configuration
+    # Use the app-specific password.
+    MAIL_PASSWORD=REPLACE_WTH_MAIL_APP_PASSWORD  # ← Replace with your mail password
+
+    # Google OAuth Credentials
+    # Obtain these from Google Cloud Console.
+    CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE         # ← Replace with your Google OAuth client ID
+    CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET_HERE # ← Replace with your Google OAuth client secret
+
+    # Cloudinary Configuration
+    # Get these from your Cloudinary dashboard.
+    CLOUDINARY_NAME=example_cloud_name           # ← Replace with your Cloudinary cloud name
+    CLOUDINARY_API_KEY=123456789012345           # ← Replace with your Cloudinary API key
+    CLOUDINARY_SECRET=abcdefGhIjKLmnoPQRstuVwxYz # ← Replace with your Cloudinary API secret
+
+    # reCAPTCHA Credentials
+    # Register at Google reCAPTCHA to get these keys.
+    RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI   # ← Replace with your site key
+    RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe # ← Replace with your secret key
+    ```
+
+3. **Run the Project:**
+
+    - **With Docker:**
+      1. **Run docker compose:**
+          ```
+          docker-compose up
+          ```
+      2. **Open in your browser:**  
+          Navigate to: `http://127.0.0.1`
+
+    - **Locally (without Docker):**
+        1. **Create & activate a virtual environment:**
+            - **Windows:**
+              ```
+              python -m venv .venv
+              .venv\Scripts\activate
+              ```  
+            - **Linux/macOS:**
+              ```
+              python3 -m venv .venv
+              source .venv/bin/activate
+              ```
+        2. **Install dependencies:**
+           ```
+           pip install -r requirements.txt
+           ```
+        3. **Start the project:**
+           ```
+           python main.py
+           ```
+        4. **Open in your browser:**  
+           Navigate to: `http://127.0.0.1:5000`
