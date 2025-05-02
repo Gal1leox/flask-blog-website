@@ -63,7 +63,7 @@ def register():
     if form.validate_on_submit():
         success, message = auth_service.register(form)
         flash(message, "success" if success else "danger")
-        target = "public.home" if success else "auth.register_user"
+        target = "public.home" if success else "auth.register"
         return redirect(url_for(target))
 
     return render_template(

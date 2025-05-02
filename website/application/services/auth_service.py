@@ -69,7 +69,7 @@ class AuthService:
             message = f"Welcome back, {user.username}!"
         else:
             user = User(
-                username=f"usr.{int(time.time() * 1000)}",
+                username=generate_username(),
                 email=email,
                 avatar_url=info.get("picture"),
                 google_id=info["sub"],
