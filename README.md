@@ -448,3 +448,11 @@ This is not entertaining place. This is the place where you get familiar with wh
 #### Contact Me Email _(Admin Only)_
 
 ![Contact Me Page](./demonstration/dark/email_message.png)
+
+#### Database Page _(Admin Only)_
+
+![Database Page](./demonstration/dark/dark_database.png)
+
+#### Database Page with Selected Table _(Admin Only)_
+
+![Database Page with Selected Table](./demonstration/dark/dark_database_table.png)
