@@ -78,3 +78,10 @@ This is not entertaining place. This is the place where you get familiar with wh
     - Delete Records
     - Backup Database
     - Restore Database from Backup  
+
+### 🛠 Tech Stack
+- **Frontend:** HTML, Tailwind CSS, JavaScript (Alpine.js)
+- **Backend:** Python, Flask, SQLAlchemy
+- **Database:** SQLite
+- **Containerization:** Docker
+- **Web Server & Reverse Proxy:** Nginx  
