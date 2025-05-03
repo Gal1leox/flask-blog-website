@@ -38,6 +38,28 @@
       .label {
           font-weight: bold;
       }
+
+      @media only screen and (max-width: 768px) {
+          .email-heading {
+              font-size: 1rem;
+          }
+          .email-text {
+              font-size: 0.75rem;
+              line-height: 1.25;
+          }
+      }
+
+      @media only screen and (max-width: 375px) {
+          .email-heading {
+              font-size: 0.75rem;
+          }
+          .email-text {
+              font-size: 0.5rem;
+          }
+          .detail {
+              padding: 0.25rem 0.5rem;
+          }
+      }
   </style>
 </head>
 <body style="margin: 0; padding: 1rem; background-color: #f3f4f6;">

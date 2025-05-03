@@ -2,132 +2,136 @@
 
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Email Verification</title>
-    <style>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Verification</title>
+  <style>
+      body {
+          margin: 0;
+          padding: 0;
+          background-color: #f3f4f6;
+          font-family: Arial, sans‑serif;
+      }
+      .wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+      }
       .email-container {
-        width: 100%;
-        max-width: 384px; /* 24rem = 384px */
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin: auto;
+          width: 100%;
+          max-width: 384px;
+          background-color: #ffffff;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          margin: auto;
+      }
+      .email-content {
+          padding: 1.5rem;
+          text-align: center;
       }
       .email-heading {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #3b82f6;
-        margin-bottom: 1rem;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #3b82f6;
+          margin-bottom: 1rem;
       }
       .email-text {
-        font-size: 0.875rem;
-        color: #374151;
-        margin-bottom: 1rem;
+          font-size: 0.875rem;
+          color: #374151;
+          margin-bottom: 1rem;
+          line-height: 1.5;
+      }
+      .email-text--small {
+          margin-bottom: 0.5rem;
       }
       .code {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #3b82f6;
-        background-color: #f3f4f6;
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
-        display: inline-block;
+          font-size: 2rem;
+          font-weight: 700;
+          color: #3b82f6;
+          background-color: #f3f4f6;
+          padding: 0.5rem 1rem;
+          border-radius: 0.375rem;
+          display: inline-block;
+      }
+      .verification-link {
+          color: #3b82f6;
+          text-decoration: underline;
+      }
+      .note {
+          color: #ef4444;
+          margin-top: 1rem;
+      }
+      .email-footer {
+          padding: 1rem;
+          text-align: center;
+          border-top: 1px solid #e5e7eb;
+      }
+      .footer-text {
+          margin: 0;
+          color: #374151;
+      }
+      .footer-text + .footer-text {
+          margin-top: 0.25rem;
+      }
+
+      @media only screen and (max-width: 768px) {
+          .email-heading {
+              font-size: 1.25rem;
+          }
+          .email-text {
+              font-size: 0.75rem;
+          }
+          .code {
+              font-size: 1.75rem;
+              padding: 0.4rem 0.8rem;
+          }
       }
 
       @media only screen and (max-width: 375px) {
-        .email-heading {
-          font-size: 1.4rem;
-        }
-        .email-text {
-          font-size: 0.8rem;
-        }
-        .code {
-          font-size: 1.8rem;
-          padding: 0.4rem 0.8rem;
-        }
+          .email-heading {
+              font-size: 1rem;
+          }
+          .email-text {
+              font-size: 0.65rem;
+          }
+          .code {
+              font-size: 1.5rem;
+              padding: 0.3rem 0.6rem;
+          }
       }
-
-      @media only screen and (min-width: 376px) and (max-width: 475px) {
-        .email-heading {
-          font-size: 1.5rem;
-        }
-        .email-text {
-          font-size: 0.875rem;
-        }
-        .code {
-          font-size: 2rem;
-          padding: 0.5rem 1rem;
-        }
-      }
-
-      @media only screen and (min-width: 476px) and (max-width: 678px) {
-        .email-heading {
-          font-size: 1.6rem;
-        }
-        .email-text {
-          font-size: 0.9rem;
-        }
-        .code {
-          font-size: 2.1rem;
-          padding: 0.55rem 1.1rem;
-        }
-      }
-    </style>
-  </head>
-  <body
-    style="
-      margin: 0;
-      padding: 0;
-      background-color: #f3f4f6;
-      font-family: Arial, sans-serif;
-    "
-  >
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-      "
-    >
-      <div class="email-container">
-        <div style="padding: 1.5rem; text-align: center">
-          <h2 class="email-heading">Email Verification</h2>
-          <p class="email-text">
-            Please use the verification code below to confirm your email
-            address.
-          </p>
-          <div style="margin-bottom: 1rem">
-            <span class="code">{{ code }}</span>
-          </div>
-          <p class="email-text" style="margin-bottom: 0.5rem">
-            If you were not redirected automatically, please click the
-            <a
-              style="color: #3b82f6; text-decoration: underline"
-              href="{{ verification_link }}"
-              >verification link</a
-            >.
-          </p>
-          <p class="email-text" style="color: #ef4444; margin-top: 1rem">
-            Note: This token will expire in two minutes.
-          </p>
-        </div>
-        <div
-          style="
-            padding: 1rem;
-            text-align: center;
-            border-top: 1px solid #e5e7eb;
-          "
-        >
-          <p class="email-text" style="margin: 0">Cheers,</p>
-          <p class="email-text" style="margin-top: 0.25rem">
-            <strong>Kalts Daniil’s</strong> Personal Blog &gt;_&lt;
-          </p>
-        </div>
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="email-container">
+    <div class="email-content">
+      <h2 class="email-heading">Email Verification</h2>
+      <p class="email-text">
+        Please use the verification code below to confirm your email address.
+      </p>
+      <div>
+        <span class="code">{{ code }}</span>
       </div>
+      <p class="email-text email-text--small">
+        If you were not redirected automatically, please click the
+        <a href="{{ verification_link }}" class="verification-link">
+          verification link
+        </a>.
+      </p>
+      <p class="email-text note">
+        Note: This token will expire in two minutes.
+      </p>
     </div>
-  </body>
+    <div class="email-footer">
+      <p class="footer-text">Cheers,</p>
+      <p class="footer-text">
+        <strong>Kalts Daniil’s</strong> Personal Blog &gt;_&lt;
+      </p>
+    </div>
+  </div>
+</div>
+</body>
 </html>
