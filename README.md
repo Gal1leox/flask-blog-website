@@ -484,3 +484,15 @@ This is not entertaining place. This is the place where you get familiar with wh
 #### Saved Posts Page
 
 ![Saved Posts Page](./demonstration/dark/dark_saved_posts.png)
+
+#### Leave a Comment
+
+![Leave a Comment](./demonstration/dark/dark_comment.png)
+
+#### Reply to a Comment
+
+![Reply to a Comment](./demonstration/dark/dark_comment_reply.png)
+
+#### Sort Comments
+
+![Sort Comments](./demonstration/dark/dark_sort_comments.png)
