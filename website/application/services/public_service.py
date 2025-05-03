@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 from flask import render_template
-from flask_mail import Message
 
 from website.config import Config
 from website.infrastructure.repositories.post_repository import PostRepository
@@ -21,14 +20,13 @@ class PublicService:
             form=form,
             sender_email=user.email,
         )
-        message = Message(
-            subject, sender=user.email, recipients=[Config.ADMIN_EMAIL], html=html
-        )
 
-        from website import mail
+        from .mailjet_service import MailjetService
+
+        mailjet = MailjetService()
 
         try:
-            mail.send(message)
+            mailjet.send_email(to=Config.ADMIN_EMAIL, subject=subject, html_body=html)
             return True, "Your message has been sent successfully!"
         except Exception as e:
             return False, str(e)

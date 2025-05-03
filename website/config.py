@@ -12,6 +12,9 @@ class Config:
     DB_NAME = os.getenv("DB_NAME")
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.getenv('DB_NAME')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
+    MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = True

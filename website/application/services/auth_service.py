@@ -1,17 +1,15 @@
-import time
 import random
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import request, render_template
 from flask_login import login_user, logout_user
-from flask_mail import Message
 
 from website.infrastructure.repositories import (
     UserRepository,
     VerificationCodeRepository,
 )
 from website.domain.models import User, VerificationCode
-from website.extensions import google, mail
+from website.extensions import google
 from website.utils import generate_username
 
 
@@ -93,20 +91,24 @@ class AuthService:
         verification_link = (
             f"{request.host_url}auth/verify-code?token={verification_code.token}"
         )
-        message = Message(
-            "Password Reset Code",
-            sender=admin_email,
-            recipients=[user.email],
-            html=render_template(
-                "pages/auth/user/email_message.html",
-                code=code,
-                verification_link=verification_link,
-                theme="system",
-            ),
+        html = render_template(
+            "pages/auth/user/email_message.html",
+            code=code,
+            verification_link=verification_link,
+            theme="system",
         )
-        mail.send(message)
 
-        return True, verification_code.token
+        from .mailjet_service import MailjetService
+
+        mailjet = MailjetService()
+
+        try:
+            mailjet.send_email(
+                to=user.email, subject="Password Reset Code", html_body=html
+            )
+            return True, verification_code.token
+        except Exception as e:
+            return False, str(e)
 
     def verify_code(self, token: str, code: str) -> bool:
         verification_code = VerificationCodeRepository.get_by_token(token)
