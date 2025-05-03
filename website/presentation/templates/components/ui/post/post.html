@@ -227,27 +227,25 @@
     {% set excerpt_raw = words[:50] | join(' ') %}
 
     <div x-data="{ expanded: false }">
-      <p
-        x-show="!expanded"
-        class="text-sm text-gray-900 dark:text-gray-300"
-      >
-        {{ excerpt_raw | e }}
+      <div x-show="!expanded" class="text-sm prose prose-sm text-gray-900 dark:prose-invert dark:text-gray-300">
+        {{ excerpt_raw
+           | markdown
+           | link_hashtags
+        }}
         <button
           @click="expanded = true"
           class="inline text-sm text-blue-600 dark:text-blue-500 hover:underline"
         >more</button>
-      </p>
-
+      </div>
       <div
         x-show="expanded"
-        class="text-sm text-gray-900 dark:text-gray-300 prose prose-sm dark:prose-invert"
+        class="text-sm prose prose-sm text-gray-900 dark:prose-invert dark:text-gray-300"
       >
         {{ post.content
         | markdown
         | link_hashtags
         }}
       </div>
-
     </div>
 
     {% else %}
