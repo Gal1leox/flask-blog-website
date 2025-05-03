@@ -401,17 +401,29 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 ![Sign In Page](./demonstration/dark/dark_sign_in_admin.png)
 
+#### Sign Up Page
+
+![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+
 #### Sign In Page
 
 ![Sign In Page](./demonstration/dark/dark_sign_in.png)
 
-#### Sign Up Page
+#### Forgot Password Page
 
-![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+![Forgot Password Page](./demonstration/dark/dark_forgot_password.png)
 
-#### Sign Up Page
+#### Email Reset Code
 
-![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+![Email Reset Code](./demonstration/dark/email_reset_code.png)
+
+#### Verify Code Page
+
+![Verify Code Page](./demonstration/dark/dark_verify_code.png)
+
+#### Reset Password Page
+
+![Reset Password Page](./demonstration/dark/dark_reset_password.png)
 
 #### Home Page (no posts)
 
