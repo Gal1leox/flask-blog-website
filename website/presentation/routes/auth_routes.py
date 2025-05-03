@@ -56,7 +56,7 @@ def handle_google_authorize():
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 @anonymous_required
-@limiter.limit("5/day", methods=["POST"])
+@limiter.limit("3/day", methods=["POST"])
 def register():
     form = RegisterForm()
 
@@ -75,7 +75,7 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 @anonymous_required
-@limiter.limit("5/minute", methods=["POST"])
+@limiter.limit("3/minute", methods=["POST"])
 def login():
     form = LoginForm()
 
@@ -94,7 +94,7 @@ def login():
 
 @auth_bp.route("/logout")
 @login_required
-@limiter.limit("20/hour")
+@limiter.limit("3/minute")
 def logout():
     message = auth_service.logout()
     flash(message, "success")
@@ -103,7 +103,7 @@ def logout():
 
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
 @anonymous_required
-@limiter.limit("5/minute", methods=["POST"])
+@limiter.limit("3/minute", methods=["POST"])
 def forgot_password():
     form = ForgotPasswordForm()
 
@@ -195,7 +195,7 @@ def reset_password():
 
 @auth_bp.route("/admin/login", methods=["GET", "POST"])
 @token_required
-@limiter.limit("3/hour", methods=["POST"])
+@limiter.limit("5/hour", methods=["POST"])
 def admin_login():
     form = LoginForm()
     token = request.args.get("token")

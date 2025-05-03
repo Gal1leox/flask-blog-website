@@ -21,7 +21,7 @@ def redirect_to_post(post_id: int):
 
 @comments_bp.route("/post/<int:post_id>", methods=["POST"])
 @login_required
-@limiter.limit("20/minute")
+@limiter.limit("3/minute")
 def add_comment(post_id):
     form = CommentForm()
 
@@ -42,7 +42,7 @@ def add_comment(post_id):
 
 @comments_bp.route("/<int:comment_id>/edit", methods=["POST"])
 @login_required
-@limiter.limit("30/minute")
+@limiter.limit("5/minute")
 def edit_comment(comment_id):
     updated_text = request.form.get("content", "")
     success, message = comment_service.edit_comment(
@@ -59,7 +59,7 @@ def edit_comment(comment_id):
 
 @comments_bp.route("/<int:comment_id>/delete", methods=["POST"])
 @login_required
-@limiter.limit("30/minute")
+@limiter.limit("5/minute")
 def delete_comment(comment_id):
     comment = CommentRepository.get(comment_id)
     post_id = comment.post_id if comment else request.args.get("post_id", type=int) or 0

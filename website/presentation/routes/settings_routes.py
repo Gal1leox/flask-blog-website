@@ -50,7 +50,7 @@ def profile_settings():
 
 @settings_bp.route("/delete-avatar", methods=["POST"])
 @login_required
-@limiter.limit("20/hour")
+@limiter.limit("10/hour")
 def delete_avatar():
     user = get_current_user()
     success, message = settings_service.delete_avatar(user)
@@ -90,7 +90,7 @@ def change_password():
 
 @settings_bp.route("/theme", methods=["POST"])
 @login_required
-@limiter.limit("30/minute")
+@limiter.limit("10/minute")
 def set_theme():
     user = get_current_user()
     data = request.get_json() or {}
@@ -105,7 +105,7 @@ def set_theme():
 
 @settings_bp.route("/delete-account", methods=["POST"])
 @login_required
-@limiter.limit("1/day")
+@limiter.limit("3/day")
 def delete_account():
     user = get_current_user()
     success, message = settings_service.delete_account(user, is_admin=False)

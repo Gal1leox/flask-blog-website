@@ -31,7 +31,7 @@ def list_posts():
 
 @posts_bp.route("/new", methods=["GET", "POST"])
 @login_required
-@limiter.limit("10/hour", methods=["POST"])
+@limiter.limit("5/hour", methods=["POST"])
 def add_post():
     user = get_current_user()
     form = CreatePostForm()

@@ -29,7 +29,7 @@ def home():
 
 @public_bp.route("/contact-me", methods=["GET", "POST"])
 @login_required
-@limiter.limit("10/hour", methods=["POST"])
+@limiter.limit("5/hour", methods=["POST"])
 def contact():
     user = get_current_user()
     form = ContactForm()
