@@ -37,12 +37,10 @@ class ImageRepository:
     @staticmethod
     def add_image(image: Image) -> None:
         db.session.add(image)
-        db.session.commit()
 
     @staticmethod
     def delete_image(image: Image) -> None:
         db.session.delete(image)
-        db.session.commit()
 
 
 class SavedPostRepository:

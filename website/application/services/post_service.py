@@ -65,7 +65,7 @@ class PostService:
                 except Exception:
                     pass
                 post.images.remove(img)
-                ImageRepository.delete_image(img)
+                db.session.delete(img)
 
         if not post.images and not new_files:
             return False, "At least one image is required."
@@ -76,21 +76,25 @@ class PostService:
         if content != post.content:
             post.content = content
 
-        for img in new_files:
+        for file in new_files:
             response = cloudinary.uploader.upload(
-                img, folder="posts", resource_type="image"
+                file, folder="posts", resource_type="image"
             )
             url = response.get("secure_url")
             public_id = response.get("public_id")
-            if not url:
+            if not url or not public_id:
                 continue
 
             new_img = Image(author_id=author_id, url=url, public_id=public_id)
             post.images.append(new_img)
-            ImageRepository.add_image(new_img)
+            db.session.add(new_img)
 
-        PostRepository.save_post(post)
-        return True, "Post edited successfully!"
+        try:
+            db.session.commit()
+            return True, "Post edited successfully!"
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Error saving changes: {e}"
 
     def toggle_save(self, post_id: int, user_id: int) -> bool:
         saved = SavedPostRepository.find(user_id, post_id)
