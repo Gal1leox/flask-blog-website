@@ -312,6 +312,8 @@ This is not entertaining place. This is the place where you get familiar with wh
 2. **Setup External Services**
     - **Google Cloud Project:**  
       [Create a new Google Cloud project](./instructions/google-console)
+    - **Mailjet API Credentials:**  
+      [Obtain your Mailjet keys](./instructions/mailjet)
     - **Gmail App Password:**  
       [Generate a Gmail app password](./instructions/gmail-app-password)
     - **Google OAuth Client:**  
@@ -323,41 +325,37 @@ This is not entertaining place. This is the place where you get familiar with wh
 3. **Create and configure your `.env` file:**
     ```
     # Database Configuration
-    DB_NAME=blog_website.db  # ← Replace with your database filename
+    DB_NAME=blog_website.db                      # ← Replace with your database filename
 
     # Flask Configuration
-    # SECRET_KEY: generate a secure random string from generate_token.py.
-    # PREFERRED_URL_SCHEME: “http” for local dev, “https” for production.
-    # FLASK_ENV: “development” or “production”.
     SECRET_KEY=REPLACE_WITH_SECURE_RANDOM_KEY    # ← Replace with your generated secret
     PREFERRED_URL_SCHEME=http                    # ← http or https
     FLASK_ENV=development                        # ← development or production
 
     # Admin Credentials
-    # Set these to the admin account you will create.
     ADMIN_USERNAME=admin.user        # ← Replace with your desired admin username
-    ADMIN_EMAIL=admin@example.com    # ← Replace with your admin gmail address
+    ADMIN_EMAIL=admin@example.com    # ← Replace with your admin email address
     ADMIN_PASSWORD=ChangeMe123!      # ← Replace with a strong admin password
 
-    # Mail Configuration
-    # Use the app-specific password.
-    MAIL_PASSWORD=REPLACE_WTH_MAIL_APP_PASSWORD  # ← Replace with your mail password
+    # Mail Configuration (SMTP)
+    MAIL_PASSWORD=REPLACE_WITH_MAIL_APP_PASSWORD  # ← Replace with your app‑specific password
 
-    # Google OAuth Credentials
-    # Obtain these from Google Cloud Console.
+    # Google OAuth 2.0
     CLIENT_ID=YOUR_GOOGLE_CLIENT_ID_HERE         # ← Replace with your Google OAuth client ID
     CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET_HERE # ← Replace with your Google OAuth client secret
 
     # Cloudinary Configuration
-    # Get these from your Cloudinary dashboard.
     CLOUDINARY_NAME=example_cloud_name           # ← Replace with your Cloudinary cloud name
     CLOUDINARY_API_KEY=123456789012345           # ← Replace with your Cloudinary API key
     CLOUDINARY_SECRET=abcdefGhIjKLmnoPQRstuVwxYz # ← Replace with your Cloudinary API secret
 
     # reCAPTCHA Credentials
-    # Register at Google reCAPTCHA to get these keys.
     RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI   # ← Replace with your site key
     RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe # ← Replace with your secret key
+
+    # Mailjet Credentials
+    MAILJET_API_KEY=abc123mailjetkey      # ← Replace with your Mailjet API key
+    MAILJET_API_SECRET=secret-mailjet-key # ← Replace with your Mailjet API secret
     ```
 
 3. **Run the Project:**
@@ -415,6 +413,8 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 #### Email Reset Code
 
+If you don't see the message in "Inbox" - Check Spam
+
 ![Email Reset Code](./demonstration/dark/email_reset_code.png)
 
 #### Verify Code
@@ -457,7 +457,9 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 ![Contact Form reCAPTCHA](./demonstration/dark/dark_recatpcha.png)
 
-#### Contact Me Email _(Admin Only)_
+#### Contact Me Email
+
+If you don't see the message in "Inbox" - Check Spam
 
 ![Contact Me Page](./demonstration/dark/email_message.png)
 
@@ -493,7 +495,7 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 ![Saved Posts](./demonstration/dark/dark_saved_posts.png)
 
-#### Add Comment
+#### Add a Comment
 
 ![Add a Comment](./demonstration/dark/dark_comment.png)
 
