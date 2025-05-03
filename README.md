@@ -397,111 +397,107 @@ This is not entertaining place. This is the place where you get familiar with wh
 
 ### 🚀 Demonstration
 
-#### Sign In Page _(Admin Only)_
+#### Sign In _(Admin Only)_
 
-![Sign In Page](./demonstration/dark/dark_sign_in_admin.png)
+![Sign In](./demonstration/dark/dark_sign_in_admin.png)
 
-#### Sign Up Page
+#### Sign Up
 
-![Sign Up Page](./demonstration/dark/dark_sign_up_filled.png)
+![Sign Up](./demonstration/dark/dark_sign_up_filled.png)
 
-#### Sign In Page
+#### Sign In
 
-![Sign In Page](./demonstration/dark/dark_sign_in.png)
+![Sign In](./demonstration/dark/dark_sign_in.png)
 
-#### Forgot Password Page
+#### Forgot Password
 
-![Forgot Password Page](./demonstration/dark/dark_forgot_password.png)
+![Forgot Password](./demonstration/dark/dark_forgot_password.png)
 
 #### Email Reset Code
 
 ![Email Reset Code](./demonstration/dark/email_reset_code.png)
 
-#### Verify Code Page
+#### Verify Code
 
-![Verify Code Page](./demonstration/dark/dark_verify_code.png)
+![Verify Code](./demonstration/dark/dark_verify_code.png)
 
-#### Reset Password Page
+#### Reset Password 
 
-![Reset Password Page](./demonstration/dark/dark_reset_password.png)
+![Reset Password](./demonstration/dark/dark_reset_password.png)
 
-#### Home Page (no posts)
+#### Home (no posts)
 
-![No Posts Home Page](./demonstration/dark/dark_account_created.png)
+![Home (no posts)](./demonstration/dark/dark_account_created.png)
 
 #### User Dropdown
 
 ![User Dropdown](./demonstration/dark/dark_user_dropdown.png)
 
-#### Settings Page (part 1)
+#### Settings (part 1)
 
-![Settings Page (part 1)](./demonstration/dark/dark_settings_1.png)
+![Settings (part 1)](./demonstration/dark/dark_settings_1.png)
 
-#### Settings Page (part 2)
+#### Settings (part 2)
 
-![Settings Page (part 2)](./demonstration/dark/dark_settings_2.png)
+![Settings (part 2)](./demonstration/dark/dark_settings_2.png)
 
-#### Settings Page: Delete Account Modal
+#### Settings: Delete Account
 
-![Settings Page: Delete Account Modal](./demonstration/dark/dark_delete_account_modal.png)
+![Settings : Delete Account](./demonstration/dark/dark_delete_account_modal.png)
 
-#### Settings Page: Update Account
+#### Settings: Update Account
 
-![Settings Page: Update Account](./demonstration/dark/dark_settings_update_account.png)
+![Settings: Update Account](./demonstration/dark/dark_settings_update_account.png)
 
-#### Contact Me Page
+#### Contact Me Form
 
-![Contact Me Page](./demonstration/dark/dark_filled_contact_form.png)
+![Contact Me Form](./demonstration/dark/dark_filled_contact_form.png)
 
-#### Contact Me Page (reCAPTCHA)
+#### Contact Form reCAPTCHA
 
-![Contact Me Page](./demonstration/dark/dark_recatpcha.png)
+![Contact Form reCAPTCHA](./demonstration/dark/dark_recatpcha.png)
 
 #### Contact Me Email _(Admin Only)_
 
 ![Contact Me Page](./demonstration/dark/email_message.png)
 
-#### Database Page _(Admin Only)_
+#### Database Dashboard _(Admin Only)_
 
-![Database Page](./demonstration/dark/dark_database.png)
+![Database Dashboard](./demonstration/dark/dark_database.png)
 
-#### Database Page with Selected Table _(Admin Only)_
+#### Table View _(Admin Only)_
 
-![Database Page with Selected Table](./demonstration/dark/dark_database_table.png)
+![Table View](./demonstration/dark/dark_database_table.png)
 
-#### New Post Page _(Admin Only_
+#### New Post _(Admin Only_
 
-![New Post Page](./demonstration/dark/dark_new_post.png)
+![New Post](./demonstration/dark/dark_new_post.png)
 
-#### New Post Page _(Admin Only_
+#### Post Overview
 
-![New Post Page](./demonstration/dark/dark_new_post.png)
+![Post Overview](./demonstration/dark/dark_post_1.png)
 
-#### Post Page (part 1)
+#### Post Discussion
 
-![Post Page (part 1)](./demonstration/dark/dark_post_1.png)
+![Post Discussion](./demonstration/dark/dark_post_2.png)
 
-#### Post Page (part 2)
+#### Copy Link
 
-![Post Page (part 2)](./demonstration/dark/dark_post_2.png)
+![Copy Link](./demonstration/dark/dark_post_copy_link.png)
 
-#### Post Copy Link
+#### Home (Hashtags)
 
-![Post Copy Link](./demonstration/dark/dark_post_copy_link.png)
+![Home (Hashtags)](./demonstration/dark/dark_home_hashtags.png)
 
-#### Home Page Hashtags
+#### Saved Posts
 
-![Home Page Hashtags](./demonstration/dark/dark_home_hashtags.png)
+![Saved Posts](./demonstration/dark/dark_saved_posts.png)
 
-#### Saved Posts Page
+#### Add Comment
 
-![Saved Posts Page](./demonstration/dark/dark_saved_posts.png)
+![Add a Comment](./demonstration/dark/dark_comment.png)
 
-#### Leave a Comment
-
-![Leave a Comment](./demonstration/dark/dark_comment.png)
-
-#### Reply to a Comment
+#### Reply to Comment
 
 ![Reply to a Comment](./demonstration/dark/dark_comment_reply.png)
 
