@@ -26,6 +26,13 @@
         {{ post.author.username }}
       </span>
     </div>
+    
+  <!-- Add post title below author row -->
+  <div class="px-4 pt-2 pb-1">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 break-words">
+      {{ post.title }}
+    </h2>
+  </div>
 
     {% if is_admin %}
     <div x-data="{ open: false }" class="flex relative">

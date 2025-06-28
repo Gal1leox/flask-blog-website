@@ -1,4 +1,4 @@
-from wtforms import TextAreaField, SubmitField
+from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 from flask_wtf.file import FileAllowed, FileRequired
 
@@ -12,9 +12,17 @@ from .fields import MultiFileField
 
 
 class CreatePostForm(BaseForm):
+    title = StringField(
+        "Title",
+        validators=[DataRequired(), Length(1, 150)],
+        render_kw={
+            "placeholder": "Title of your post",
+            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
+        },
+    )
     content = TextAreaField(
         "Content",
-        validators=[DataRequired(), Length(4, 2000)],
+        validators=[DataRequired(), Length(4, 7000)],
         render_kw={
             "placeholder": "Content of a new post",
             "rows": 10,

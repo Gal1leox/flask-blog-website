@@ -41,6 +41,7 @@ def add_post():
     if form.validate_on_submit():
         images = [f for f in request.files.getlist("images") if f.filename]
         success, message = post_service.create_post(
+            title=form.title.data,  # Add this line
             content=form.content.data,
             images=images,
             author_id=user.id,
@@ -72,6 +73,7 @@ def edit_post(post_id):
             "post": post,
             "post_images": post.images,
             "max_images": PostService.MAX_IMAGES,
+            "title": post.title,  # Add this line
         }
     )
 
@@ -82,6 +84,7 @@ def edit_post(post_id):
         new_images = [f for f in request.files.getlist("images") if f.filename]
         success, message = post_service.edit_post(
             post=post,
+            title=form.title.data,  # Add this line
             content=form.content.data,
             delete_ids=delete_ids,
             new_files=new_images,

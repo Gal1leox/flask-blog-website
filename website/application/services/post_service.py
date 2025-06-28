@@ -27,12 +27,12 @@ class PostService:
         return post, ""
 
     def create_post(
-        self, content: str, images: List[FileStorage], author_id: int
+        self, title: str, content: str, images: List[FileStorage], author_id: int
     ) -> Tuple[bool, str]:
         if not images:
             return False, "At least one image is required."
 
-        post = Post(content=content, author_id=author_id)
+        post = Post(title=title, content=content, author_id=author_id)
 
         for img in images:
             response = cloudinary.uploader.upload(
@@ -53,6 +53,7 @@ class PostService:
     def edit_post(
         self,
         post: Post,
+        title: str,
         content: str,
         delete_ids: List[int],
         new_files: List[FileStorage],
@@ -72,6 +73,9 @@ class PostService:
 
         if len(post.images) + len(new_files) > self.MAX_IMAGES:
             return False, f"At most {self.MAX_IMAGES} images are allowed."
+
+        if title != post.title:
+            post.title = title
 
         if content != post.content:
             post.content = content
@@ -95,6 +99,7 @@ class PostService:
         except Exception as e:
             db.session.rollback()
             return False, f"Error saving changes: {e}"
+
 
     def toggle_save(self, post_id: int, user_id: int) -> bool:
         saved = SavedPostRepository.find(user_id, post_id)

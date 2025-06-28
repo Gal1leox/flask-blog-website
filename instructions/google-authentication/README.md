@@ -36,3 +36,5 @@ And boom, you have:
 Paste them into your `.env`.  
 
 ![Credentials Revealed](./screenshots/08_google_developer_console_oauth_client_name_authorized_redirect_uris.png)
+
+

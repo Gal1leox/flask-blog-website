@@ -9,7 +9,7 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
 {% endblock %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-lg">
+<div class="mx-auto w-full max-w-4xl">
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   <div class="mb-6">
@@ -24,7 +24,7 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
         {{ post_images|map(attribute="id")|list|default([])|tojson }},
         {{ post_images|map(attribute="url")|list|default([])|tojson }}
       )'
-       class="p-6 mx-auto max-w-lg bg-white rounded-2xl shadow dark:bg-gray-800">
+       class="p-6 mx-auto max-w-4x1 bg-white rounded-2xl shadow dark:bg-gray-800">
     <form x-on:submit="submitting = true"
           method="POST"
           action=""
@@ -110,7 +110,20 @@ Kalts Daniil - {{ "Edit Post" if editing else "New Post" }}
         {% endfor %}
       </div>
       {% endif %}
-
+            <!-- Add title field here -->
+      <div class="mb-6">
+  <label for="{{ form.title.id }}" >
+    Title
+  </label>
+  {{ form.title(class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600", placeholder="Title of your post") }}
+  {% if form.title.errors %}
+    <div class="mt-1 text-sm text-red-500">
+      {% for error in form.title.errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
       <div class="mb-6">
         {{ render_textarea_field(form.content) }}
       </div>

@@ -11,7 +11,7 @@
 <div
   x-data="{ count: {{ messages|length }} }"
   x-show="count > 0"
-  class="mb-6 mx-auto w-full {{ 'max-w-lg' if posts else '' }}"
+  class="mb-6 mx-auto w-full {{ 'max-w-4x1' if posts else '' }}"
 >
   {% for category, message in messages %}
   {{ alert(category, message) }}
@@ -21,7 +21,7 @@
 
 {% set selected_tags = request.args.getlist('tag') %}
 {% if selected_tags %}
-<div class="container flex flex-wrap gap-2 pb-6 mx-auto max-w-lg">
+<div class="container flex flex-wrap gap-2 pb-6 mx-auto max-w-4x1">
   {% for tag in selected_tags %}
   {% set remaining = selected_tags|reject('equalto', tag)|list %}
   {% if remaining %}
@@ -57,7 +57,7 @@
 {% endif %}
 
 {% if posts %}
-<div class="container mx-auto max-w-lg">
+<div class="container mx-auto max-w-4x1">
   <div class="grid grid-cols-1 gap-8">
     {% for post in posts %}
     {{ render_post(post) }}

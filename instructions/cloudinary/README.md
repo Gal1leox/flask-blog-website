@@ -20,9 +20,9 @@
 
 ### 06. Copy and Paste Credentials to Environmental Variables
 You have:
-- **Cloud Name**
-- **API Key**
-- **API Secret**
+- **Cloud Name**dqy3fqwgb
+- **API Key** 227658431724453
+- **API Secret**cKq9KC_DBfTlBJZkRWfLwQBfHaA
 
 Paste them into your `.env`.
 

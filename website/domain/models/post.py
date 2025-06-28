@@ -13,6 +13,11 @@ class Post(db.Model):
         Integer,
         primary_key=True,
     )
+        # Add title field
+    title: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
     author_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
@@ -67,6 +72,7 @@ class Post(db.Model):
         return (
             f"Post:\n"
             f"ID: {self.id}\n"
+            f"Title: {self.title!r}\n"
             f"Author ID: {self.author_id}\n"
             f"Created At: {self.created_at}\n"
             f"Updated At: {self.updated_at}\n"
