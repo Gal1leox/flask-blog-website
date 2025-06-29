@@ -26,9 +26,9 @@
         {{ post.author.username }}
       </span>
     </div>
-    
+
   <!-- Add post title below author row -->
-  <div class="px-4 pt-2 pb-1">
+  <div class="px-4 pt-2 pb-1 mx-auto">
     <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 break-words">
       {{ post.title }}
     </h2>
@@ -230,14 +230,16 @@
 
   <div class="px-4 pt-3 pb-4">
     {% set words = post.content.split(' ') %}
-    {% if words|length > 50 %}
-    {% set excerpt_raw = words[:50] | join(' ') %}
+    {% if words|length > 100 %}
+    {% set excerpt_raw = words[:100] | join(' ') %}
 
     <div x-data="{ expanded: false }">
       <div x-show="!expanded" class="text-sm prose prose-sm text-gray-900 dark:prose-invert dark:text-gray-300">
         {{ excerpt_raw
-           | markdown
-           | link_hashtags
+          | markdown
+          | replace('\n', '')
+          | safe
+          | link_hashtags
         }}
         <button
           @click="expanded = true"
@@ -248,19 +250,23 @@
         x-show="expanded"
         class="text-sm prose prose-sm text-gray-900 dark:prose-invert dark:text-gray-300"
       >
-        {{ post.content
-        | markdown
-        | link_hashtags
-        }}
+          {{ post.content
+            | markdown
+            | replace('\n', '')
+            | safe
+            | link_hashtags
+          }}
       </div>
     </div>
 
     {% else %}
     <div class="text-sm text-gray-700 dark:text-gray-100 prose prose-sm dark:prose-invert">
-      {{ post.content
-      | markdown
-      | link_hashtags
-      }}
+        {{ post.content
+          | markdown
+          | replace('\n', '')
+          | safe
+          | link_hashtags
+        }}
     </div>
     {% endif %}
 
@@ -270,5 +276,11 @@
     </span>
     </div>
   </div>
+  <script>
+  document.querySelectorAll('p').forEach(p => {
+  const br = document.createElement('br');
+  p.after(br);
+});
+  </script>
 </div>
 {% endmacro %}
