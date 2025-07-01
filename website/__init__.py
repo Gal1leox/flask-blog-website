@@ -23,26 +23,28 @@ from website.errors import (
 load_dotenv()
 
 def create_database_if_not_exists():
-    db_login = os.getenv("DB_LOGIN")
-    db_password = os.getenv("DB_PASSWORD")
-    db_server = os.getenv("DB_SERVER")
-    db_name = os.getenv("DB_NAME")
-
+    # Connect to the default 'postgres' database to check/create the target database
     engine = create_engine(
-        f"mssql+pyodbc://{db_login}:{db_password}@{db_server}/master?driver=ODBC+Driver+17+for+SQL+Server",
+        f"postgresql+psycopg2://{os.getenv('DB_LOGIN')}:{os.getenv('DB_PASSWORD')}"
+        f"@{os.getenv('DB_SERVER')}:{os.getenv('DB_PORT', '5432')}/postgres"
+        f"?sslmode=require",
         isolation_level="AUTOCOMMIT"
     )
-
-
-    create_db_sql = f"""
-    IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{db_name}')
-    BEGIN
-        CREATE DATABASE [{db_name}];
-    END
-    """
-
-    with engine.connect() as conn:
-        conn.execute(text(create_db_sql))
+    try:
+        with engine.connect() as conn:
+            # Use a DO block to conditionally create the database
+            conn.execute(text("""
+                DO $$ 
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :db_name) THEN
+                        PERFORM 'CREATE DATABASE ' || quote_ident(:db_name);
+                    END IF;
+                END $$;
+            """), {"db_name": os.getenv('DB_NAME')})
+    except Exception as e:
+        print(f"Error creating database: {str(e)}")
+        # If database creation fails (e.g., Render restricts access), proceed to table creation
+        # This assumes the database already exists
 
 def create_app():
     create_database_if_not_exists()

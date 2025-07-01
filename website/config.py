@@ -10,11 +10,9 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     DB_NAME = os.getenv("DB_NAME")
     SQLALCHEMY_DATABASE_URI = (
-    f"mssql+pyodbc://{os.getenv('DB_LOGIN')}:{os.getenv('DB_PASSWORD')}"
-    f"@{os.getenv('DB_SERVER')}/{os.getenv('DB_NAME')}?"
-    "driver=ODBC+Driver+17+for+SQL+Server"
+        f"postgresql+psycopg2://{os.getenv('DB_LOGIN')}:{os.getenv('DB_PASSWORD')}"
+        f"@{os.getenv('DB_SERVER')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME')}"
 )
-
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
