@@ -49,12 +49,14 @@ class Image(db.Model):
         secondary="post_images",
         back_populates="images",
         lazy="subquery",
+        overlaps="post,post_images"
     )
     post_images = relationship(
         "PostImage",
         back_populates="image",
         cascade="all, delete-orphan",
         passive_deletes=True,
+        overlaps="images"
     )
 
     def __repr__(self) -> str:

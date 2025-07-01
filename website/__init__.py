@@ -1,8 +1,7 @@
 import os
-
 from flask import Flask
 from dotenv import load_dotenv
-
+from sqlalchemy import create_engine, text
 from website.config import DevelopmentConfig, ProductionConfig
 from website.utils import timesince
 from website.extensions import (
@@ -23,8 +22,30 @@ from website.errors import (
 
 load_dotenv()
 
+def create_database_if_not_exists():
+    db_login = os.getenv("DB_LOGIN")
+    db_password = os.getenv("DB_PASSWORD")
+    db_server = os.getenv("DB_SERVER")
+    db_name = os.getenv("DB_NAME")
+
+    engine = create_engine(
+        f"mssql+pyodbc://{db_login}:{db_password}@{db_server}/master?driver=ODBC+Driver+17+for+SQL+Server",
+        isolation_level="AUTOCOMMIT"
+    )
+
+
+    create_db_sql = f"""
+    IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{db_name}')
+    BEGIN
+        CREATE DATABASE [{db_name}];
+    END
+    """
+
+    with engine.connect() as conn:
+        conn.execute(text(create_db_sql))
 
 def create_app():
+    create_database_if_not_exists()
     app = Flask(
         __name__,
         static_folder="presentation/static",
@@ -50,7 +71,6 @@ def create_app():
 
     register_blueprints(app)
     register_error_handlers(app)
-
     with app.app_context():
         from website.domain import models
 

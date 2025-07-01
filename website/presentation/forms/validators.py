@@ -33,7 +33,7 @@ def validate_username(_, field):
         raise ValidationError(
             "Username must start with a letter and end with a letter or digit"
         )
-    if not re.fullmatch(r"[a-z0-9._]+", name):
+    if not re.fullmatch(r"[a-zA-Z0-9._]+", name):
         raise ValidationError("Use only lowercase letters, digits, '.' or '_'")
 
 

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple
 
 import cloudinary.uploader
 from flask import current_app
-from sqlalchemy import text
+from sqlalchemy import text, Table, MetaData
 from werkzeug.datastructures import FileStorage
 
 from website import db
@@ -20,21 +20,19 @@ class AdminService:
         return self.table_repository.all_tables()
 
     def get_records(self, table_name: str) -> Tuple[List[Dict[str, Any]], List[str]]:
-        if not table_name:
+        if not table_name or not table_name.isidentifier():
             return [], []
 
-        select_statement = text(f"SELECT * FROM {table_name}")
-        records = db.session.execute(select_statement).mappings().all()
-        if not records:
-            table_info_rows = db.session.execute(
-                text(f"PRAGMA table_info({table_name})")
-            ).all()
-            column_names = [column[1] for column in table_info_rows]
-            return [], column_names
-
-        column_names = list(records[0].keys())
-        record_list = [dict(row) for row in records]
-        return record_list, column_names
+        try:
+            metadata = MetaData()
+            table = Table(table_name, metadata, autoload_with=db.engine)
+            column_names = [column.name for column in table.columns]
+            records = db.session.execute(table.select()).mappings().all()
+            record_list = [dict(row) for row in records]
+            return record_list, column_names
+        except Exception as e:
+            print(f"Error fetching records for table {table_name}: {str(e)}")
+            return [], []
 
     def delete_one(self, table_name: str, record_id: int) -> Tuple[bool, str, int]:
         forbidden_tables = ("post_tags", "saved_posts")

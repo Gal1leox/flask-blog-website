@@ -4,13 +4,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class Config:
     """Base configuration with default settings."""
 
     SECRET_KEY = os.getenv("SECRET_KEY")
     DB_NAME = os.getenv("DB_NAME")
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.getenv('DB_NAME')}"
+    SQLALCHEMY_DATABASE_URI = (
+    f"mssql+pyodbc://{os.getenv('DB_LOGIN')}:{os.getenv('DB_PASSWORD')}"
+    f"@{os.getenv('DB_SERVER')}/{os.getenv('DB_NAME')}?"
+    "driver=ODBC+Driver+17+for+SQL+Server"
+)
+
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")
     MAILJET_API_SECRET = os.getenv("MAILJET_API_SECRET")
@@ -41,3 +46,13 @@ class ProductionConfig(Config):
 
     DEBUG = False
     PREFERRED_URL_SCHEME = "https"
+
+
+
+
+    # DB_NAME = os.getenv("DB_NAME")
+    # DB_LOGIN = os.getenv("DB_LOGIN")
+    # DB_PASSWORD = os.getenv("DB_PASSWORD")
+    # DB_SERVER = os.getenv("DB_SERVER")
+    # SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{DB_LOGIN}:{DB_PASSWORD}@{DB_SERVER}/{DB_NAME}"
+    # SQLALCHEMY_TRACK_MODIFICATIONS = False

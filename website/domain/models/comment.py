@@ -29,16 +29,16 @@ class Comment(db.Model):
         nullable=False,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"),
+        ForeignKey("posts.id", ondelete="NO ACTION"),
         nullable=False,
     )
 
     parent_comment_id: Mapped[int] = mapped_column(
-        ForeignKey("comments.id", ondelete="CASCADE"),
+        ForeignKey("comments.id", ondelete="NO ACTION"),
         nullable=True,
     )
     reply_to_comment_id: Mapped[int] = mapped_column(
-        ForeignKey("comments.id", ondelete="CASCADE"),
+        ForeignKey("comments.id", ondelete="NO ACTION"),
         nullable=True,
     )
 

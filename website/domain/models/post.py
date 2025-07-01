@@ -60,6 +60,7 @@ class Post(db.Model):
         back_populates="post",
         cascade="all, delete-orphan",
         passive_deletes=True,
+        overlaps="images"
     )
     comments = relationship(
         "Comment",
@@ -88,9 +89,10 @@ class SavedPost(db.Model):
         primary_key=True,
     )
     post_id: Mapped[int] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"),
+        ForeignKey("posts.id", ondelete="NO ACTION"),  # or omit ondelete entirely
         primary_key=True,
     )
+
     saved_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -105,6 +107,7 @@ class SavedPost(db.Model):
         "Post",
         back_populates="saved_by",
         passive_deletes=True,
+        overlaps="post,post_images"
     )
 
     def __repr__(self) -> str:
@@ -124,7 +127,7 @@ class PostImage(db.Model):
         primary_key=True,
     )
     image_id: Mapped[int] = mapped_column(
-        ForeignKey("images.id", ondelete="CASCADE"),
+        ForeignKey("images.id", ondelete="NO ACTION"),
         primary_key=True,
     )
 
@@ -132,11 +135,13 @@ class PostImage(db.Model):
         "Post",
         back_populates="post_images",
         passive_deletes=True,
+        overlaps="post,post_images"
     )
     image = relationship(
         "Image",
         back_populates="post_images",
         passive_deletes=True,
+        overlaps="image"
     )
 
     def __repr__(self) -> str:
