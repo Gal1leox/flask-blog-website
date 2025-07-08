@@ -135,13 +135,13 @@ class PostImage(db.Model):
         "Post",
         back_populates="post_images",
         passive_deletes=True,
-        overlaps="post,post_images"
+        overlaps="post,post_images,images"
     )
     image = relationship(
         "Image",
         back_populates="post_images",
         passive_deletes=True,
-        overlaps="image"
+        overlaps="images"
     )
 
     def __repr__(self) -> str:

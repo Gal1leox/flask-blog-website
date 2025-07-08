@@ -49,7 +49,7 @@ class Image(db.Model):
         secondary="post_images",
         back_populates="images",
         lazy="subquery",
-        overlaps="post,post_images"
+        overlaps="post_images,image,post"
     )
     post_images = relationship(
         "PostImage",
