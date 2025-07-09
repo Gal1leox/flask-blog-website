@@ -26,6 +26,27 @@ class Post(db.Model):
         Text,
         nullable=False,
     )
+    overall_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    story_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    gameplay_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    graphics_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    sound_design_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    replay_value_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    difficulty_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    bug_free_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    pc_requirements_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    game_length_blocks: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -75,6 +96,16 @@ class Post(db.Model):
             f"ID: {self.id}\n"
             f"Title: {self.title!r}\n"
             f"Author ID: {self.author_id}\n"
+            f"\nOverall Rating: {'★' * self.overall_rating + '☆' * (5 - self.overall_rating)}"
+            f"\nStory: {'★' * self.story_rating + '☆' * (5 - self.story_rating)}"
+            f"\nGameplay: {'★' * self.gameplay_rating + '☆' * (5 - self.gameplay_rating)}"
+            f"\nGraphics: {'★' * self.graphics_rating + '☆' * (5 - self.graphics_rating)}"
+            f"\nSound Design: {'★' * self.sound_design_rating + '☆' * (5 - self.sound_design_rating)}"
+            f"\nReplay Value: {'★' * self.replay_value_rating + '☆' * (5 - self.replay_value_rating)}"
+            f"\nDifficulty: {'★' * self.difficulty_rating + '☆' * (5 - self.difficulty_rating)}"
+            f"\nBug Free? {'★' * self.bug_free_rating + '☆' * (5 - self.bug_free_rating)}"
+            f"\nPC Requirements: {'★' * self.pc_requirements_rating + '☆' * (5 - self.pc_requirements_rating)}"
+            f"\nGame Length: {'▰' * self.game_length_blocks + '▱' * (10 - self.game_length_blocks)}"
             f"Created At: {self.created_at}\n"
             f"Updated At: {self.updated_at}\n"
             f"Content: {self.content!r}"

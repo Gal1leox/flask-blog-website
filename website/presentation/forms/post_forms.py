@@ -1,5 +1,5 @@
-from wtforms import StringField, TextAreaField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, TextAreaField, SubmitField,IntegerField
+from wtforms.validators import DataRequired, NumberRange
 from flask_wtf.file import FileAllowed, FileRequired
 
 from .base import BaseForm
@@ -29,6 +29,68 @@ class CreatePostForm(BaseForm):
             "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
         },
     )
+
+
+    overall_rating = IntegerField(
+    "Overall Rating",
+    validators=[DataRequired(), NumberRange(min=1, max=5)],
+    render_kw={"class": "rating-input", "min": 1, "max": 5}
+    )
+
+    story_rating = IntegerField(
+        "Story",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    gameplay_rating = IntegerField(
+        "Gameplay",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    graphics_rating = IntegerField(
+        "Graphics",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    sound_design_rating = IntegerField(
+        "Sound Design",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    replay_value_rating = IntegerField(
+        "Replay Value",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    difficulty_rating = IntegerField(
+        "Difficulty",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    bug_free_rating = IntegerField(
+        "Bug Free?",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    pc_requirements_rating = IntegerField(
+        "PC Requirements",
+        validators=[DataRequired(), NumberRange(min=1, max=5)],
+        render_kw={"class": "rating-input"}
+    )
+
+    game_length_blocks = IntegerField(
+        "Game Length",
+        validators=[DataRequired(), NumberRange(min=1, max=10)],
+        render_kw={"class": "rating-input"}
+    )
+
     images = MultiFileField(
         "Upload Images",
         validators=[

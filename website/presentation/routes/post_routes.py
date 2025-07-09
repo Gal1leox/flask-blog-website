@@ -17,6 +17,8 @@ posts_bp = Blueprint(
 post_service = PostService()
 
 
+
+
 @posts_bp.route("/", methods=["GET"])
 @token_required
 def list_posts():
@@ -41,10 +43,20 @@ def add_post():
     if form.validate_on_submit():
         images = [f for f in request.files.getlist("images") if f.filename]
         success, message = post_service.create_post(
-            title=form.title.data,  # Add this line
+            title=form.title.data,
             content=form.content.data,
             images=images,
             author_id=user.id,
+            overall_rating=form.overall_rating.data,
+            story_rating=form.story_rating.data,
+            gameplay_rating=form.gameplay_rating.data,
+            graphics_rating=form.graphics_rating.data,
+            sound_design_rating=form.sound_design_rating.data,
+            replay_value_rating=form.replay_value_rating.data,
+            difficulty_rating=form.difficulty_rating.data,
+            bug_free_rating=form.bug_free_rating.data,
+            pc_requirements_rating=form.pc_requirements_rating.data,
+            game_length_blocks=form.game_length_blocks.data,
         )
         flash(message, "success" if success else "danger")
         return redirect(url_for("public.home"))
@@ -73,7 +85,17 @@ def edit_post(post_id):
             "post": post,
             "post_images": post.images,
             "max_images": PostService.MAX_IMAGES,
-            "title": post.title,  # Add this line
+            "title": post.title,
+            "overall_rating": post.overall_rating,
+            "story_rating": post.story_rating,
+            "gameplay_rating": post.gameplay_rating,
+            "graphics_rating": post.graphics_rating,
+            "sound_design_rating": post.sound_design_rating,
+            "replay_value_rating": post.replay_value_rating,
+            "difficulty_rating": post.difficulty_rating,
+            "bug_free_rating": post.bug_free_rating,
+            "pc_requirements_rating": post.pc_requirements_rating,
+            "game_length_blocks": post.game_length_blocks,
         }
     )
 
@@ -84,11 +106,21 @@ def edit_post(post_id):
         new_images = [f for f in request.files.getlist("images") if f.filename]
         success, message = post_service.edit_post(
             post=post,
-            title=form.title.data,  # Add this line
+            title=form.title.data,
             content=form.content.data,
             delete_ids=delete_ids,
             new_files=new_images,
             author_id=user.id,
+            overall_rating=form.overall_rating.data,
+            story_rating=form.story_rating.data,
+            gameplay_rating=form.gameplay_rating.data,
+            graphics_rating=form.graphics_rating.data,
+            sound_design_rating=form.sound_design_rating.data,
+            replay_value_rating=form.replay_value_rating.data,
+            difficulty_rating=form.difficulty_rating.data,
+            bug_free_rating=form.bug_free_rating.data,
+            pc_requirements_rating=form.pc_requirements_rating.data,
+            game_length_blocks=form.game_length_blocks.data,
         )
         flash(message, "success" if success else "danger")
         if success:
