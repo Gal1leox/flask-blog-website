@@ -227,9 +227,9 @@
       </div>
     </template>
   </div>
-              <h3 class="text-lg font-semibold mb-2 text-white">Review Summary</h3> 
-              <div class="pt-4 text-white mx-auto w-[80%]">
-              <ul class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-300">Review Summary</h3>
+              <div class="pt-4 text-gray-900 dark:text-gray-300 mx-auto w-[80%]">
+                <ul class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                 <li>Overall Rating: {{ "★" * post.overall_rating + "☆" * (5 - post.overall_rating) }}</li>
                 <li>Story: {{ "★" * post.story_rating + "☆" * (5 - post.story_rating) }}</li>
                 <li>Gameplay: {{ "★" * post.gameplay_rating + "☆" * (5 - post.gameplay_rating) }}</li>
@@ -243,7 +243,7 @@
               </ul>
             </div>
   <div class="px-4 pt-3 pb-4">
-<h3 class="text-lg font-semibold mb-2 text-white">Game Summary</h3> 
+<h3 class="text-lg font-semibold mb-2 prose prose-sm text-gray-900 dark:prose-invert dark:text-gray-300">Game Summary</h3> 
     {% set words = post.content.split(' ') %}
     {% if words|length > 100 %}
     {% set excerpt_raw = words[:100] | join(' ') %}
