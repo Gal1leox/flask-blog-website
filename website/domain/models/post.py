@@ -12,40 +12,84 @@ class Post(db.Model):
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
-    )
+        )
         # Add title field
     title: Mapped[str] = mapped_column(
         Text,
         nullable=False,
-    )
+        )
     author_id: Mapped[int] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
-    )
+        )
     content: Mapped[str] = mapped_column(
         Text,
         nullable=False,
+        )
+    overall_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    story_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    gameplay_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    graphics_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    sound_design_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    replay_value_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    difficulty_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    bug_free_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    pc_requirements_rating: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    game_length_blocks: Mapped[int] = mapped_column(
+        Integer, 
+        nullable=False
+        )
+
+    game_name: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
     )
-    overall_rating: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    story_rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    game_developer: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
 
-    gameplay_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    graphics_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    sound_design_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    replay_value_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    difficulty_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    bug_free_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    pc_requirements_rating: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    game_length_blocks: Mapped[int] = mapped_column(Integer, nullable=False)
-
+    category: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -95,6 +139,9 @@ class Post(db.Model):
             f"Post:\n"
             f"ID: {self.id}\n"
             f"Title: {self.title!r}\n"
+            f"Game Name: {self.game_name!r}\n"                # Added
+            f"Game Developer: {self.game_developer!r}\n"      # Added
+            f"Category: {self.category!r}\n" 
             f"Author ID: {self.author_id}\n"
             f"\nOverall Rating: {'★' * self.overall_rating + '☆' * (5 - self.overall_rating)}"
             f"\nStory: {'★' * self.story_rating + '☆' * (5 - self.story_rating)}"

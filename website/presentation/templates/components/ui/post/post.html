@@ -1,4 +1,5 @@
 {# templates/components/ui/post.html #}
+{% include 'pages/shared/seo.html' %}
 
 {% macro render_post(post) %}
 <div class="overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800">
@@ -151,7 +152,7 @@
     x-init="shareLink = window.location.origin + '{{ url_for('posts.view_post', post_id=post.id) }}'"
     class="flex relative justify-between items-center py-2 px-4 border-b border-gray-200 dark:border-gray-700"
   >
-    <div class="flex space-x-4">
+    <div class="flex space-x-4 ">
       <a
         href="{{ url_for('posts.view_post', post_id=post.id) }}"
         class="focus:outline-none"
@@ -183,6 +184,19 @@
                 fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
         </svg>
       </button>
+      <!-- Evenly spaced game info -->
+  <div class="grid grid-cols-3 gap-4 flex-1">
+    <!-- New fields: Game Name, Developer, Category -->
+      <span class="text-sm text-gray-700 dark:text-gray-300 font-semibold text-center truncate">
+      Game: {{ post.game_name }}
+    </span>
+      <span class="text-sm text-gray-700 dark:text-gray-300 text-center truncate">
+      Developer: {{ post.game_developer }}
+    </span>
+      <span class="text-sm text-gray-700 dark:text-gray-300 italic text-center truncate">
+      Category: {{ post.category }}
+    </span>     
+    </div> 
     </div>
 
     {% if current_user.is_authenticated %}
@@ -223,9 +237,22 @@
       <div class="flex fixed inset-x-0 bottom-0 z-50 justify-center items-end pointer-events-none">
         <div class="py-3 px-4 w-full text-sm text-white bg-gray-700 rounded-t-lg shadow-lg pointer-events-auto sm:py-2 dark:bg-gray-700">
           Link copied to clipboard.
+
         </div>
       </div>
+ <div class="grid grid-cols-3 divide-x divide-gray-300 dark:divide-gray-600 w-full max-w-[480px] ml-4">
+        <span class="text-sm text-gray-700 dark:text-gray-300 font-semibold text-center truncate">
+          Game: {{ post.game_name }}
+        </span>
+        <span class="text-sm text-gray-700 dark:text-gray-300 text-center truncate">
+          Developer: {{ post.game_developer }}
+        </span>
+        <span class="text-sm text-gray-700 dark:text-gray-300 italic text-center truncate">
+          Category: {{ post.category }}
+        </span>
+    </div>    
     </template>
+    
   </div>
               <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-300">Review Summary</h3>
               <div class="pt-4 text-gray-900 dark:text-gray-300 mx-auto w-[80%]">

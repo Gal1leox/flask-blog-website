@@ -57,6 +57,9 @@ def add_post():
             bug_free_rating=form.bug_free_rating.data,
             pc_requirements_rating=form.pc_requirements_rating.data,
             game_length_blocks=form.game_length_blocks.data,
+            game_name=form.game_name.data,              # <-- Added
+            game_developer=form.game_developer.data,    # <-- Added
+            category=form.category.data,                #<-- Added
         )
         flash(message, "success" if success else "danger")
         return redirect(url_for("public.home"))
@@ -96,6 +99,9 @@ def edit_post(post_id):
             "bug_free_rating": post.bug_free_rating,
             "pc_requirements_rating": post.pc_requirements_rating,
             "game_length_blocks": post.game_length_blocks,
+            "game_name": post.game_name,
+            "game_developer": post.game_developer,
+            "category": post.category,
         }
     )
 
@@ -121,6 +127,9 @@ def edit_post(post_id):
             bug_free_rating=form.bug_free_rating.data,
             pc_requirements_rating=form.pc_requirements_rating.data,
             game_length_blocks=form.game_length_blocks.data,
+            game_name=form.game_name.data,              # <-- Added
+            game_developer=form.game_developer.data,    # <-- Added
+            category=form.category.data,                #<-- Added
         )
         flash(message, "success" if success else "danger")
         if success:

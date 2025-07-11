@@ -42,6 +42,9 @@ class PostService:
         bug_free_rating: int,
         pc_requirements_rating: int,
         game_length_blocks: int,
+        game_name: str,           # Added
+        game_developer: str,      # Added
+        category: str,            # Added
     ) -> Tuple[bool, str]:
         if not images:
             return False, "At least one image is required."
@@ -60,6 +63,9 @@ class PostService:
             bug_free_rating=bug_free_rating,
             pc_requirements_rating=pc_requirements_rating,
             game_length_blocks=game_length_blocks,
+            game_name=game_name,               # Added
+            game_developer=game_developer,     # Added
+            category=category,                 # Added
         )
 
         for img in images:
@@ -96,6 +102,9 @@ class PostService:
         bug_free_rating: int,
         pc_requirements_rating: int,
         game_length_blocks: int,
+        game_name: str,           # Added
+        game_developer: str,      # Added
+        category: str,            # Added
     ) -> Tuple[bool, str]:
         for img in list(post.images):
             if img.id in delete_ids:
@@ -147,6 +156,16 @@ class PostService:
 
         if game_length_blocks != post.game_length_blocks:    
             post.game_length_blocks = game_length_blocks
+        
+        # Added new fields
+        if game_name != post.game_name:
+            post.game_name = game_name
+
+        if game_developer != post.game_developer:
+            post.game_developer = game_developer
+
+        if category != post.category:
+            post.category = category
 
         for file in new_files:
             response = cloudinary.uploader.upload(

@@ -1,0 +1,72 @@
+{% if post %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Review",
+  "url": "{{ request.url }}",
+  "@id": "{{ request.url }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.url }}"
+  },
+  "name": "{{ post.title | e }}",
+  "datePublished": "{{ post.created_at.strftime('%Y-%m-%d') }}",
+  "reviewBody": "{{ post.content | striptags | truncate(500) | e }}",
+  "reviewRating": {
+    "@type": "Rating",
+    "ratingValue": "{{ post.overall_rating }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.author.username | e if post.author else 'Anonymous' }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "LevelUpReviews"
+  },
+  "itemReviewed": {
+    "@type": "VideoGame",
+    "name": "{{ post.game_name | e }}",
+    "author": {
+      "@type": "Organization",
+      "name": "{{ post.game_developer | e }}"
+    },
+    "genre": "{{ post.category | e }}"
+  },
+  {% if post.aggregate_rating and post.rating_count %}
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ post.aggregate_rating }}",
+    "reviewCount": "{{ post.rating_count }}"
+  },
+  {% endif %}
+  "additionalProperty": [
+    { "@type": "PropertyValue", "name": "Story", "value": "{{ post.story_rating }}" },
+    { "@type": "PropertyValue", "name": "Gameplay", "value": "{{ post.gameplay_rating }}" },
+    { "@type": "PropertyValue", "name": "Graphics", "value": "{{ post.graphics_rating }}" },
+    { "@type": "PropertyValue", "name": "Sound Design", "value": "{{ post.sound_design_rating }}" },
+    { "@type": "PropertyValue", "name": "Replay Value", "value": "{{ post.replay_value_rating }}" },
+    { "@type": "PropertyValue", "name": "Difficulty", "value": "{{ post.difficulty_rating }}" },
+    { "@type": "PropertyValue", "name": "Bug Free?", "value": "{{ post.bug_free_rating }}" },
+    { "@type": "PropertyValue", "name": "PC Requirements", "value": "{{ post.pc_requirements_rating }}" },
+    { "@type": "PropertyValue", "name": "Game Length", "value": "{{ post.game_length_blocks }}" }
+  ]
+}
+</script>
+{% else %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "url": "{{ request.url }}",
+  "name": "LevelUpReviews",
+  "description": "Discover in-depth reviews and strategic insights for multiplayer and all games.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "LevelUpReviews"
+  },
+}
+</script>
+{% endif %}

@@ -90,6 +90,31 @@ class CreatePostForm(BaseForm):
         validators=[DataRequired(), NumberRange(min=1, max=10)],
         render_kw={"class": "rating-input"}
     )
+        # --- Add new fields here ---
+    game_name = StringField(
+        "Game Name",
+        validators=[DataRequired(), Length(1, 150)],
+        render_kw={
+            "placeholder": "Game name",
+            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
+        },
+    )
+    game_developer = StringField(
+        "Game Developer",
+        validators=[DataRequired(), Length(1, 150)],
+        render_kw={
+            "placeholder": "Game developer",
+            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
+        },
+    )
+    category = StringField(
+        "Category",
+        validators=[DataRequired(), Length(1, 100)],
+        render_kw={
+            "placeholder": "Category",
+            "class": "w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600",
+        },
+    )
 
     images = MultiFileField(
         "Upload Images",
