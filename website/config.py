@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 class Config:
     """Base configuration with default settings."""
@@ -11,8 +11,8 @@ class Config:
     DB_NAME = os.getenv("DB_NAME")
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql+psycopg2://{os.getenv('DB_LOGIN')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_SERVER')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME')}"
-)
+        f"@{os.getenv('DB_SERVER')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME')}")
+
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAILJET_API_KEY = os.getenv("MAILJET_API_KEY")

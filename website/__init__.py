@@ -20,7 +20,7 @@ from website.errors import (
     register_error_handlers,
 )
 
-load_dotenv()
+load_dotenv(override=True)
 
 def create_database_if_not_exists():
     # Connect to the default 'postgres' database to check/create the target database
@@ -47,6 +47,7 @@ def create_database_if_not_exists():
         # This assumes the database already exists
 
 def create_app():
+
     create_database_if_not_exists()
     app = Flask(
         __name__,

@@ -112,7 +112,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
       {% endif %}
             <!-- Add title field here -->
 <div class="mb-6">
-  <label for="{{ form.title.id }}" class="text-gray-900 dark:text-gray-30">
+  <label for="{{ form.title.id }}" class="text-gray-900 dark:text-gray-400">
     Title
   </label>
   {{ form.title(class="w-full bg-gray-50 p-2 border rounded text-gray-900 dark:bg-gray-700 dark:border-gray-600", placeholder="Title of your post") }}
@@ -127,10 +127,10 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
 <!-- Add Game Name field -->
 <div class="mb-6">
-  <label for="{{ form.game_name.id }}" class="text-gray-900 dark:text-gray-30">
+  <label for="{{ form.game_name.id }}" class="text-gray-900 dark:text-gray-400">
     Game Name
   </label>
-  {{ form.game_name(class="w-full bg-gray-50 p-2 border rounded text-gray-900 dark:bg-gray-700 dark:border-gray-600", placeholder="Game name") }}
+  {{ form.game_name(class="w-full bg-gray-50 p-2 border rounded text-gray-900 dark:bg-gray-700 dark:border-gray-400", placeholder="Game name") }}
   {% if form.game_name.errors %}
     <div class="mt-1 text-sm text-red-500">
       {% for error in form.game_name.errors %}
@@ -142,7 +142,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
 <!-- Add Game Developer field -->
 <div class="mb-6">
-  <label for="{{ form.game_developer.id }}" class="text-gray-900 dark:text-gray-30">
+  <label for="{{ form.game_developer.id }}" class="text-gray-900 dark:text-gray-400">
     Game Developer
   </label>
   {{ form.game_developer(class="w-full bg-gray-50 p-2 border rounded text-gray-900 dark:bg-gray-700 dark:border-gray-600", placeholder="Game developer") }}
@@ -157,7 +157,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
 <!-- Add Category field -->
 <div class="mb-6">
-  <label for="{{ form.category.id }}" class="text-gray-900 dark:text-gray-30">
+  <label for="{{ form.category.id }}" class="text-gray-900 dark:text-gray-400">
     Category
   </label>
   {{ form.category(class="w-full bg-gray-50 p-2 border rounded text-gray-900 dark:bg-gray-700 dark:border-gray-600", placeholder="Category") }}
@@ -171,12 +171,12 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 </div>
 
 <fieldset class="mb-6">
-  <legend class="font-semibold mb-2 text-gray-900 dark:text-gray-30">Review Metrics</legend>
+  <legend class="font-semibold mb-2 text-gray-900 dark:text-gray-400">Review Metrics</legend>
   <div class="grid grid-cols-2 gap-4">
 
     <!-- Overall Rating -->
     <div x-data="{ rating: {{ form.overall_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Overall Rating</label>
+      <label class="text-gray-900 dark:text-gray-400">Overall Rating</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -187,7 +187,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
        <!-- Story Rating -->
     <div x-data="{ rating: {{ form.story_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Story</label>
+      <label class="text-gray-900 dark:text-gray-400">Story</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -198,7 +198,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Gameplay Rating -->
     <div x-data="{ rating: {{ form.gameplay_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Gameplay</label>
+      <label class="text-gray-900 dark:text-gray-400">Gameplay</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -209,7 +209,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Graphics Rating -->
     <div x-data="{ rating: {{ form.graphics_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Graphics</label>
+      <label class="text-gray-900 dark:text-gray-400">Graphics</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -220,7 +220,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Sound Design -->
     <div x-data="{ rating: {{ form.sound_design_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Sound Design</label>
+      <label class="text-gray-900 dark:text-gray-400">Sound Design</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -231,7 +231,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Replay Value -->
     <div x-data="{ rating: {{ form.replay_value_rating.data or 2 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Replay Value</label>
+      <label class="text-gray-900 dark:text-gray-400">Replay Value</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -242,7 +242,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Difficulty -->
     <div x-data="{ rating: {{ form.difficulty_rating.data or 1 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Difficulty</label>
+      <label class="text-gray-900 dark:text-gray-400">Difficulty</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -253,7 +253,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Bug Free -->
     <div x-data="{ rating: {{ form.bug_free_rating.data or 5 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Bug Free?</label>
+      <label class="text-gray-900 dark:text-gray-400">Bug Free?</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -264,7 +264,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- PC Requirements -->
     <div x-data="{ rating: {{ form.pc_requirements_rating.data or 5 }} }">
-      <label class="text-gray-900 dark:text-gray-30">PC Requirements</label>
+      <label class="text-gray-900 dark:text-gray-400">PC Requirements</label>
       <div class="flex mt-1 space-x-1">
         <template x-for="i in 5">
           <button type="button" @click="rating = i" :class="i <= rating ? 'text-yellow-400' : 'text-gray-500'" class="text-2xl">★</button>
@@ -275,7 +275,7 @@ Level Up Reviews - {{ "Edit Post" if editing else "New Post" }}
 
     <!-- Game Length (blocks) -->
     <div x-data="{ blocks: {{ form.game_length_blocks.data or 2 }} }">
-      <label class="text-gray-900 dark:text-gray-30">Game Length</label>
+      <label class="text-gray-900 dark:text-gray-400">Game Length</label>
       <input type="range" min="1" max="10" x-model="blocks" class="w-full mt-1 accent-green-500">
       <div class="mt-2 text-green-400 text-lg">
         <span x-text="'▰'.repeat(blocks) + '▱'.repeat(10 - blocks)"></span>
